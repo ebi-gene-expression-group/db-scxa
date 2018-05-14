@@ -1,0 +1,24 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - apt-get -qq update
+  - docker run -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
+
+addons:
+  apt:
+    packages:
+    - r-base
+    - postgres
+
+install:
+  - git clone --depth 1 https://github.com/sstephenson/bats.git
+  - pushd bats && sudo ./install.sh /usr/local && popd
+
+env:
+  - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
+
+script:
+  - bash tests/run-tests.sh
