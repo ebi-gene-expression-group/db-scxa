@@ -1,0 +1,8 @@
+/*
+  The copy commands are specific to the psql PostgreSQL CLI
+  Full file path of the CSV files must be specified
+  WARNING: ensure that the CSV files contain ONLY the data that
+           fits the partition, there is no check on values at this
+           stage (a check will be introduced by another script)
+*/
+\copy scxa_analytics_<EXP-ACCESSION> FROM '<PATH-TO-DATA>' WITH (DELIMITER ',');

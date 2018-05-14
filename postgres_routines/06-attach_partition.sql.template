@@ -1,0 +1,4 @@
+/*
+  This script attaches/plugs the partitions to the master table
+*/
+alter table scxa_analytics attach partition scxa_analytics_<EXP-ACCESSION> FOR VALUES IN ('<EXP-ACC-UC>');

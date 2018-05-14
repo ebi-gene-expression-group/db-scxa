@@ -1,0 +1,13 @@
+/*
+  This script performs a group of post-load tasks:
+    - cluster the partition tables on primary key (optional) -> blocking op
+    - collect statistics on the partition tables (mandatory)
+    - re-enable autovacuum (mandatory)
+    - add a check constraint on the partition value (mandatory)
+*/
+SET maintenance_work_mem='1GB';
+CLUSTER scxa_analytics_<EXP-ACCESSION> USING scxa_analytics_<EXP-ACCESSION>_pk;
+ANALYZE scxa_analytics_<EXP-ACCESSION>;
+RESET maintenance_work_mem ;
+alter table scxa_analytics_<EXP-ACCESSION> SET (autovacuum_enabled = true, toast.autovacuum_enabled = true);
+alter table scxa_analytics_<EXP-ACCESSION> add constraint check_e_ebi_9999 check (experiment_accession='<EXP-ACC-UC>');
