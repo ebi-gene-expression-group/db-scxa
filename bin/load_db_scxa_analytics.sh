@@ -13,10 +13,6 @@
 set -e
 
 # TODO this type of function should be loaded from a common set of scripts.
-checkExecutableInPath() {
-  [[ ! $(type -P $1) ]] && echo "$1 binaries not in the path." && exit 1;
-  [[ ! -x `type -P $1` ]] && echo "$1 is not executable." && exit 1;
-}
 
 checkDatabaseConnection() {
   pg_user=`echo $1 | sed s+postgresql://++ | awk -F':' '{ print $1}'`
@@ -50,11 +46,6 @@ genes_path=$ATLAS_SC_EXPERIMENTS/$EXP_ID".expression_tpm.mtx_rows.gz"
 runs_path=$ATLAS_SC_EXPERIMENTS/$EXP_ID".expression_tpm.mtx_cols.gz"
 for f in $matrix_path $genes_path $runs_path; do
   [ ! -e $f ] && echo "$EXP_ID: Matrix file $f missing, exiting." && exit 1
-done
-
-# Check that executables are in path
-for e in pg_isready, sed, psql, matrixMarket2csv.R; do
-  checkExecutableInPath $e
 done
 
 # Check that database connection is valid
