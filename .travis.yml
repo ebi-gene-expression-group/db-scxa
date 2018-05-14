@@ -16,4 +16,4 @@ env:
   - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
 script:
-  - bash tests/run-tests.sh
+  - bash tests/run_tests.sh
