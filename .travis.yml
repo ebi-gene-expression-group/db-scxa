@@ -12,10 +12,6 @@ addons:
     - r-base
     - postgresql-client
 
-install:
-  - git clone --depth 1 https://github.com/sstephenson/bats.git
-  - pushd bats && sudo ./install.sh /usr/local && popd
-
 env:
   - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
