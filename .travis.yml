@@ -16,5 +16,5 @@ env:
   - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
 script:
-  - sleep 30 # lets give time for postgres to start
+  - sleep 15 # lets give time for postgres to start
   - bash tests/run_tests.sh
