@@ -16,7 +16,7 @@ env:
   - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
 script:
-  - sudo sh -c 'echo \'options("repos"="http://cran.rstudio.com")\' >> /etc/R/Rprofile.site'
+  - echo 'options("repos"="http://cran.rstudio.com")' | sudo tee -a /etc/R/Rprofile.site
   - sudo R -e "install.packages('optparse');"
   - sleep 10 # lets give time for postgres to start
   - bash tests/run_tests.sh
