@@ -17,6 +17,6 @@ env:
 
 script:
   - echo 'options("repos"="http://cran.rstudio.com")' >> /etc/R/Rprofile.site
-  - R -e "install.packages('optparse');"
+  - sudo R -e "install.packages('optparse');"
   - sleep 10 # lets give time for postgres to start
   - bash tests/run_tests.sh
