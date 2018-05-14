@@ -4,7 +4,7 @@
   No indices or other constraints can be defined at this level
 */
 
---DROP TABLE IF EXISTS scxa_analytics CASCADE; 
+--DROP TABLE IF EXISTS scxa_analytics CASCADE;
 
 CREATE TABLE IF NOT EXISTS scxa_analytics
 (
@@ -12,6 +12,4 @@ CREATE TABLE IF NOT EXISTS scxa_analytics
   gene_id              VARCHAR(255)     NOT NULL,
   cell_id              VARCHAR(255)     NOT NULL,
   expression_level     DOUBLE PRECISION
-)
-  PARTITION BY LIST (experiment_accession)
-;
+) PARTITION BY LIST (experiment_accession);
