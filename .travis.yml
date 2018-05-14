@@ -4,7 +4,6 @@ services:
   - docker
 
 before_install:
-  - apt-get -qq update
   - docker run -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
 
 addons:
