@@ -3,6 +3,11 @@
     [ "$status" -eq 0 ]
 }
 
+@test "Check that load_db_scxa_analytics.sh is in the path" {
+  run which load_db_scxa_analytics.sh
+  [ "$status" -eq 0 ]
+}
+
 @test "Run loading process" {
   run load_db_scxa_analytics.sh
   [ "$status" -eq 0 ]
