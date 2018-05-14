@@ -52,7 +52,7 @@ done
 checkDatabaseConnection $dbConnection
 
 # Transform experiment accession so that it can be used as a table name.
-lc_exp_acc=`echo $EXP_ID | tr '[:upper:]' '[:lower:]' | sed 's/-/_/g'`
+lc_exp_acc=$(echo $EXP_ID | tr '[:upper:]' '[:lower:]' | sed 's/-/_/g')
 # Delete partition for experiment if already exists
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/01-delete_existing_partition.sql.template | \
 psql $dbConnection
