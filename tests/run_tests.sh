@@ -9,7 +9,7 @@ psql $dbConnection < $testsDir/01-create_parent_table.sql
 create-test-matrix-market-files.R TEST-EXP1
 create-test-matrix-market-files.R TEST-EXP2
 
-export ATLAS_SC_EXPERIMENTS=$PWD
+export EXPERIMENT_MATRICES_PATH=$PWD
 
 
 if [ "$#" -eq 0 ]; then

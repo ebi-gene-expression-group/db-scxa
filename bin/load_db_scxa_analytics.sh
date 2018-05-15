@@ -33,17 +33,17 @@ postgres_scripts_dir=$scriptDir/../postgres_routines
 
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
-ATLAS_SC_EXPERIMENTS=${ATLAS_SC_EXPERIMENTS:-$3}
+EXPERIMENT_MATRICES_PATH=${EXPERIMENT_MATRICES_PATH:-$3}
 
 # Check that necessary environment variables are defined.
 [ -z ${dbConnection+x} ] && echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1
 [ -z ${EXP_ID+x} ] && echo "Env var EXP_ID for the id/accession of the experiment needs to be defined." && exit 1
-[ -z ${ATLAS_SC_EXPERIMENTS+x} ] && echo "Env var ATLAS_SC_EXPERIMENTS for location of SC experiment for web needs to be defined." && exit 1
+[ -z ${EXPERIMENT_MATRICES_PATH+x} ] && echo "Env var EXPERIMENT_MATRICES_PATH for location of SC experiment for web needs to be defined." && exit 1
 
 # Check that files are in place.
-matrix_path=$ATLAS_SC_EXPERIMENTS/$EXP_ID".expression_tpm.mtx.gz"
-genes_path=$ATLAS_SC_EXPERIMENTS/$EXP_ID".expression_tpm.mtx_rows.gz"
-runs_path=$ATLAS_SC_EXPERIMENTS/$EXP_ID".expression_tpm.mtx_cols.gz"
+matrix_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".expression_tpm.mtx.gz"
+genes_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".expression_tpm.mtx_rows.gz"
+runs_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".expression_tpm.mtx_cols.gz"
 for f in $matrix_path $genes_path $runs_path; do
   [ ! -e $f ] && echo "$EXP_ID: Matrix file $f missing, exiting." && exit 1
 done
@@ -61,15 +61,15 @@ sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_partition_t
 psql $dbConnection
 # Create file with data
 matrixMarket2csv.R -m $matrix_path -r $genes_path -c $runs_path \
-                   -s 10000 -o $ATLAS_SC_EXPERIMENTS/expression2load.csv \
+                   -s 10000 -o $EXPERIMENT_MATRICES_PATH/expression2load.csv \
                    -e $EXP_ID
 
 # Load data into partition table
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/03-load_data.sql.template | \
-    sed "s+<PATH-TO-DATA>+$ATLAS_SC_EXPERIMENTS/expression2load.csv+" | \
+    sed "s+<PATH-TO-DATA>+$EXPERIMENT_MATRICES_PATH/expression2load.csv+" | \
     psql $dbConnection
 
-rm $ATLAS_SC_EXPERIMENTS/expression2load.csv
+rm $EXPERIMENT_MATRICES_PATH/expression2load.csv
 
 # Create primary key.
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/04-build_pk.sql.template | \
