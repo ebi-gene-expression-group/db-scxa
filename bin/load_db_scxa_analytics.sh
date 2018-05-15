@@ -69,7 +69,7 @@ sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/03-load_data.sql.temp
     sed "s+<PATH-TO-DATA>+$ATLAS_SC_EXPERIMENTS/expression2load.csv+" | \
     psql $dbConnection
 
-#rm $ATLAS_SC_EXPERIMENTS/expression2load.csv
+rm $ATLAS_SC_EXPERIMENTS/expression2load.csv
 
 # Create primary key.
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/04-build_pk.sql.template | \
