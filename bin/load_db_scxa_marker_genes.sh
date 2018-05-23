@@ -58,7 +58,7 @@ done
 
 # Load data
 echo "Marker genes: Loading data for $EXP_ID..."
-echo "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, p) FROM '"$EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv"' WITH (DELIMITER ',');" | \
+printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, p) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv | \
   psql $dbConnection
 
 rm $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
