@@ -47,7 +47,7 @@ echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | 
 # Create file with data
 # Please note that this relies on:
 # - Column ordering on the marker genes file: clusts padj auroc feat
-# - Table ordering of columns: experiment_accession gene_id k cluster_id p
+# - Table ordering of columns: experiment_accession gene_id k cluster_id marker_probability
 echo "Marker genes: Create data file for $EXP_ID..."
 rm -f $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
 for f in $(ls $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX); do
@@ -58,7 +58,7 @@ done
 
 # Load data
 echo "Marker genes: Loading data for $EXP_ID..."
-printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, p) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv | \
+printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv | \
   psql $dbConnection
 
 rm $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
