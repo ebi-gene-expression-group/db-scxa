@@ -35,6 +35,12 @@ The main executable is `bin/load_db_scxa_marker_genes.sh`, which requires the fo
 - `EXPERIMENT_MGENES_PATH`: path of marker genes files for transforming and loading.
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a postgres 10 server where the expected `scxa_marker_genes` table exists.
 
+Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
+
+```
+load_db_scxa_marker_genes.sh
+```
+
 # How to test it
 
 - Start an empty postgres 10 database through a container or any other mean:
