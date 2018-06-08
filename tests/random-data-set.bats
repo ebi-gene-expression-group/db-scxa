@@ -90,3 +90,13 @@
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
+
+@test "Marker genes: Check that k=12 was not loaded" {
+  # Get third line with count of total entries in the database after our load
+  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes WHERE k = 12" | psql $dbConnection | awk 'NR==3')
+  echo "Count: "$count
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
