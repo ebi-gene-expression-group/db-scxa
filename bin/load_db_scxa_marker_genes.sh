@@ -52,6 +52,14 @@ echo "Marker genes: Create data file for $EXP_ID..."
 rm -f $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
 for f in $(ls $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX); do
   k=$(echo $f | sed s+$EXPERIMENT_MGENES_PATH/$MGENES_PREFIX++ | sed s/$MGENES_SUFFIX// )
+  if [ -e $EXPERIMENT_MGENES_PATH/$EXP_ID.clusters.tsv ]; then
+    # check that k is present in the second column of $EXP_ID.clusters.tsv,
+    # if such a file exists.
+    if ! awk '{ print $2 }' $EXPERIMENT_MGENES_PATH/$EXP_ID.clusters.tsv | tail -n +2 | grep -q ^$k$; then
+      echo "Skipping k=$k as it is not available in $EXP_ID.clusters.tsv file."
+      continue
+    fi
+  fi
   tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
   { print EXP_ID, $4, k_value, $1, $2 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
 done
