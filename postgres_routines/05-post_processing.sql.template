@@ -10,4 +10,4 @@ CLUSTER scxa_analytics_<EXP-ACCESSION> USING scxa_analytics_<EXP-ACCESSION>_pk;
 ANALYZE scxa_analytics_<EXP-ACCESSION>;
 RESET maintenance_work_mem ;
 alter table scxa_analytics_<EXP-ACCESSION> SET (autovacuum_enabled = true, toast.autovacuum_enabled = true);
-alter table scxa_analytics_<EXP-ACCESSION> add constraint check_e_ebi_9999 check (experiment_accession='<EXP-ACC-UC>');
+alter table scxa_analytics_<EXP-ACCESSION> add constraint check_e_ebi_<EXP-ACCESSION> check (experiment_accession='<EXP-ACC-UC>');

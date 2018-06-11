@@ -7,6 +7,7 @@ option_list <- list(
   make_option(c("-m", "--matrix-file"), dest="matrix_path"),
   make_option(c("-r", "--rows-genes-file"), dest="genes_path"),
   make_option(c("-c", "--cols-runs-file"), dest="runs_path"),
+  make_option(c("-e", "--experiment-id"), dest="exp_id"),
   make_option(c("-s", "--genes-step-size"), dest="genes_step", type="integer"),
   make_option(c("-o", "--output"), dest="output_path")
 )
@@ -36,9 +37,9 @@ num_genes<-nrow(genes_i)
 for(g_i in genes_steps) {
   for(r_j in 1:nrow(runs_j)) {
       up_to<-min(g_i+genes_per_it-1,num_genes)
-      write.table(data.frame(exp_acc="exp-acc",gene_id=genes_i$gene[g_i:up_to],
+      write.table(data.frame(exp_acc=opt$exp_id,gene_id=genes_i$gene[g_i:up_to],
                      cell_id=runs_j$run[r_j],expression=tpm_mtrx[g_i:up_to,r_j]),
                 row.names = FALSE, col.names = FALSE, file = opt$output_path, sep = ",",
-                append = TRUE)
+                append = TRUE, quote = FALSE)
   }
 }
