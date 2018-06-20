@@ -17,7 +17,7 @@ env:
   - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
 install:
-  - Rscript -e "install.packages('optparse', 'tidyr');"
+  - Rscript -e "install.packages(c('optparse', 'tidyr'));"
 
 script:
   - sleep 10 # lets give time for postgres to start
