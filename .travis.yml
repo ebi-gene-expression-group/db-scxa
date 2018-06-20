@@ -6,18 +6,14 @@ services:
 
 before_install:
   - docker run -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
-
-addons:
-  apt:
-    packages:
-    - postgresql-client
+  - echo 'options("repos"="http://cran.rstudio.com")' | sudo tee -a /etc/R/Rprofile.site
 
 env:
   - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
+install:
+  - Rscript -e "install.packages('optparse', 'tidyr');"
+
 script:
-  - echo 'options("repos"="http://cran.rstudio.com")' | sudo tee -a /etc/R/Rprofile.site
-  - sudo R -e "install.packages('optparse');"
-  - sudo R -e "install.packages('tidyr');"
   - sleep 10 # lets give time for postgres to start
   - bash tests/run_tests.sh
