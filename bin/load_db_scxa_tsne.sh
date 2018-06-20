@@ -30,7 +30,7 @@ checkDatabaseConnection $dbConnection
 
 # Delete tsne table content for current EXP_ID
 echo "Marker genes: Delete rows for $EXP_ID:"
-echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
+echo "DELETE FROM scxa_tsne WHERE experiment_accession = \'$EXP_ID\'" | \
   psql $dbConnection
 
 # Create file with data

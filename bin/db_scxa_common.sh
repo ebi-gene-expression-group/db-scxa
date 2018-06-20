@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 checkDatabaseConnection() {
   pg_user=$(echo $1 | sed s+postgresql://++ | awk -F':' '{ print $1}')
   pg_host_port=$(echo $1 | awk -F':' '{ print $3}' \
