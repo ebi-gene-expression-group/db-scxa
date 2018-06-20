@@ -41,19 +41,6 @@ Additionally, it is recommended that `bin` directory on the root is prepended to
 load_db_scxa_marker_genes.sh
 ```
 
-# How to test it
-
-- Start an empty postgres 10 database through a container or any other mean:
-
-```
-docker run -e POSTGRES_PASSWORD=lasdjasd -e POSTGRES_USER=user -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
-```
-
-- Build and export the adequate `dbConnection` env variable based on the postgres database generated.
-- Execute `bash tests/run_tests.sh`
-
-Tests are also automatically executed on Travis.
-
 # `scxa_tsne` Table
 
 ## Create schema
@@ -70,7 +57,7 @@ The main executable is `bin/load_db_scxa_tsne.sh`, which requires the following 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
 ```
-load_db_scxa_marker_genes.sh
+load_db_scxa_tsne.sh
 ```
 
 # How to test it
