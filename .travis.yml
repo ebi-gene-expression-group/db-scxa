@@ -11,10 +11,11 @@ addons:
 
 
 before_install:
-  - docker run -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5433:5432 -d postgres:10.3-alpine
+  - sudo /etc/init.d/postgresql stop
+  - docker run -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
 
 env:
-  - dbConnection='postgresql://scxa:postgresPass@localhost:5433/scxa-test'
+  - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
 install:
   - Rscript -e "install.packages(c('optparse', 'tidyr'));"
