@@ -129,3 +129,31 @@
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
+
+@test "Clusters: Check that load_db_scxa_clusters.sh is in the path" {
+  run which load_db_scxa_cell_clusters.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Create table" {
+  run psql $dbConnection < $testsDir/cell_clusters/01-optional-create-table.sql
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Load data" {
+  export EXP_ID=TEST-EXP1
+  run load_db_scxa_cell_clusters.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Check number of loaded rows" {
+  # Get third line with count of total entries in the database after our load
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 4179 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
