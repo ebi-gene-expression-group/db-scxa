@@ -23,6 +23,11 @@ SCRATCH_DIR=${SCRATCH_DIR:-$(cd "$( dirname "${EXPERIMENT_CLUSTERS_FILE}" )" && 
 echo "Clusters: Create data file for $EXP_ID..."
 wideSCCluster2longSCCluster.R -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $SCRATCH_DIR/clustersToLoad.csv
 
+# Delete clusters table content for current EXP_ID
+echo "clusters table: Delete rows for $EXP_ID:"
+echo "DELETE FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | \
+  psql $dbConnection
+
 # Load data
 echo "Clusters: Loading data for $EXP_ID..."
 printf "\copy scxa_cell_clusters (experiment_accession, cell_id, k, cluster_id) FROM '%s' DELIMITER ',' CSV HEADER;" $SCRATCH_DIR/clustersToLoad.csv | \
