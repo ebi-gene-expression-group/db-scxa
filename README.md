@@ -22,6 +22,17 @@ Additionally, it is recommended that `bin` directory on the root is prepended to
 load_db_scxa_analytics.sh
 ```
 
+## Delete data for experiment
+
+Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_analytics.sh`:
+
+```
+export EXP_ID=TEST-EXP1
+export dbConnection=...
+
+delete_db_scxa_analytics.sh
+```
+
 # `scxa_marker_genes` Table
 
 ## Create schema
@@ -39,6 +50,17 @@ Additionally, it is recommended that `bin` directory on the root is prepended to
 
 ```
 load_db_scxa_marker_genes.sh
+```
+
+## Delete data for experiment
+
+Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_marker_genes.sh`:
+
+```
+export EXP_ID=TEST-EXP1
+export dbConnection=...
+
+delete_db_scxa_marker_genes.sh
 ```
 
 # `scxa_tsne` Table
@@ -60,6 +82,17 @@ Additionally, it is recommended that `bin` directory on the root is prepended to
 load_db_scxa_tsne.sh
 ```
 
+## Delete data for experiment
+
+Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_tsne.sh`:
+
+```
+export EXP_ID=TEST-EXP1
+export dbConnection=...
+
+delete_db_scxa_tsne.sh
+```
+
 # `scxa_cell_clusters` Table
 
 ## Create schema
@@ -77,6 +110,17 @@ Additionally, it is recommended that `bin` directory on the root is prepended to
 
 ```
 load_db_scxa_clusters.sh
+```
+
+## Delete data for experiment
+
+Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_cell_clusters.sh`:
+
+```
+export EXP_ID=TEST-EXP1
+export dbConnection=...
+
+delete_db_scxa_cell_clusters.sh
 ```
 
 # How to test it

@@ -64,6 +64,18 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Analytics: Delete experiment" {
+  export EXP_ID=TEST-EXP1
+  run delete_db_scxa_analytics.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Marker genes: Check that load_db_scxa_marker_genes.sh is in the path" {
   run which load_db_scxa_marker_genes.sh
   [ "$status" -eq 0 ]
@@ -101,6 +113,27 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Marker genes: Add second dataset for deletion tests" {
+  cp $testsDir/marker-genes/TEST-EXP1.clusters.tsv $testsDir/marker-genes/TEST-EXP2.clusters.tsv
+  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_9.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_9.tsv
+  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_10.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_10.tsv
+  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_11.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_11.tsv
+  export EXP_ID=TEST-EXP2
+  run load_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Marker genes: Delete rows for experiment" {
+  countBefore=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql $dbConnection | awk 'NR==3')
+  export EXP_ID=TEST-EXP2
+  run delete_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  countAfter=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql $dbConnection | awk 'NR==3')
+  [ $(( countBefore - countAfter )) == 274 ]
+}
+
 
 @test "TSNE: Check that load_db_scxa_tsne.sh is in the path" {
   run which load_db_scxa_tsne.sh
@@ -130,6 +163,18 @@
   [ "$status" -eq 0 ]
 }
 
+@test "TSNE: Delete experiment" {
+  export EXP_ID=TEST-EXP1
+  run delete_db_scxa_tsne.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Clusters: Check that load_db_scxa_clusters.sh is in the path" {
   run which load_db_scxa_cell_clusters.sh
   echo "output = ${output}"
@@ -154,6 +199,18 @@
   count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters" | psql $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 4179 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Delete experiment" {
+  export EXP_ID=TEST-EXP1
+  run delete_db_scxa_cell_clusters.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
