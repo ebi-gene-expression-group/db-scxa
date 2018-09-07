@@ -48,6 +48,19 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Clusters: Check that wideSCCluster2longSCCluster.R is in the path" {
+  run which wideSCCluster2longSCCluster.R
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Check that column names are not mangled by R" {
+  export EXP_ID=TEST-EXP1
+  wideSCCluster2longSCCluster.R -c $EXP_ID.clusters_weird_names.txt -e $EXP_ID -o clustersToLoad.test.$EXP_ID.csv
+  run diff <(tail -n +2 clustersToLoad.test.$EXP_ID.csv | awk -F "\"*,\"*" '{print $2}' | uniq | sort) <(sort $EXP_ID.weird_names.txt) > /dev/null
+  [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Reload dataset 1" {
   export EXP_ID=TEST-EXP1
   run load_db_scxa_analytics.sh
