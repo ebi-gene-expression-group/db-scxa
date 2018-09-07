@@ -11,7 +11,7 @@ option_list <- list(
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
-read.table(opt$clusters_path,header = TRUE) -> clusters_wide
+read.delim(opt$clusters_path, header = TRUE, check.names = FALSE, sep = '\t') -> clusters_wide
 gather(clusters_wide, key = "cell_id", value = "cluster_id", -sel.K, -K) -> clusters_long
 
 clusters_long$experiment_accession <- opt$exp_acc
