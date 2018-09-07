@@ -68,5 +68,17 @@ query_result<-data.frame(experiment_accession=rep(exp_id,300),
 attach(query_result)
 write.table(query_result[order(gene_id, cell_id),], file=paste(exp_id,".query_expected.txt",sep=""), quote = FALSE, row.names = FALSE)
 
+# Create a test cluster matrix with weird column names
+test_clusters <- data.frame(sel.K=c('FALSE', 'FALSE', 'TRUE', 'FALSE', 'FALSE'), K = 2:6)
+weird_names <- c("realy--weird # # name one}", 'i am() probably ==== being a ][ bit silly', '! but we &&&& need to ||| make sure R leaves ~~~ <> variable names £££ alone')
+
+test_clusters[[weird_names[1]]] <- 1:5
+test_clusters[[weird_names[2]]] <- 1:5
+test_clusters[[weird_names[3]]] <- 1:5
+
+write.table(test_clusters, file=paste0(exp_id, ".clusters_weird_names.txt"), sep="\t", quote = FALSE)
+
+# Write the same weird names as dataframe content
+writeLines(weird_names, paste0(exp_id, ".weird_names.txt"))
 
 
