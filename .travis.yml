@@ -1,5 +1,6 @@
 sudo: required
-language: r
+language: python
+python: 3.6
 
 services:
   - docker
@@ -34,7 +35,16 @@ install:
   - |
     if [ "${TEST_FUNCTIONALITY}" ]
     then
-        Rscript -e "install.packages(c('optparse', 'tidyr'));"
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+        bash miniconda.sh -b -p $HOME/miniconda
+        export PATH="$HOME/miniconda/bin:$PATH"
+        hash -r
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
+        conda info -a
+        conda config --add channels conda-forge
+        conda config --add channels bioconda
+        conda install r-base r-tidyr r-optparse
     fi
   - ls
 
@@ -43,6 +53,7 @@ script:
   - |
     if [ "${TEST_FUNCTIONALITY}" ]
     then
+        export PATH="$HOME/miniconda/bin:$PATH"
         sleep 10 # lets give time for postgres to start
         bash tests/run_tests.sh
     fi
