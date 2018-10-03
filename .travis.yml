@@ -4,19 +4,21 @@ language: r
 services:
   - docker
 
-env:
-  matrix:
-    - BUILD_CONTAINER=True
-    - TEST_FUNCTIONALITY=True
-
-matrix:
-  allow_failures:
-
 addons:
   apt:
     packages:
     - postgresql-client
 
+env:
+  matrix:
+    - BUILD_CONTAINER=True
+    - TEST_FUNCTIONALITY=True
+  global:
+    - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
+
+matrix:
+  allow_failures:
+    - env: BUILD_CONTAINER=True
 
 before_install:
   - set -e
@@ -27,9 +29,6 @@ before_install:
         docker run -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
     fi
 
-env:
-  - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
-
 install:
   - set -e
   - |
@@ -37,6 +36,7 @@ install:
     then
         Rscript -e "install.packages(c('optparse', 'tidyr'));"
     fi
+  - ls
 
 script:
   - set -e
@@ -51,3 +51,4 @@ script:
     then
         docker build -t test/db-scxa-module .
     fi
+  - ls
