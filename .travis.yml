@@ -50,7 +50,8 @@ script:
   - |
     if [ "${TEST_FUNCTIONALITY}" ]
     then
-        export PATH="$HOME/miniconda/bin:$PATH"
+        echo "DB connection: $dbConnection"
+        export dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
         sleep 10 # lets give time for postgres to start
         bash tests/run_tests.sh
     fi
