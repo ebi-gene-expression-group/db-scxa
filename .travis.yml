@@ -41,7 +41,7 @@ install:
         conda config --add channels conda-forge
         conda config --add channels bioconda
         conda install -n root _license
-        conda install r-base r-tidyr r-optparse
+        conda install r-base r-tidyr r-optparse r-matrix
     fi
   - ls
 
