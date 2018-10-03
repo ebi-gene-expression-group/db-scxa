@@ -9,6 +9,9 @@ env:
     - BUILD_CONTAINER=True
     - TEST_FUNCTIONALITY=True
 
+matrix:
+  allow_failures:
+
 addons:
   apt:
     packages:
@@ -16,6 +19,7 @@ addons:
 
 
 before_install:
+  - set -e
   - |
     if [ "${TEST_FUNCTIONALITY}" ]
     then
@@ -27,6 +31,7 @@ env:
   - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
 
 install:
+  - set -e
   - |
     if [ "${TEST_FUNCTIONALITY}" ]
     then
@@ -34,6 +39,7 @@ install:
     fi
 
 script:
+  - set -e
   - |
     if [ "${TEST_FUNCTIONALITY}" ]
     then
