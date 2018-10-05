@@ -16,7 +16,4 @@ before_install:
 
 script:
   - docker build -t test/db-scxa-module .
-  - docker run --net mynet -i -v $( pwd )/tests:/usr/local/tests \
-                  -e dbConnection=$dbConnection \
-                  --entrypoint=/usr/local/tests/run_tests_inside_container.sh \
-                  test/db-scxa-module
+  - docker run --net mynet -i -v $( pwd )/tests:/usr/local/tests -e dbConnection=$dbConnection --entrypoint=/usr/local/tests/run_tests_inside_container.sh test/db-scxa-module
