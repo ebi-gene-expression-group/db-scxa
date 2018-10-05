@@ -7,18 +7,8 @@ set -e
 
 # TODO this type of function should be loaded from a common set of scripts.
 
-checkDatabaseConnection() {
-  pg_user=$(echo $1 | sed s+postgresql://++ | awk -F':' '{ print $1}')
-  pg_host_port=$(echo $1 | awk -F':' '{ print $3}' \
-           | awk -F'@' '{ print $2}' | awk -F'/' '{ print $1 }')
-  pg_host=$(echo $pg_host_port  | awk -F':' '{print $1}')
-  pg_port=$(echo $pg_host_port  | awk -F':' '{print $2}')
-  if [ ! -z "$pg_port" ]; then
-    pg_isready -U $pg_user -h $pg_host -p $pg_port || (echo "No db connection." && exit 1)
-  else
-    pg_isready -U $pg_user -h $pg_host || (echo "No db connection" && exit 1)
-  fi
-}
+scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
@@ -32,7 +22,7 @@ MGENES_SUFFIX=${MGENES_SUFFIX:-".tsv"}
 [ ! -z ${EXPERIMENT_MGENES_PATH+x} ] || (echo "Env var EXPERIMENT_MGENES_PATH for location of marker genes files for web needs to be defined." && exit 1)
 
 # Check that files are in place.
-[ $(ls -1q $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX | wc -l) -gt 0 ] \
+[ $(ls -1 $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX | wc -l) -gt 0 ] \
   || (echo "No marker gene files could be found on $EXPERIMENT_MGENES_PATH" && exit 1)
 
 

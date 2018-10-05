@@ -16,6 +16,13 @@ export EXPERIMENT_MATRICES_PATH=$PWD
 psql $dbConnection < $testsDir/marker-genes/01-optional-create-table.sql
 export EXPERIMENT_MGENES_PATH=$testsDir/marker-genes
 
+# For tsne loading testing
+psql $dbConnection < $testsDir/tsne/01-optional-create-table.sql
+export EXPERIMENT_TSNE_PATH=$testsDir/tsne
+
+# For cluster loading testing
+export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
+
 if [ "$#" -eq 0 ]; then
 	bats --tap "$(dirname "${BASH_SOURCE[0]}")"
 else
