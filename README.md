@@ -135,3 +135,19 @@ docker run -e POSTGRES_PASSWORD=lasdjasd -e POSTGRES_USER=user -e POSTGRES_DB=sc
 - Execute `bash tests/run_tests.sh`
 
 Tests are also automatically executed on Travis.
+
+# Container
+
+The container is available for use at quay.io/ebigxa/db-scxa-module at latest or any of the tags after 0.2.0, so it could be used like this for example:
+
+```
+docker run -v /local_data:/data \
+       -e dbConfig=<your-database-connection-string-for-postgres> \
+       -e EXP_ID=<the-accession-of-experiment> \
+       -e EXPERIMENT_CLUSTERS_FILE=<path-inside-container-for-clusters-file> \
+       --entrypoint load_db_scxa_clusters.sh \
+       quay.io/ebigxa/db-scxa-module:latest
+```
+
+Please note that `EXPERIMENT_CLUSTERS_FILE` needs to make sense with how you mount
+data inside the container. You can change entrypoint and env variables given to use the other scripts mentioned above.

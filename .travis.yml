@@ -1,25 +1,20 @@
 sudo: required
-language: r
+language: python
+python: 3.6
 
 services:
   - docker
 
-addons:
-  apt:
-    packages:
-    - postgresql-client
-
+env:
+  - dbConnection='postgresql://scxa:postgresPass@postgres/scxa-test'
 
 before_install:
   - sudo /etc/init.d/postgresql stop
-  - docker run -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
-
-env:
-  - dbConnection='postgresql://scxa:postgresPass@localhost/scxa-test'
+  - docker network create mynet
+  - docker run --name postgres --net mynet -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
 
 install:
-  - Rscript -e "install.packages(c('optparse', 'tidyr'));"
+  - docker build -t test/db-scxa-module .
 
 script:
-  - sleep 10 # lets give time for postgres to start
-  - bash tests/run_tests.sh
+  - docker run --net mynet -i -v $( pwd )/tests:/usr/local/tests -e dbConnection=$dbConnection --entrypoint=/usr/local/tests/run_tests_inside_container.sh test/db-scxa-module

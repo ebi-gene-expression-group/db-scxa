@@ -22,7 +22,7 @@ MGENES_SUFFIX=${MGENES_SUFFIX:-".tsv"}
 [ ! -z ${EXPERIMENT_MGENES_PATH+x} ] || (echo "Env var EXPERIMENT_MGENES_PATH for location of marker genes files for web needs to be defined." && exit 1)
 
 # Check that files are in place.
-[ $(ls -1q $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX | wc -l) -gt 0 ] \
+[ $(ls -1 $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX | wc -l) -gt 0 ] \
   || (echo "No marker gene files could be found on $EXPERIMENT_MGENES_PATH" && exit 1)
 
 
