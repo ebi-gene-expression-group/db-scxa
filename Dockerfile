@@ -7,3 +7,4 @@ RUN apk update && apk add --virtual build-dependencies \
     apk del build-dependencies
 
 ADD bin/* /usr/local/bin/
+ADD postgres_routines /usr/local/postgres_routines

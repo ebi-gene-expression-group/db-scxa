@@ -22,7 +22,7 @@ TSNE_SUFFIX=${TSNE_SUFFIX:-".tsv"}
 [ ! -z ${EXPERIMENT_TSNE_PATH+x} ] || (echo "Env var EXPERIMENT_TSNE_PATH for location of marker genes files for web needs to be defined." && exit 1)
 
 # Check that files are in place.
-[ $(ls -1q $EXPERIMENT_TSNE_PATH/$TSNE_PREFIX*$TSNE_SUFFIX | wc -l) -gt 0 ] \
+[ $(ls -1 $EXPERIMENT_TSNE_PATH/$TSNE_PREFIX*$TSNE_SUFFIX | wc -l) -gt 0 ] \
   || (echo "No tsne tsv files could be found on $EXPERIMENT_TSNE_PATH" && exit 1)
 
 # Check that database connection is valid
