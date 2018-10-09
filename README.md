@@ -1,6 +1,6 @@
-# Module for Single Cell Expression Atlas database loading (v0.2.0)  
+# Module for Single Cell Expression Atlas database loading (v0.2.1)  
 
-An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.0
+An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.1
 was used for the September 2018 Data release of Singe Cell Expression Atlas.
 
 # `scxa_analytics` Table
