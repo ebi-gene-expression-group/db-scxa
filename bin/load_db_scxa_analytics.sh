@@ -3,7 +3,9 @@
 # This script takes the matrix market format files (normally available on
 # staging) for a single cell experiment and does the following steps:
 # - Transforms those files into a long (melted) table of experiment id,
-#   cell/run id, and expression.
+#   cell/run id, and expression. This takes care of avoiding large chunks of 
+#   data being kept in memory for long, at the expense of writing to disk (too)
+#   often.
 # - Creates a partition table on postgres (requires postgres 10) for the
 #   experiment (deleting previous partitions for the experiment.)
 # - Loads transformed data into the partition table.
