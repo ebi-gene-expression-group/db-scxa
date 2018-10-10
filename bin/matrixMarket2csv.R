@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 library(optparse)
 
+
 # This is deprecated in favour of the .js version.
 
 option_list <- list(
@@ -17,15 +18,17 @@ opt <- parse_args(OptionParser(option_list=option_list))
 # following columns: experiment_accession, gene_id, cell_id, expression_level
 
 # Read data of the matrix
-# readMM(gzfile(opt$matrix_path))->tpm_mtrx
+
 gzfile(description = opt$matrix_path, open = 'r') -> matrix_con
 file(description = opt$output_path, open = 'w') -> output_con
 
+
 # Read rows (Genes), skipping index row. Is this safe? Is there always a gene name?
-genes_i<-read.table(file=gzfile(opt$genes_path),
-           header = FALSE,
-           col.names = c("index","gene"),
-           colClasses = c("NULL","character"))
+genes_i <- read.table(file = gzfile(opt$genes_path),
+                      header = FALSE,
+                      col.names = c("index", "gene"),
+                      colClasses = c("NULL", "character"))
+
 # Read columns (Cell-id/run)
 runs_j<-read.table(file=gzfile(opt$runs_path),
            header=FALSE,
@@ -45,3 +48,4 @@ while ( length(line) > 0 ) {
     line<-readLines(matrix_con, n = 1)
 }
 close(output_con)
+

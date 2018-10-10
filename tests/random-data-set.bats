@@ -26,6 +26,14 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Analytics: Expression levels of 0 TPMs (i.e. missing entries in the matrix) are skipped" {
+  export EXP_ID=TEST-EXP1
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE expression_level = 0" | psql $dbConnection | awk 'NR==3')
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Query and compare loaded files" {
   export EXP_ID=TEST-EXP1
   psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
