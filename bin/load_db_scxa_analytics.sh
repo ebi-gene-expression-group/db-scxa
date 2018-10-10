@@ -46,7 +46,7 @@ psql $dbConnection
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_partition_table.sql.template | \
 psql $dbConnection
 # Create file with data
-matrixMarket2csv.js -m $matrix_path \
+matrixMarket2csv.R -m $matrix_path \
                     -r $genes_path \
                     -c $runs_path \
                     -e $EXP_ID \
