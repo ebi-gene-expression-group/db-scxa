@@ -3,6 +3,16 @@
     [ "$status" -eq 0 ]
 }
 
+@test "Check that node is in the path" {
+    run which node
+    [ "$status" -eq 0 ]
+}
+
+@test "Check that Rscript is in the path" {
+    run which Rscript
+    [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Check that load_db_scxa_analytics.sh is in the path" {
   run which load_db_scxa_analytics.sh
   [ "$status" -eq 0 ]
