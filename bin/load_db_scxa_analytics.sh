@@ -3,7 +3,7 @@
 # This script takes the matrix market format files (normally available on
 # staging) for a single cell experiment and does the following steps:
 # - Transforms those files into a long (melted) table of experiment id,
-#   cell/run id, and expression. This takes care of avoiding large chunks of 
+#   cell/run id, and expression. This takes care of avoiding large chunks of
 #   data being kept in memory for long, at the expense of writing to disk (too)
 #   often.
 # - Creates a partition table on postgres (requires postgres 10) for the
@@ -46,9 +46,10 @@ psql $dbConnection
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_partition_table.sql.template | \
 psql $dbConnection
 # Create file with data
-matrixMarket2csv.R -m $matrix_path -r $genes_path -c $runs_path \
-                   -s 100000 -o $EXPERIMENT_MATRICES_PATH/expression2load.csv \
-                   -e $EXP_ID
+matrixMarket2csv.js -m $matrix_path \
+                    -r $genes_path \
+                    -c $runs_path \
+                    -e $EXP_ID > $EXPERIMENT_MATRICES_PATH/expression2load.csv
 
 # Load data into partition table
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/03-load_data.sql.template | \
