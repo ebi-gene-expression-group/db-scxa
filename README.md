@@ -110,7 +110,7 @@ The main executable is `bin/load_db_scxa_clusters.sh`, which requires the follow
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
 ```
-load_db_scxa_clusters.sh
+load_db_scxa_cell_clusters.sh
 ```
 
 ## Delete data for experiment
