@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 library(optparse)
 
+# This is deprecated in favour of the .js version.
+
 option_list <- list(
   make_option(c("-m", "--matrix-file"), dest="matrix_path"),
   make_option(c("-r", "--rows-genes-file"), dest="genes_path"),

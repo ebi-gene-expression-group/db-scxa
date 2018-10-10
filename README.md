@@ -3,6 +3,8 @@
 An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.1
 was used for the September 2018 Data release of Singe Cell Expression Atlas.
 
+For direct usage, this module requires Rscript (with tidyr), psql and node.
+
 # `scxa_analytics` Table
 
 ## Create schema
