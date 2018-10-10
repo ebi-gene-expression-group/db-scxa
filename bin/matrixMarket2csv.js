@@ -40,7 +40,7 @@ const runs = readIndexedLinesToArray(zlib.gunzipSync(fs.readFileSync(mtxColsFile
 
 // Readline ensures that the Matrix Market file will be streamed and consumed one line at a time
 const rl = readline.createInterface({
-  input: fs.createReadStream(mtxFilePath).pipe(zlib.createGunzip());
+  input: fs.createReadStream(mtxFilePath).pipe(zlib.createGunzip())
 })
 
 // If a stepSize was given, all writes will be buffered until uncork or end are called
