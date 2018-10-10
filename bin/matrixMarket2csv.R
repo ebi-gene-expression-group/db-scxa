@@ -42,4 +42,4 @@ while ( length(line) > 0 ) {
       text = paste(opt$exp_id, genes_i$gene[strtoi(indexes[1])], runs_j$run[strtoi(indexes[2])], indexes[3], sep=","))
     line<-readLines(matrix_con, n = 1)
 }
-close(matrix_con)
+close(output_con)
