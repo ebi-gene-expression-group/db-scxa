@@ -49,7 +49,9 @@ psql $dbConnection
 matrixMarket2csv.js -m $matrix_path \
                     -r $genes_path \
                     -c $runs_path \
-                    -e $EXP_ID > $EXPERIMENT_MATRICES_PATH/expression2load.csv
+                    -e $EXP_ID \
+                    -s 50000 \
+                    -o $EXPERIMENT_MATRICES_PATH/expression2load.csv
 
 # Load data into partition table
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/03-load_data.sql.template | \
