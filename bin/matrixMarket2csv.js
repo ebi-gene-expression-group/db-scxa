@@ -6,7 +6,7 @@ const readline = require('readline');
 
 // Helper function that parses CLI options (it doesn’t support flags, only value arguments)
 const optParse = (shortArg, longArg) => {
-  const argIndex = Math.max(process.argv.indexOf('-${shortArg}'), process.argv.indexOf('--${longArg}'));
+  const argIndex = Math.max(process.argv.indexOf('-' + shortArg), process.argv.indexOf('--' + longArg));
   if (argIndex > 0) {
     return process.argv[argIndex + 1];
   }
@@ -20,7 +20,7 @@ const batchSize = optParse('s', 'step-size');
 const outputPath = optParse('o', 'output');
 
 const outputStream = outputPath ?
-  fs.createWriteStream(optParse('o', 'output'), {flags: 'w'}) :
+  fs.createWriteStream(optParse('o', 'output')) :
   process.stdout;
 
 // Reads a file with lines of the form '<index> <some_id>', where <index> is an integer and <some_id> is an arbitrary
@@ -33,7 +33,7 @@ const readIndexedLinesToArray = (fileContents) =>
     .reduce((accumulator, currentValue) => {
       accumulator[currentValue[0]] = currentValue[1];
       return accumulator;
-    }, []);
+    }, [])
 
 const genes = readIndexedLinesToArray(zlib.gunzipSync(fs.readFileSync(mtxRowsFilePath)).toString('utf8'));
 const runs = readIndexedLinesToArray(zlib.gunzipSync(fs.readFileSync(mtxColsFilePath)).toString('utf8'));
@@ -59,7 +59,7 @@ rl.on('line', line => {
   const parsedFields = [Number.parseInt(match[1]), Number.parseInt(match[2]), Number.parseFloat(match[3])];
 
   outputStream.write(
-    '${experimentId},${genes[parsedFields[0]]},${runs[parsedFields[1]]},${parsedFields[2]}\n',
+    [experimentId, genes[parsedFields[0]], runs[parsedFields[1]], parsedFields[2]].join(',') + '\n',
      'utf8');
 
   if (batchSize && readLines % batchSize == 0) {
