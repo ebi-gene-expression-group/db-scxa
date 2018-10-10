@@ -45,12 +45,16 @@ for(g_i in genes_steps) {
                         cell_id = runs_j$run[r_j],
                         expression = tpm_mtrx[g_i:up_to, r_j])
 
-    write.table(subset(chunk, expression > 0),
-                row.names = FALSE,
-                col.names = FALSE,
-                file = opt$output_path,
-                sep = ",",
-                append = TRUE,
-                quote = FALSE)
+    filtered_chunk <- subset(chunk, expression >0)
+
+    if (nrow(filtered_chunk) > 0) {
+      write.table(subset(chunk, expression > 0),
+                  row.names = FALSE,
+                  col.names = FALSE,
+                  file = opt$output_path,
+                  sep = ",",
+                  append = TRUE,
+                  quote = FALSE)
+    }
   }
 }
