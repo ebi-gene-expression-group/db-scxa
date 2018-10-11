@@ -62,7 +62,7 @@ rl.on('line', line => {
     [experimentId, genes[parsedFields[0]], runs[parsedFields[1]], parsedFields[2]].join(',') + '\n',
      'utf8');
 
-  if (batchSize && readLines % batchSize == 0) {
+  if (batchSize && readLines % batchSize === 0) {
     outputStream.uncork();
     outputStream.cork();
   }
