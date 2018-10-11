@@ -10,7 +10,7 @@ const optParse = (shortArg, longArg) => {
   if (argIndex > 0) {
     return process.argv[argIndex + 1];
   }
-}
+};
 
 const mtxFilePath = optParse('m', 'matrix-file');
 const mtxRowsFilePath = optParse('r', 'rows-genes-file');
@@ -33,7 +33,7 @@ const readIndexedLinesToArray = (fileContents) =>
     .reduce((accumulator, currentValue) => {
       accumulator[currentValue[0]] = currentValue[1];
       return accumulator;
-    }, [])
+    }, []);
 
 const genes = readIndexedLinesToArray(zlib.gunzipSync(fs.readFileSync(mtxRowsFilePath)).toString('utf8'));
 const runs = readIndexedLinesToArray(zlib.gunzipSync(fs.readFileSync(mtxColsFilePath)).toString('utf8'));
