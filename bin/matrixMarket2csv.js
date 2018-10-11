@@ -66,8 +66,8 @@ rl.on('line', line => {
     outputStream.uncork();
     outputStream.cork();
   }
-})
+});
 
 rl.on('close', () => {
   outputStream.end();
-})
+});
