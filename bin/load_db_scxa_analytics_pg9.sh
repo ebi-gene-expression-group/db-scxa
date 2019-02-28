@@ -13,8 +13,6 @@ set -e
 scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $scriptDir/db_scxa_common.sh
 
-postgres_scripts_dir=$scriptDir/../postgres_routines
-
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
 EXPERIMENT_MATRICES_PATH=${EXPERIMENT_MATRICES_PATH:-$3}
