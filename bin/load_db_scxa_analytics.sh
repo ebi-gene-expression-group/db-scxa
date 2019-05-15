@@ -20,6 +20,7 @@ postgres_scripts_dir=$scriptDir/../postgres_routines
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
 EXPERIMENT_MATRICES_PATH=${EXPERIMENT_MATRICES_PATH:-$3}
+EXPRESSION_TYPE=${EXPRESSION_TYPE:-"expression_tpm"}
 
 # Check that necessary environment variables are defined.
 [ -z ${dbConnection+x} ] && echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1
@@ -27,9 +28,9 @@ EXPERIMENT_MATRICES_PATH=${EXPERIMENT_MATRICES_PATH:-$3}
 [ -z ${EXPERIMENT_MATRICES_PATH+x} ] && echo "Env var EXPERIMENT_MATRICES_PATH for location of SC experiment for web needs to be defined." && exit 1
 
 # Check that files are in place.
-matrix_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".expression_tpm.mtx.gz"
-genes_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".expression_tpm.mtx_rows.gz"
-runs_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".expression_tpm.mtx_cols.gz"
+matrix_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".$EXPRESSION_TYPE\.mtx.gz"
+genes_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".$EXPRESSION_TYPE\.mtx_rows.gz"
+runs_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".$EXPRESSION_TYPE\.mtx_cols.gz"
 for f in $matrix_path $genes_path $runs_path; do
   [ ! -e $f ] && echo "$EXP_ID: Matrix file $f missing, exiting." && exit 1
 done
