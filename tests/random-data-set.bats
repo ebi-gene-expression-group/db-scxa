@@ -95,7 +95,7 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Analytics: Delete experiment" {
+@test "Analytics: Delete experiment data-set-1" {
   export EXP_ID=TEST-EXP1
   run delete_db_scxa_analytics.sh
   echo "output = ${output}"
@@ -103,6 +103,23 @@
   count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Analytics: Reload data-set 1 with pg9 setup" {
+  # This should be backwards compatible with pg9
+  export EXP_ID=TEST-EXP1
+  run load_db_scxa_analytics_pg9.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Analytics: Query and compare reloaded data-set 1 after pg9 type of loading" {
+  export EXP_ID=TEST-EXP1
+  rm $EXP_ID.query_results.txt
+  psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
+  run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }

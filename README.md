@@ -135,6 +135,10 @@ docker run -e POSTGRES_PASSWORD=lasdjasd -e POSTGRES_USER=user -e POSTGRES_DB=sc
 ```
 
 - Build and export the adequate `dbConnection` env variable based on the postgres database generated.
+
+```
+export dbConnection=postgresql://user:lasdjasd@localhost:5432/scxa-test
+```
 - Execute `bash tests/run_tests.sh`
 
 Tests are also automatically executed on Travis.
