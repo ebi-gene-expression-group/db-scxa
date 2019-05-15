@@ -24,9 +24,9 @@ EXPRESSION_TYPE=${EXPRESSION_TYPE:-"expression_tpm"}
 [ -z ${EXPERIMENT_MATRICES_PATH+x} ] && echo "Env var EXPERIMENT_MATRICES_PATH for location of SC experiment for web needs to be defined." && exit 1
 
 # Check that files are in place.
-matrix_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".$EXPRESSION_TYPE\.mtx.gz"
-genes_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".$EXPRESSION_TYPE\.mtx_rows.gz"
-runs_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID".$EXPRESSION_TYPE\.mtx_cols.gz"
+matrix_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID\.$EXPRESSION_TYPE\.mtx.gz
+genes_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID\.$EXPRESSION_TYPE\.mtx_rows.gz
+runs_path=$EXPERIMENT_MATRICES_PATH/$EXP_ID\.$EXPRESSION_TYPE\.mtx_cols.gz
 for f in $matrix_path $genes_path $runs_path; do
   [ ! -e $f ] && echo "$EXP_ID: Matrix file $f missing, exiting." && exit 1
 done
