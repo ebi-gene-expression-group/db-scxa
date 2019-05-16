@@ -33,7 +33,7 @@ exp_id <- args[1]
 # Creates a random sparse matrix and writes it to matrix market, for testing
 # purposes.
 genes_i <- sort(sample.int(1000,300)); # 300 genes out of 1000 will have some expression
-runs_j <- sort(sample.int(100,300, replace=TRUE)); # Showing up in 300 runs out of 100 
+runs_j <- sort(sample.int(100,300, replace=TRUE)); # Showing up in 300 runs out of 100
 
 exp <- round(sample(100,300, replace = TRUE)/20,digits = 2) # 300 values of expression
 exp_matrix <- sparseMatrix(genes_i, runs_j, x=exp,dims = c(1000,100))
@@ -42,16 +42,16 @@ colnames(exp_matrix) <- paste(rep("SRR",100),1:100,sep="") # 100 runs
 
 writeMM(exp_matrix,file=paste(exp_id,".expression_tpm.mtx",sep=""))
 system(paste0("gzip -f ",paste(exp_id,".expression_tpm.mtx",sep="")))
-write.tsv(data.frame(list(ids=seq(1,nrow(exp_matrix)),lab=rownames(exp_matrix))),
+write.tsv(data.frame(list(ids=rownames(exp_matrix),lab=rownames(exp_matrix))),
           header=FALSE,rownames.label=NULL,fix=FALSE,gzip=TRUE,file=paste(exp_id,".expression_tpm.mtx_rows.gz",sep=""))
 
-write.tsv(data.frame(list(ids=seq(1,ncol(exp_matrix)),lab=colnames(exp_matrix))),
+write.tsv(data.frame(list(lab=colnames(exp_matrix))),
           header=FALSE,rownames.label=NULL,fix=FALSE,gzip=TRUE,file=paste(exp_id,".expression_tpm.mtx_cols.gz",sep=""))
 
 # Write query result file to compare against.
 whereClause<-paste(sprintf("(gene_id = '%s' AND cell_id = '%s' AND experiment_accession = '%s')",
                            rownames(exp_matrix)[genes_i],
-                           colnames(exp_matrix)[runs_j], 
+                           colnames(exp_matrix)[runs_j],
                            rep(exp_id,length(genes_i))),
                    collapse = " OR ")
 query<-paste("SELECT experiment_accession, gene_id, cell_id, expression_level FROM scxa_analytics WHERE ",
@@ -80,5 +80,3 @@ write.table(test_clusters, file=paste0(exp_id, ".clusters_weird_names.txt"), sep
 
 # Write the same weird names as dataframe content
 writeLines(weird_names, paste0(exp_id, ".weird_names.txt"))
-
-
