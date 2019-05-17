@@ -46,12 +46,11 @@ const rl = readline.createInterface({
 // If a stepSize was given, all writes will be buffered until uncork or end are called
 batchSize && outputStream.cork();
 
-const linesToSkip = 3;
 let readLines = 0;
 // We insert the experiment accession and the row/col indexes are replaced by the labels in the rows/cols files
 rl.on('line', line => {
   readLines++;
-  while (readLines <= linesToSkip) {
+  while (line.startswith("%")) {
     return;
   }
 
