@@ -50,7 +50,7 @@ let readLines = 0;
 // We insert the experiment accession and the row/col indexes are replaced by the labels in the rows/cols files
 rl.on('line', line => {
   readLines++;
-  while (line.startswith("%")) {
+  while (line.startsWith("%")) {
     return;
   }
 
