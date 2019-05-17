@@ -23,13 +23,13 @@ const outputStream = outputPath ?
   fs.createWriteStream(optParse('o', 'output')) :
   process.stdout;
 
-// Reads a file with lines of the form '<index> <some_id>', where <index> is an integer and <some_id> is an arbitrary
-// string and returns an array arr such that arr[<index>] == <some_id>
+// Reads a file with lines of the form '<some_id>', and returns an array arr such that arr[<index>] == <some_id>
+// The index is assigned based on the line number (starting at 1) where the ID was found
 const readIndexedLinesToArray = (fileContents) =>
   fileContents.split('\n')
     .filter(line => line.trim() !== '')
-    .map(line => line.trim().match(/(.+)\s+(.+)/))
-    .map(match => [Number.parseInt(match[1]), match[2]])
+    .map(line => line.trim().match(/\s*(\w+)\.*/))
+    .map((match, index) => [index + 1, match[1]])
     .reduce((accumulator, currentValue) => {
       accumulator[currentValue[0]] = currentValue[1];
       return accumulator;
@@ -46,7 +46,7 @@ const rl = readline.createInterface({
 // If a stepSize was given, all writes will be buffered until uncork or end are called
 batchSize && outputStream.cork();
 
-const linesToSkip = 2;
+const linesToSkip = 3;
 let readLines = 0;
 // We insert the experiment accession and the row/col indexes are replaced by the labels in the rows/cols files
 rl.on('line', line => {
