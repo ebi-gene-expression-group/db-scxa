@@ -15,11 +15,18 @@ EXP_ID=${EXP_ID:-$2}
 EXPERIMENT_MGENES_PATH=${EXPERIMENT_MGENES_PATH:-$3}
 MGENES_PREFIX=${MGENES_PREFIX:-"$EXP_ID.marker_genes_"}
 MGENES_SUFFIX=${MGENES_SUFFIX:-".tsv"}
+CLUSTERS_FORMAT=${CLUSTERS_FORMAT:-"ISL"}
 
 # Check that necessary environment variables are defined.
 [ ! -z ${dbConnection+x} ] || (echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1)
 [ ! -z ${EXP_ID+x} ] || (echo "Env var EXP_ID for the id/accession of the experiment needs to be defined." && exit 1)
 [ ! -z ${EXPERIMENT_MGENES_PATH+x} ] || (echo "Env var EXPERIMENT_MGENES_PATH for location of marker genes files for web needs to be defined." && exit 1)
+
+# Check that format of marker genes file is supported
+if [[ ! "$CLUSTERS_FORMAT" =~ ^(ISL|SCANPY)$ ]]; then
+    echo "CLUSTERS_FORMAT $CLUSTERS_FORMAT is not supported."
+    exit 1
+fi
 
 # Check that files are in place.
 [ $(ls -1 $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX | wc -l) -gt 0 ] \
@@ -50,8 +57,21 @@ for f in $(ls $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX); do
       continue
     fi
   fi
-  tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
-  { print EXP_ID, $4, k_value, $1, $2 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
+  if [ "$CLUSTERS_FORMAT" == "ISL" ]; then
+    # ISL produces marker genes with the following fields:
+    # clusts  padj    auroc   feat
+    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
+    { print EXP_ID, $4, k_value, $1, $2 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
+  elif [ "$CLUSTERS_FORMAT" == "SCANPY" ]; then
+    # Scanpy produces marker genes with the following fields:
+    # names   groups  scores  logfc   pvals   pvals_adj
+    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
+    { print EXP_ID, $1, k_value, $2, $6 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
+  else
+    echo "ERROR: unrecognized CLUSTERS_FORMAT '"$CLUSTERS_FORMAT"', aborting load."
+    echo "ERROR: this point should not have been reached..."
+    exit 1
+  fi
 done
 
 # Load data
