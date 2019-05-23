@@ -28,7 +28,7 @@ const outputStream = outputPath ?
 const readIndexedLinesToArray = (fileContents) =>
   fileContents.split('\n')
     .filter(line => line.trim() !== '')
-    .map(line => line.trim().match(/\s*(\w+)\.*/))
+    .map(line => line.trim().match(/\s*(\S+)\.*/))
     .map((match, index) => [index + 1, match[1]])
     .reduce((accumulator, currentValue) => {
       accumulator[currentValue[0]] = currentValue[1];
