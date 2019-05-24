@@ -130,6 +130,17 @@ export dbConnection=...
 delete_db_scxa_cell_clusters.sh
 ```
 
+# Post-loading a batch of experiments
+
+Once a number of experiments have been loaded, tables should be re-indexed and materialised views **NEED** to be refreshed:
+
+```
+# if not set, set the dbConnection
+export dbConnection=...
+reindex_tables.sh
+refresh_materialised_views.sh
+```
+
 # How to test it
 
 - Start an empty postgres 10 database through a container or any other mean:
