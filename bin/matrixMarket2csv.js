@@ -49,10 +49,12 @@ batchSize && outputStream.cork();
 let readLines = 0;
 // We insert the experiment accession and the row/col indexes are replaced by the labels in the rows/cols files
 rl.on('line', line => {
-  readLines++;
   while (line.startsWith("%")) {
     return;
   }
+  readLines++;
+  // The first non-comment line in MatrixMarket contains the matrix dimensions and should be skipped.
+  if (readLines==1) return;
 
   const match = line.trim().match(/(.+)\s+(.+)\s+(.+)/);
   const parsedFields = [Number.parseInt(match[1]), Number.parseInt(match[2]), Number.parseFloat(match[3])];
