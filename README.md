@@ -49,6 +49,10 @@ The main executable is `bin/load_db_scxa_marker_genes.sh`, which requires the fo
 - `EXPERIMENT_MGENES_PATH`: path of marker genes files for transforming and loading.
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a postgres 10 server where the expected `scxa_marker_genes` table exists.
 
+Optionally, you can set the `CLUSTERS_FORMAT` variable to set the format to one of the following:
+- `ISL` (default)
+- `SCANPY`
+
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
 ```
@@ -124,6 +128,17 @@ export EXP_ID=TEST-EXP1
 export dbConnection=...
 
 delete_db_scxa_cell_clusters.sh
+```
+
+# Post-loading a batch of experiments
+
+Once a number of experiments have been loaded, tables should be re-indexed and materialised views **NEED** to be refreshed:
+
+```
+# if not set, set the dbConnection
+export dbConnection=...
+reindex_tables.sh
+refresh_materialised_views.sh
 ```
 
 # How to test it

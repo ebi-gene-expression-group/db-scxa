@@ -18,6 +18,17 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Analytics: Delete experiment data-set-1" {
+  export EXP_ID=TEST-EXP1
+  run delete_db_scxa_analytics.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
 
 @test "Analytics: Run loading process" {
   export EXP_ID=TEST-EXP1
@@ -38,6 +49,18 @@
   export EXP_ID=TEST-EXP1
   psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
   run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Analytics: Delete experiment data-set-2" {
+  export EXP_ID=TEST-EXP2
+  run delete_db_scxa_analytics.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
@@ -76,6 +99,18 @@
   export EXP_ID=TEST-EXP1
   wideSCCluster2longSCCluster.R -c $EXP_ID.clusters_weird_names.txt -e $EXP_ID -o clustersToLoad.test.$EXP_ID.csv
   run diff <(tail -n +2 clustersToLoad.test.$EXP_ID.csv | awk -F "\"*,\"*" '{print $2}' | uniq | sort) <(sort $EXP_ID.weird_names.txt) > /dev/null
+  [ "$status" -eq 0 ]
+}
+
+@test "Analytics: Delete experiment data-set-1" {
+  export EXP_ID=TEST-EXP1
+  run delete_db_scxa_analytics.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
 
@@ -182,6 +217,13 @@
   [ $(( countBefore - countAfter )) == 274 ]
 }
 
+@test "Marker genes: Load Scanpy data" {
+  export EXP_ID=TEST-EXP3
+  export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
 
 @test "TSNE: Check that load_db_scxa_tsne.sh is in the path" {
   run which load_db_scxa_tsne.sh
