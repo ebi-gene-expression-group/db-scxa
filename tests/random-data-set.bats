@@ -225,6 +225,24 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Marker genes: Don't load Scanpy data with hint of number of marker genes files" {
+  export EXP_ID=TEST-EXP3
+  export NUMBER_MGENES_FILES=0
+  export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Marker genes: Load Scanpy data with hint of number of marker genes files" {
+  export EXP_ID=TEST-EXP3
+  export NUMBER_MGENES_FILES=3
+  export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "TSNE: Check that load_db_scxa_tsne.sh is in the path" {
   run which load_db_scxa_tsne.sh
   echo "output = ${output}"
