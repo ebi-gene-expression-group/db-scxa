@@ -49,9 +49,14 @@ The main executable is `bin/load_db_scxa_marker_genes.sh`, which requires the fo
 - `EXPERIMENT_MGENES_PATH`: path of marker genes files for transforming and loading.
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a postgres 10 server where the expected `scxa_marker_genes` table exists.
 
-Optionally, you can set the `CLUSTERS_FORMAT` variable to set the format to one of the following:
+Optionally, you can set `CLUSTERS_FORMAT` and `NUMBER_MGENES_FILES`:
+
+The `CLUSTERS_FORMAT` variable to set the format to one of the following:
 - `ISL` (default)
 - `SCANPY`
+
+The `NUMBER_MGENES_FILES` variable (zero or positive integer) hints whether there are marker genes files to be loaded. If the variable is set to zero by an external process, then the script won't fail if no
+marker genes files are found. Currently the script only considers whether the variable is 0 (no marker genes files) or greater (there are that number of marker gene files). This is mostly to be able to fail if we expected to have marker gene files but for some reasons these were not created due to an unknown issue.
 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
