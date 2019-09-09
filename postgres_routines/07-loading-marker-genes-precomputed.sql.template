@@ -15,7 +15,7 @@ SELECT x.r,
     x.marker_probability
    FROM (
          SELECT
-                    row_number() over (PARTITION BY scxa_marker_genes.k, scxa_marker_genes.cluster_id) as r,
+                    row_number() over (PARTITION BY scxa_marker_genes.k, scxa_marker_genes.cluster_id ORDER BY scxa_marker_genes.marker_probability) as r,
                     scxa_marker_genes.experiment_accession,
                     scxa_marker_genes.gene_id,
                     scxa_marker_genes.k,
