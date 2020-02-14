@@ -1,7 +1,7 @@
-# Module for Single Cell Expression Atlas database loading (v0.2.1)  
+# Module for Single Cell Expression Atlas database loading (v0.2.2)  
 
-An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.1
-was used for the September 2018 Data release of Singe Cell Expression Atlas.
+An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.2
+was used for the Dec 2019 Data release of Singe Cell Expression Atlas.
 
 For direct usage, this module requires Rscript (with optparse and tidyr, in Ubuntu and Debian-based distributions install packages `r-cran-optparse` and `r-cran-tidyr`), psql and node.
 
