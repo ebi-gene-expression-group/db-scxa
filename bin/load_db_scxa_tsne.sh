@@ -42,7 +42,7 @@ rm -f $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
 for f in $(ls $EXPERIMENT_TSNE_PATH/$TSNE_PREFIX*$TSNE_SUFFIX); do
   persp=$(echo $f | sed s+$EXPERIMENT_TSNE_PATH/$TSNE_PREFIX++ | sed s/$TSNE_SUFFIX// )
   tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v persp_value="$persp" 'BEGIN { OFS = ","; }
-  { print EXP_ID, $3, $1, $2, persp_value }' >> $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
+  { print EXP_ID, $1, $2, $3, persp_value }' >> $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
 done
 
 # Load data
