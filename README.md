@@ -1,7 +1,9 @@
-# Module for Single Cell Expression Atlas database loading (v0.2.1)  
+# Module for Single Cell Expression Atlas database loading (v0.2.2)  
 
-An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.1
-was used for the September 2018 Data release of Singe Cell Expression Atlas.
+An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.2
+was used for the Dec 2019 Data release of Singe Cell Expression Atlas.
+
+For direct usage, this module requires Rscript (with optparse and tidyr, in Ubuntu and Debian-based distributions install packages `r-cran-optparse` and `r-cran-tidyr`), psql and node.
 
 # `scxa_analytics` Table
 
@@ -14,7 +16,7 @@ from this or a dedicated repo.
 
 The main executable is script is `bin/load_db_scxa_analytics.sh`, which requires the following environment variables to be set:
 - `EXP_ID`: Atlas Experiment identifier.
-- `ATLAS_SC_EXPERIMENTS`: The path to the directory where the `$EXP_ID/.expression_tpm.mtx[|_cols|_rows].gz` matrix market files reside.
+- `EXPERIMENT_MATRICES_PATH`: The path to the directory where the `$EXP_ID/.expression_tpm.mtx[|_cols|_rows].gz` matrix market files reside.
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a postgres 10 server where the expected `scxa_analytics` table exists.
 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
@@ -46,6 +48,15 @@ The main executable is `bin/load_db_scxa_marker_genes.sh`, which requires the fo
 - `EXP_ID`: Atlas Experiment identifier.
 - `EXPERIMENT_MGENES_PATH`: path of marker genes files for transforming and loading.
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a postgres 10 server where the expected `scxa_marker_genes` table exists.
+
+Optionally, you can set `CLUSTERS_FORMAT` and `NUMBER_MGENES_FILES`:
+
+The `CLUSTERS_FORMAT` variable to set the format to one of the following:
+- `ISL` (default)
+- `SCANPY`
+
+The `NUMBER_MGENES_FILES` variable (zero or positive integer) hints whether there are marker genes files to be loaded. If the variable is set to zero by an external process, then the script won't fail if no
+marker genes files are found. Currently the script only considers whether the variable is 0 (no marker genes files) or greater (there are that number of marker gene files). This is mostly to be able to fail if we expected to have marker gene files but for some reasons these were not created due to an unknown issue.
 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
@@ -102,7 +113,7 @@ Same as in `scxa_analytics` currently.
 
 ## Load data
 
-The main executable is `bin/load_db_scxa_clusters.sh`, which requires the following environment variables to be set:
+The main executable is `bin/load_db_scxa_cell_clusters.sh`, which requires the following environment variables to be set:
 - `EXP_ID`: Atlas Experiment identifier.
 - `EXPERIMENT_CLUSTERS_FILE`: path to the file containing the clusters in wide format (as defined by iRAP SC).
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a postgres 10 server where the expected `scxa_tsne` table exists.
@@ -110,7 +121,7 @@ The main executable is `bin/load_db_scxa_clusters.sh`, which requires the follow
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
 ```
-load_db_scxa_clusters.sh
+load_db_scxa_cell_clusters.sh
 ```
 
 ## Delete data for experiment
@@ -124,6 +135,17 @@ export dbConnection=...
 delete_db_scxa_cell_clusters.sh
 ```
 
+# Post-loading a batch of experiments
+
+Once a number of experiments have been loaded, tables should be re-indexed and materialised views **NEED** to be refreshed:
+
+```
+# if not set, set the dbConnection
+export dbConnection=...
+reindex_tables.sh
+refresh_materialised_views.sh
+```
+
 # How to test it
 
 - Start an empty postgres 10 database through a container or any other mean:
@@ -133,6 +155,10 @@ docker run -e POSTGRES_PASSWORD=lasdjasd -e POSTGRES_USER=user -e POSTGRES_DB=sc
 ```
 
 - Build and export the adequate `dbConnection` env variable based on the postgres database generated.
+
+```
+export dbConnection=postgresql://user:lasdjasd@localhost:5432/scxa-test
+```
 - Execute `bash tests/run_tests.sh`
 
 Tests are also automatically executed on Travis.

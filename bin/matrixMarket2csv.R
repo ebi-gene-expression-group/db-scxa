@@ -1,9 +1,10 @@
 #!/usr/bin/env Rscript
-
-library(Matrix)
 library(optparse)
 
-option_list <- list( 
+
+# This is deprecated in favour of the .js version.
+
+option_list <- list(
   make_option(c("-m", "--matrix-file"), dest="matrix_path"),
   make_option(c("-r", "--rows-genes-file"), dest="genes_path"),
   make_option(c("-c", "--cols-runs-file"), dest="runs_path"),
@@ -17,13 +18,17 @@ opt <- parse_args(OptionParser(option_list=option_list))
 # following columns: experiment_accession, gene_id, cell_id, expression_level
 
 # Read data of the matrix
-readMM(gzfile(opt$matrix_path))->tpm_mtrx
+
+gzfile(description = opt$matrix_path, open = 'r') -> matrix_con
+file(description = opt$output_path, open = 'w') -> output_con
+
 
 # Read rows (Genes), skipping index row. Is this safe? Is there always a gene name?
-genes_i<-read.table(file=gzfile(opt$genes_path),
-           header = FALSE,
-           col.names = c("index","gene"),
-           colClasses = c("NULL","character"))
+genes_i <- read.table(file = gzfile(opt$genes_path),
+                      header = FALSE,
+                      col.names = c("index", "gene"),
+                      colClasses = c("NULL", "character"))
+
 # Read columns (Cell-id/run)
 runs_j<-read.table(file=gzfile(opt$runs_path),
            header=FALSE,
@@ -31,15 +36,16 @@ runs_j<-read.table(file=gzfile(opt$runs_path),
            colClasses = c("NULL","character"))
 # Traverse tpm_mtrx object writing sequentially on an object that we write to disk, appending everynow and then.
 
-genes_per_it<-opt$genes_step
-genes_steps<-seq(1,nrow(genes_i),genes_per_it)
-num_genes<-nrow(genes_i)
-for(g_i in genes_steps) {
-  for(r_j in 1:nrow(runs_j)) {
-      up_to<-min(g_i+genes_per_it-1,num_genes)
-      write.table(data.frame(exp_acc=opt$exp_id,gene_id=genes_i$gene[g_i:up_to],
-                     cell_id=runs_j$run[r_j],expression=tpm_mtrx[g_i:up_to,r_j]),
-                row.names = FALSE, col.names = FALSE, file = opt$output_path, sep = ",",
-                append = TRUE, quote = FALSE)
-  }
+# Skip first two lines (is this always the format?)
+readLines(matrix_con, n = 2)->discard
+
+line<-readLines(matrix_con, n = 1)
+while ( length(line) > 0 ) {
+    # Indexes: [1] Gene id, [2] Run id, [3] Expression value
+    unlist(strsplit(trimws(line), split = " "))->indexes
+    writeLines(con = output_con,
+      text = paste(opt$exp_id, genes_i$gene[strtoi(indexes[1])], runs_j$run[strtoi(indexes[2])], indexes[3], sep=","))
+    line<-readLines(matrix_con, n = 1)
 }
+close(output_con)
+

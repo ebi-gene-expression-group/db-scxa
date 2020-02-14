@@ -3,11 +3,32 @@
     [ "$status" -eq 0 ]
 }
 
+@test "Check that node is in the path" {
+    run which node
+    [ "$status" -eq 0 ]
+}
+
+@test "Check that Rscript is in the path" {
+    run which Rscript
+    [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Check that load_db_scxa_analytics.sh is in the path" {
   run which load_db_scxa_analytics.sh
   [ "$status" -eq 0 ]
 }
 
+@test "Analytics: Delete experiment data-set-1" {
+  export EXP_ID=TEST-EXP1
+  run delete_db_scxa_analytics.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
 
 @test "Analytics: Run loading process" {
   export EXP_ID=TEST-EXP1
@@ -16,10 +37,30 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Analytics: Expression levels of 0 TPMs (i.e. missing entries in the matrix) are skipped" {
+  export EXP_ID=TEST-EXP1
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE expression_level = 0" | psql $dbConnection | awk 'NR==3')
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Query and compare loaded files" {
   export EXP_ID=TEST-EXP1
   psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
   run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Analytics: Delete experiment data-set-2" {
+  export EXP_ID=TEST-EXP2
+  run delete_db_scxa_analytics.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
@@ -61,6 +102,18 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Analytics: Delete experiment data-set-1" {
+  export EXP_ID=TEST-EXP1
+  run delete_db_scxa_analytics.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  # TODO improve, highly dependent on test files we have, but in a hurry for now.
+  run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Reload dataset 1" {
   export EXP_ID=TEST-EXP1
   run load_db_scxa_analytics.sh
@@ -77,7 +130,7 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Analytics: Delete experiment" {
+@test "Analytics: Delete experiment data-set-1" {
   export EXP_ID=TEST-EXP1
   run delete_db_scxa_analytics.sh
   echo "output = ${output}"
@@ -85,6 +138,23 @@
   count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Analytics: Reload data-set 1 with pg9 setup" {
+  # This should be backwards compatible with pg9
+  export EXP_ID=TEST-EXP1
+  run load_db_scxa_analytics_pg9.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Analytics: Query and compare reloaded data-set 1 after pg9 type of loading" {
+  export EXP_ID=TEST-EXP1
+  rm $EXP_ID.query_results.txt
+  psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
+  run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
@@ -147,6 +217,31 @@
   [ $(( countBefore - countAfter )) == 274 ]
 }
 
+@test "Marker genes: Load Scanpy data" {
+  export EXP_ID=TEST-EXP3
+  export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Marker genes: Don't load Scanpy data with hint of number of marker genes files" {
+  export EXP_ID=TEST-EXP3
+  export NUMBER_MGENES_FILES=0
+  export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Marker genes: Load Scanpy data with hint of number of marker genes files" {
+  export EXP_ID=TEST-EXP3
+  export NUMBER_MGENES_FILES=3
+  export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_marker_genes.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
 
 @test "TSNE: Check that load_db_scxa_tsne.sh is in the path" {
   run which load_db_scxa_tsne.sh
