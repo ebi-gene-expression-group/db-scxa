@@ -37,7 +37,7 @@ checkDatabaseConnection $dbConnection
 # Delete analytics table content for current EXP_ID
 echo "analytics table: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Create file with data
 matrixMarket2csv.js -m $matrix_path \
@@ -50,7 +50,7 @@ matrixMarket2csv.js -m $matrix_path \
 # Load data
 echo "Analytics: Loading data for $EXP_ID..."
 printf "\copy scxa_analytics (experiment_accession, gene_id, cell_id, expression_level) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_MATRICES_PATH/expression2load.csv | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
 
 rm $EXPERIMENT_MATRICES_PATH/expression2load.csv
 

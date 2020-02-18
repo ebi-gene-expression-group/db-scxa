@@ -91,7 +91,9 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   rm $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
 
-  if [ $? -ne 0 ]; then
+  # Roll back if write was unsucessful
+  
+  if [ $s -ne 0 ]; then
     echo "Marker table write failed" 1>&2
     echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
       psql -v ON_ERROR_STOP=1 $dbConnection

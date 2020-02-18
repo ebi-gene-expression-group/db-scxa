@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-psql $dbConnection <<EOF
+psql -v ON_ERROR_STOP=1 $dbConnection <<EOF
 REINDEX TABLE scxa_tsne;
 REINDEX TABLE scxa_marker_genes;
 REINDEX TABLE scxa_cell_clusters;
