@@ -2,9 +2,9 @@
  Taken from https://github.com/ebi-gene-expression-group/atlas/blob/master/atlas-misc/scripts/db_updates/single-cell/20170607-create-markergenes-table.sql
 */
 
-DROP TABLE scxa_marker_genes CASCADE;
+DROP TABLE IF EXISTS scxa_marker_genes CASCADE;
 
-CREATE TABLE IF NOT EXISTS scxa_marker_genes
+CREATE TABLE scxa_marker_genes
 (
     experiment_accession VARCHAR(255)     NOT NULL,
     gene_id              VARCHAR(255)     NOT NULL,
