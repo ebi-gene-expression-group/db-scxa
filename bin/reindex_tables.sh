@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -e
 psql -v ON_ERROR_STOP=1 $dbConnection <<EOF
 REINDEX TABLE scxa_tsne;
 REINDEX TABLE scxa_marker_genes;
