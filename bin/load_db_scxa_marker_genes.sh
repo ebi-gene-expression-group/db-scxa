@@ -42,7 +42,7 @@ fi
 # Delete marker gene table content for current EXP_ID
 echo "Marker genes: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
 
 if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Create file with data
@@ -83,7 +83,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Load data
   echo "Marker genes: Loading data for $EXP_ID..."
   printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv | \
-    psql $dbConnection
+    psql -v ON_ERROR_STOP=1 $dbConnection
 
   rm $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
 
