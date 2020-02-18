@@ -1,4 +1,4 @@
-DROP TABLE scxa_cell_clusters;
+DROP TABLE IF EXISTS scxa_cell_clusters;
 
 CREATE TABLE IF NOT EXISTS scxa_cell_clusters
 (
