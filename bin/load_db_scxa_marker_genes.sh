@@ -72,7 +72,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
       # cluster	ref	rank	genes	scores	logfoldchanges	pvals	pvals_adj
       # 0	rest	0	FBgn0003448	20.580915	6.0675416	2.3605626738867564e-47	1.1128872726039114e-43
       tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
-      { print EXP_ID, $4, k_value, $7, $8 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
+      { print EXP_ID, $4, k_value, $1, $8 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
     else
       echo "ERROR: unrecognized CLUSTERS_FORMAT '"$CLUSTERS_FORMAT"', aborting load."
       echo "ERROR: this point should not have been reached..."
