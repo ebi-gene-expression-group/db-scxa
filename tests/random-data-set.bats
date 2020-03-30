@@ -172,6 +172,7 @@
 
 @test "Marker genes: Load data" {
   export EXP_ID=TEST-EXP1
+  export CLUSTERS_FORMAT="ISL"
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
