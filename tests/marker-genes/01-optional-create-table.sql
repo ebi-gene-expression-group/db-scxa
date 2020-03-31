@@ -14,3 +14,29 @@ CREATE TABLE IF NOT EXISTS scxa_marker_genes
     CONSTRAINT scxa_marker_genes_experiment_accession_gene_id_k_pk
     PRIMARY KEY (experiment_accession, gene_id, k)
 );
+
+CREATE TABLE IF NOT EXISTS scxa_top_5_marker_genes_per_cluster
+(
+    r integer not null,
+    experiment_accession varchar(255) not null,
+    gene_id varchar(255) not null,
+    k integer not null,
+    cluster_id integer not null,
+    marker_probability double precision not null,
+    constraint scxa_top_5_marker_genes_per_cluster_experiment_accession_gene_id_k_cluster_id_pk
+      primary key (experiment_accession, gene_id, k, cluster_id)
+);
+
+CREATE TABLE IF NOT EXISTS scxa_marker_gene_stats
+(
+    experiment_accession varchar(255) not null,
+    gene_id varchar(255) not null,
+    k_where_marker integer not null,
+    cluster_id_where_marker integer not null,
+    cluster_id integer not null,
+    marker_p_value double precision not null,
+    mean_expression float,
+    median_expression float,
+    constraint scxa_marker_gene_stats_experiment_accession_k_where_marker
+        primary key (experiment_accession, gene_id, k_where_marker, cluster_id_where_marker, cluster_id)
+);

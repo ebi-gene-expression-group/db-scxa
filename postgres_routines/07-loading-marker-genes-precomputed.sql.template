@@ -1,0 +1,49 @@
+DO $$
+
+DECLARE
+    exp_accession VARCHAR(255) := '<<ACCESSION>>';
+
+BEGIN
+
+DELETE FROM scxa_top_5_marker_genes_per_cluster WHERE experiment_accession = exp_accession;
+INSERT INTO scxa_top_5_marker_genes_per_cluster(r, experiment_accession, gene_id, k, cluster_id, marker_probability)
+SELECT x.r,
+    x.experiment_accession,
+    x.gene_id,
+    x.k,
+    x.cluster_id,
+    x.marker_probability
+   FROM (
+         SELECT
+                    row_number() over (PARTITION BY scxa_marker_genes.k, scxa_marker_genes.cluster_id ORDER BY scxa_marker_genes.marker_probability) as r,
+                    scxa_marker_genes.experiment_accession,
+                    scxa_marker_genes.gene_id,
+                    scxa_marker_genes.k,
+                    scxa_marker_genes.cluster_id,
+                    scxa_marker_genes.marker_probability
+                    FROM scxa_marker_genes
+                    WHERE scxa_marker_genes.experiment_accession = exp_accession
+               ) x
+   WHERE x.r <= 5;
+
+DELETE FROM scxa_marker_gene_stats WHERE experiment_accession = exp_accession;
+INSERT INTO scxa_marker_gene_stats(experiment_accession, gene_id, k_where_marker, cluster_id_where_marker, cluster_id, marker_p_value, mean_expression, median_expression)
+SELECT analytics.experiment_accession,
+       analytics.gene_id,
+       markers.k                  AS k_where_marker,
+       markers.cluster_id         AS cluster_id_where_marker,
+       clusters.cluster_id,
+       markers.marker_probability AS marker_p_value,
+       avg(analytics.expression_level) AS mean_expression,
+       percentile_cont(0.5::double precision) WITHIN GROUP ( ORDER BY analytics.expression_level ) AS median_expression
+FROM scxa_analytics analytics
+         JOIN scxa_top_5_marker_genes_per_cluster markers
+              ON analytics.experiment_accession::text = markers.experiment_accession::text AND
+                 analytics.gene_id::text = markers.gene_id::text AND markers.experiment_accession = exp_accession
+         JOIN scxa_cell_clusters clusters
+              ON analytics.experiment_accession::text = clusters.experiment_accession::text AND
+                 analytics.cell_id::text = clusters.cell_id::text AND clusters.k = markers.k AND clusters.experiment_accession = exp_accession
+WHERE analytics.experiment_accession::text = exp_accession
+GROUP BY analytics.experiment_accession, analytics.gene_id, markers.k, markers.cluster_id, clusters.cluster_id, markers.marker_probability;
+
+END $$;
