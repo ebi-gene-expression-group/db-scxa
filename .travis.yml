@@ -5,16 +5,8 @@ python: 3.6
 services:
   - docker
 
-env:
-  - dbConnection='postgresql://scxa:postgresPass@postgres/scxa-test'
-
 before_install:
   - sudo /etc/init.d/postgresql stop
-  - docker network create mynet
-  - docker run --name postgres --net mynet -e POSTGRES_PASSWORD=postgresPass -e POSTGRES_USER=scxa -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
-
-install:
-  - docker build -t test/db-scxa-module .
 
 script:
-  - docker run --net mynet -i -v $( pwd )/tests:/usr/local/tests -e dbConnection=$dbConnection --entrypoint=/usr/local/tests/run_tests_inside_container.sh test/db-scxa-module
+  - bash run_tests_with_containers.sh
