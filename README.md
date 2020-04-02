@@ -148,6 +148,16 @@ refresh_materialised_views.sh
 
 # How to test it
 
+This is the preferred and most reproducible way of testing using containers. It requires docker to be installed:
+
+```
+bash run_tests_with_containers.sh
+```
+
+First run will be expensive due to build, subsequent runs will use your cache.
+
+# How to test it v2 (only db in container)
+
 - Start an empty postgres 10 database through a container or any other mean:
 
 ```
