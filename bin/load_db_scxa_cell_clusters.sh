@@ -26,13 +26,24 @@ wideSCCluster2longSCCluster.R -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $SCRATC
 # Delete clusters table content for current EXP_ID
 echo "clusters table: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Load data
 echo "Clusters: Loading data for $EXP_ID..."
+set +e
 printf "\copy scxa_cell_clusters (experiment_accession, cell_id, k, cluster_id) FROM '%s' DELIMITER ',' CSV HEADER;" $SCRATCH_DIR/clustersToLoad.csv | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
+s=$?
 
 rm $SCRATCH_DIR/clustersToLoad.csv
+
+# Roll back if write was unsucessful
+
+if [ $s -ne 0 ]; then
+  echo "Clusters write failed" 1>&2
+  echo "DELETE FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
+  exit 1
+fi
 
 echo "Clusters: Loading done for $EXP_ID."
