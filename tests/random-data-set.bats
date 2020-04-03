@@ -164,12 +164,6 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Marker genes: Create table" {
-  run psql -v ON_ERROR_STOP=1 $dbConnection < $testsDir/marker-genes/01-optional-create-table.sql
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
 @test "Marker genes: Load data" {
   export EXP_ID=TEST-EXP1
   run load_db_scxa_marker_genes.sh
@@ -245,12 +239,6 @@
 
 @test "TSNE: Check that load_db_scxa_tsne.sh is in the path" {
   run which load_db_scxa_tsne.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "TSNE: Create table" {
-  run psql -v ON_ERROR_STOP=1 $dbConnection < $testsDir/tsne/01-optional-create-table.sql
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
