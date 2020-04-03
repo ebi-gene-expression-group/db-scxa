@@ -277,12 +277,6 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Clusters: Create table" {
-  run psql -v ON_ERROR_STOP=1 $dbConnection < $testsDir/cell_clusters/01-optional-create-table.sql
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
 @test "Clusters: Load data" {
   export EXP_ID=TEST-EXP1
   run load_db_scxa_cell_clusters.sh
