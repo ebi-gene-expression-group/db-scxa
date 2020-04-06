@@ -304,3 +304,33 @@
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
+
+@test "Collections: Create X" {
+  export COLL_ID=MYCOLLX
+  export COLL_NAME="My collection X"
+  run create_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Add experiments" {
+  count=$(echo "INSERT INTO experiment (accession, type, species, access_key) VALUES ('E-TEST-1', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '5770d1e1-677d-4486-96e3-1e88cea61d26'), ('E-TEST-2', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '6472724a-80f6-43af-b046-4e4acb89908e');" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  status=0
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Put experiments in collection" {
+  export COLL_ID=MYCOLLX
+  export EXP_IDS=E-TEST-1,E-TEST-2
+  run add_exps_to_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Delete X" {
+  export COLL_ID=MYCOLLX
+  run delete_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
