@@ -328,6 +328,15 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Collections: Create Y with icon" {
+  export COLL_ID=MYCOLLY
+  export COLL_NAME="My collection Y"
+  export COLL_ICON_PATH=$testsDir/icon.png
+  run create_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Collections: Delete X" {
   export COLL_ID=MYCOLLX
   run delete_collection.sh

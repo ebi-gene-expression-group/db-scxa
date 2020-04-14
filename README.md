@@ -146,6 +146,15 @@ reindex_tables.sh
 refresh_materialised_views.sh
 ```
 
+# Collections: consuming icons
+
+Icons stored in the collections table can be consumed through the `lo_export` function within a SELECT statement, for instance:
+
+```
+SELECT lo_export(collections.icon, '/tmp/icon.png') FROM collections
+    WHERE coll_id = 'PHANTOM';
+```
+
 # How to test it
 
 This is the preferred and most reproducible way of testing using containers. It requires docker to be installed:
