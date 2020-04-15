@@ -3,6 +3,6 @@
   to be used as partition
   NOTICE: the constraint name is <TABLE>_pk
 */
-SET maintenance_work_mem='1GB';
+SET maintenance_work_mem='2GB';
 alter table scxa_analytics_<EXP-ACCESSION> add constraint scxa_analytics_<EXP-ACCESSION>_pk PRIMARY KEY (gene_id, experiment_accession, cell_id);
 RESET maintenance_work_mem;
