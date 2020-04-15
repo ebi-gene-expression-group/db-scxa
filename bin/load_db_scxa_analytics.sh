@@ -61,7 +61,8 @@ sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_and_load_pa
 rm $EXPERIMENT_MATRICES_PATH/expression2load.csv
 
 # Create primary key.
-sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/04-build_pk.sql.template | \
+echo "Create PK"
+time sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/04-build_pk.sql.template | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Post-process partition table
