@@ -21,7 +21,6 @@ COLL_ICON_PATH=${COLL_ICON_PATH:-$5}
 ICON_IMPORT=""
 ICON_INSERT_FIELD=""
 ICON_INSERT_VALUE=""
-echo $( pwd )
 if [ -f "$COLL_ICON_PATH" ]; then
   # \\ is the separator for multiple commands when passing queries through stdin for psql
   ICON_IMPORT="\lo_import '${COLL_ICON_PATH}' \\\\ "
