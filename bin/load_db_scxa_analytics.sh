@@ -43,9 +43,7 @@ lc_exp_acc=$(echo $EXP_ID | tr '[:upper:]' '[:lower:]' | sed 's/-/_/g')
 # Delete partition for experiment if already exists
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/01-delete_existing_partition.sql.template | \
 psql -v ON_ERROR_STOP=1 $dbConnection
-# Create partition table.
-sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_partition_table.sql.template | \
-psql -v ON_ERROR_STOP=1 $dbConnection
+
 # Create file with data
 matrixMarket2csv.js -m $matrix_path \
                     -r $genes_path \
@@ -54,8 +52,9 @@ matrixMarket2csv.js -m $matrix_path \
                     -s 50000 \
                     -o $EXPERIMENT_MATRICES_PATH/expression2load.csv
 
-# Load data into partition table
-sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/03-load_data.sql.template | \
+
+# Create and load partition table in the same transaction.
+sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_and_load_partition_table.sql.template | \
     sed "s+<PATH-TO-DATA>+$EXPERIMENT_MATRICES_PATH/expression2load.csv+" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
