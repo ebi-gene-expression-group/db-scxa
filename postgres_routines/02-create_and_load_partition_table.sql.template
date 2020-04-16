@@ -1,4 +1,11 @@
 /*
+  This script created a couple of unlogged tables which
+  will be used to load data and eventually plugged into
+  the master table as partitions
+*/
+CREATE TABLE scxa_analytics_<EXP-ACCESSION> (LIKE scxa_analytics) WITH (autovacuum_enabled = false, toast.autovacuum_enabled = false);
+
+/*
   The copy commands are specific to the psql PostgreSQL CLI
   Full file path of the CSV files must be specified
   WARNING: ensure that the CSV files contain ONLY the data that

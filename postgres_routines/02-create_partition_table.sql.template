@@ -1,6 +1,0 @@
-/*
-  This script created a couple of unlogged tables which
-  will be used to load data and eventually plugged into
-  the master table as partitions
-*/
-CREATE UNLOGGED TABLE scxa_analytics_<EXP-ACCESSION> (LIKE scxa_analytics) WITH (autovacuum_enabled = false, toast.autovacuum_enabled = false);
