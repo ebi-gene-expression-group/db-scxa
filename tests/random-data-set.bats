@@ -328,6 +328,14 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Collections: Delete experiments from collection" {
+  export COLL_ID=MYCOLLX
+  export EXP_IDS=E-TEST-1
+  run delete_exp_from_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Collections: Create Y with icon" {
   export COLL_ID=MYCOLLY
   export COLL_NAME="My collection Y"
