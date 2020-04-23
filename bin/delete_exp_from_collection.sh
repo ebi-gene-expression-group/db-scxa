@@ -21,7 +21,7 @@ read -ra EXPS <<< "$EXP_IDS" # str is read into an array as tokens
 set +e
 error=0
 for exp_id in "${EXPS[@]}"; do
-  echo "DELETE FROM experiment2collection WHERE exp_acc='${exp_id}' AND coll_id='${COLL_ID}')" |\
+  echo "DELETE FROM experiment2collection WHERE exp_acc='${exp_id}' AND coll_id='${COLL_ID}'" |\
     psql -v ON_ERROR_STOP=1 $dbConnection
   if [ "$?" -ne 0 ]; then
     echo "Failed to delete $exp_id from collection $COLL_ID"
