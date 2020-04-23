@@ -343,3 +343,12 @@
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
+
+@test "Collections: Modify collection Y" {
+  export COLL_ID=MYCOLLY
+  export COLL_NAME="Better Y name"
+  export COLL_ICON_PATH=$testsDir/icon.png
+  run modify_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
