@@ -52,7 +52,13 @@ fi
 # NEW LAYOUT: define clusterings as cell groups in the DB, naming the cell group like k_$k
 
 echo "Cell groups: Loading for $EXP_ID..."
-set +e
+
+# Also use annotation-based cell groups from the condensed SDRF, to be processed alongside the clusterings
+
+for additionalCellGroupType in 'inferred cell type' 'authors inferred cell type'; do
+    grep -P "\t$additionalCellGroupType\t" $CONDENSED_SDRF_TSV | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $clustersToLoad
+done
+
 tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\"k_"$3"\",\""$4"\""}""' | sort | uniq > $groupsToLoad
 
 echo "DELETE FROM scxa_cell_group WHERE experiment_accession = '"$EXP_ID"'" | \
