@@ -21,6 +21,7 @@ SCRATCH_DIR=${SCRATCH_DIR:-$(cd "$( dirname "${EXPERIMENT_CLUSTERS_FILE}" )" && 
 [ ! -z ${EXPERIMENT_CLUSTERS_FILE+x} ] || (echo "Env var EXPERIMENT_MGENES_PATH for location of marker genes files for web needs to be defined." && exit 1)
 
 clustersToLoad=$SCRATCH_DIR/clustersToLoad.csv
+groupMembershipsToLoad=$SCRATCH_DIR/groupMembershipsToLoad.csv
 groupsToLoad=$SCRATCH_DIR/groupsToLoad.csv
 groupIds=$SCRATCH_DIR/groupIds.csv
 cellGroupMemberships=$SCRATCH_DIR/cellGroupMemberships.csv
@@ -55,11 +56,14 @@ echo "Cell groups: Loading for $EXP_ID..."
 
 # Also use annotation-based cell groups from the condensed SDRF, to be processed alongside the clusterings
 
+# Insert k_ to define k_groupings
+tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\""$2"\",\"k_"$3"\",\""$4"\""}""' > $groupMembershipsToLoad
+
 for additionalCellGroupType in 'inferred cell type' 'authors inferred cell type'; do
-    grep -P "\t$additionalCellGroupType\t" $CONDENSED_SDRF_TSV | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $clustersToLoad
+    grep -P "\t$additionalCellGroupType\t" $CONDENSED_SDRF_TSV | head | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $groupMembershipsToLoad    
 done
 
-tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\"k_"$3"\",\""$4"\""}""' | sort | uniq > $groupsToLoad
+awk -F',' '{print $1","$3","$4}' $groupMembershipsToLoad | sort | uniq > $groupsToLoad
 
 echo "DELETE FROM scxa_cell_group WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
@@ -83,7 +87,7 @@ echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id 
 
 # Get the cell group memberships with a concatenated field to match the db query
 
-tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_k_"$3"_"$4"\",\""$1"\",\""$2"\",\"\""}""' | sort > ${cellGroupMemberships}.tmp
+tail -n +2 $groupMembershipsToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$1"\",\""$2"\",\"\""}""' | sort > ${cellGroupMemberships}.tmp
 
 # Join the cell group IDs to the cell cluster memberships
 join -t , $groupIds ${cellGroupMemberships}.tmp | cut -d',' --complement -f1 > ${cellGroupMemberships}
