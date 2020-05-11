@@ -116,7 +116,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Get marker genes in the format 'expid_variable_value,cell_id,padj, where experiment, variable and value define the cell grouping
   # First for cluster markers (with groups like k_1 etc)
 
-  cat markerGenesToLoad | awk -F',' '{print "\""$1"_k_"$3"_"$4"\",\""$2"\",\""$5"\""}' > $groupMarkerGenesToLoad.tmp
+  cat $markerGenesToLoad | awk -F',' '{print "\""$1"_k_"$3"_"$4"\",\""$2"\",\""$5"\""}' > ${groupMarkerGenesToLoad}.tmp
   
   # Add in the markers from annotation sources
 
@@ -141,6 +141,21 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     exit 1
   fi
 
-  rm $markerGenesToLoad
+  printf "\copy scxa_cell_group_marker_genes (gene_id, cell_group_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerGenesToLoad} | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
+
+  s=$?
+
+  # Roll back if write was unsucessful
+  
+  if [ $s -ne 0 ]; then
+    echo "Group marker table write failed" 1>&2
+    echo "DELETE FROM scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
+      psql -v ON_ERROR_STOP=1 $dbConnection
+    exit 1    
+  fi
+
+  echo "Group marker genes: Loading done for $EXP_ID..."
+  rm -f $markerGenesToLoad $groupIds ${groupMarkerGenesToLoad}
 
 fi
