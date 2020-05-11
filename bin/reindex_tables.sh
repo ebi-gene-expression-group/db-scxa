@@ -7,6 +7,9 @@ REINDEX TABLE scxa_marker_genes;
 REINDEX TABLE scxa_cell_clusters;
 REINDEX TABLE experiment;
 
-CLUSTER;
+CLUSTER scxa_tsne;
+CLUSTER scxa_marker_genes;
+CLUSTER scxa_cell_clusters;
+CLUSTER experiment;
 RESET maintenance_work_mem;
 EOF
