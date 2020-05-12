@@ -31,11 +31,16 @@ fi
 # Check that database connection is valid
 checkDatabaseConnection $dbConnection
 
-markerGenesToLoad=$markerGenesToLoad
-groupIds=$SCRATCH_DIR/groupIds.csv
-inferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/celltype_markers.tsv
+# Input files may expect in the bundles
 authorsInferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/authors_celltype_markers.tsv
+cellgroupMarkerStats=$EXPERIMENT_MGENES_PATH/marker_stats.csv
 
+# Files we'll be using (and cleaning up)
+markerGenesToLoad=$EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
+groupIds=$SCRATCH_DIR/groupIds.csv
+groupMarkerIds=$SCRATCH_DIR/groupMarkerIds.csv
+groupMarkerStatsToLoad=$SCRATCH_DIR/groupMarkerStatsToLoad.csv
+inferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/celltype_markers.tsv
 
 if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Check that files are in place.
@@ -116,12 +121,12 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Get marker genes in the format 'expid_variable_value,cell_id,padj, where experiment, variable and value define the cell grouping
   # First for cluster markers (with groups like k_1 etc)
 
-  cat $markerGenesToLoad | awk -F',' '{print "\""$1"_k_"$3"_"$4"\",\""$2"\",\""$5"\""}' > ${groupMarkerGenesToLoad}.tmp
+  cat $markerGenesToLoad | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$2"\",\""$5"\""}' > ${groupMarkerGenesToLoad}.tmp
   
   # Add in the markers from annotation sources
 
   if [ -e "$inferredCelltypeMarkers" ]; then
-    tail -n +2 $inferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" -'BEGIN { OFS = ","; } { print "\""EXP_ID"_inferred_cell_type_"$1"\"", "\""$4"\"", $8 }' >> ${groupMarkerGenesToLoad}.tmp
+    tail -n +2 $inferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print "\""EXP_ID"_inferred_cell_type_"$1"\"", "\""$4"\"", $8 }' >> ${groupMarkerGenesToLoad}.tmp
   fi
   if [ -e "$authorsInferredCelltypeMarkers" ]; then
     tail -n +2 $authorsInferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print "\""EXP_ID"_inferred_cell_type_"$1"\"", "\""$4"\"", $8 }' >> ${groupMarkerGenesToLoad}.tmp  
@@ -131,7 +136,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   cat ${groupMarkerGenesToLoad} | sort >> ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
   join -t , $groupIds ${groupMarkerGenesToLoad}.tmp.sorted | cut -d',' --complement -f1 > ${groupMarkerGenesToLoad}
 
-  nStartingMarkers=$(wc -l${groupMarkerGenesToLoad}.tmp.sorted | wc -l)
+  nStartingMarkers=$(wc -l ${groupMarkerGenesToLoad}.tmp.sorted | awk '{print $1}')
   nFinalMarkers=$(wc -l ${groupMarkerGenesToLoad} | awk '{print $1}')
 
   # Sanity check that the join worked
@@ -156,6 +161,55 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   fi
 
   echo "Group marker genes: Loading done for $EXP_ID..."
-  rm -f $markerGenesToLoad $groupIds ${groupMarkerGenesToLoad}
+
+  # The marker stats table has two foreign keys- one to the cell group table,
+  # one to the marker genes table. We already downloaded the cell groups, now
+  # we also need the integer primary keys of the markers
+
+  echo "\copy (select concat(gene_id, '_', cell_group_id), id from scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') ORDER BY gene_id, cell_group_id) TO '$groupMarkerIds' CSV HEADER" | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
+
+  # The following nested joins get two group identifiers (one for the cell
+  # group, one for the cell group for which the marker was identified), the
+  # latter of which is then used to find the marker identifier.
+
+  statsWithGroupIds=$(join -t , \
+    $groupIds \
+    <(join -t , \
+      $groupIds \
+      <(tail -n +2 "${cellgroupMarkerStats}" | sed s/\"//g | awk -F',' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -V) | \
+      cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } { print $2,$1,$3,$4,$5,$6,$7,$8 }' | sort -V
+    ) | cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } { print $3"_"$1,$2,$1,$3,$4,$5,$6,$7,$8 }' | sort -V) 
+
+  echo "\"gene_id\",\"cell_group_id\",\"marker_id\",\"mean_expression\",\"median_expression\"" > $groupMarkerStatsToLoad 
+  join -t , $groupMarkerIds <(echo -e "$statsWithGroupIds") | cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } {print $4, $3, $1, $8, $9 }' >> $groupMarkerStatsToLoad
+   
+  nStartingStats=$(wc -l ${cellgroupMarkerStats} | awk '{print $1}')
+  nFinalStats=$(wc -l ${groupMarkerStatsToLoad} | awk '{print $1}')
+
+  # Sanity check that the join worked
+
+  if [ ! "$nStartingStats" -eq "$nFinalStats" ]; then
+    echo "Final list of marker stats values ($nFinalStats) not equal to input number ($nStartingStats) after resolving keys to cell groups table." 1>&2
+    exit 1
+  fi
+
+  # Try the DB load
+
+  printf "\copy scxa_cell_group_marker_gene_stats (gene_id, cell_group_id, marker_id, mean_expression, median_expression) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerStatsToLoad} | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
+
+  s=$?
+
+  # Roll back if write was unsucessful
+  
+  if [ $s -ne 0 ]; then
+    echo "Group marker table write failed" 1>&2
+    echo "DELETE FROM scxa_cell_group_marker_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
+      psql -v ON_ERROR_STOP=1 $dbConnection
+    exit 1    
+  fi
+
+  rm -f $markerGenesToLoad $groupIds ${groupMarkerGenesToLoad} $groupMarkerIds ${groupMarkerStatsToLoad}
 
 fi
