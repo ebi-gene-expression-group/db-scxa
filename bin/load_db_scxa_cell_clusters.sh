@@ -50,14 +50,13 @@ if [ $s -ne 0 ]; then
   exit 1
 fi
 
-# NEW LAYOUT: define clusterings as cell groups in the DB, naming the cell group like k_$k
+# NEW LAYOUT: define clusterings as cell groups in the DB
 
 echo "Cell groups: Loading for $EXP_ID..."
 
 # Also use annotation-based cell groups from the condensed SDRF, to be processed alongside the clusterings
 
-# Insert k_ to define k_groupings
-tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\""$2"\",\"k_"$3"\",\""$4"\""}""' > $groupMembershipsToLoad
+tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\""$2"\",\""$3"\",\""$4"\""}""' > $groupMembershipsToLoad
 
 for additionalCellGroupType in 'inferred cell type' 'authors inferred cell type'; do
     grep -P "\t$additionalCellGroupType\t" $CONDENSED_SDRF_TSV | head | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $groupMembershipsToLoad    
