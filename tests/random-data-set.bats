@@ -360,3 +360,9 @@
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
+
+@test "Post-flight: reindex and cluster" {
+  run reindex_tables.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
