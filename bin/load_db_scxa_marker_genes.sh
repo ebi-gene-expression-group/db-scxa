@@ -33,7 +33,8 @@ checkDatabaseConnection $dbConnection
 
 # Input files may expect in the bundles
 authorsInferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/authors_celltype_markers.tsv
-cellgroupMarkerStats=$EXPERIMENT_MGENES_PATH/marker_stats.csv
+cellgroupMarkerStatsCount=$EXPERIMENT_MGENES_PATH/filtered_normalised_stats.csv.csv
+cellgroupMarkerStatsTPM=$EXPERIMENT_MGENES_PATH/tpm_filtered_stats.csv
 
 # Files we'll be using (and cleaning up)
 markerGenesToLoad=$EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
@@ -169,46 +170,64 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   echo "\copy (select concat(gene_id, '_', cell_group_id), id from scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') ORDER BY gene_id, cell_group_id) TO '$groupMarkerIds' CSV HEADER" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
-  # The following nested joins get two group identifiers (one for the cell
-  # group, one for the cell group for which the marker was identified), the
-  # latter of which is then used to find the marker identifier.
+  for expressionType in counts tpm; do
 
-  statsWithGroupIds=$(join -t , \
-    $groupIds \
-    <(join -t , \
+    if [ "$expressionType" == 'counts' ]; then
+        cellgroupMarkerStats=$cellgroupMarkerStatsCounts
+        typeCode=0
+    elif [ "$expressionType" == 'tpm' ]; then
+        cellgroupMarkerStats=$cellgroupMarkerStatsTPM
+        typeCode=1
+    fi 
+
+    if [ ! -e $cellgroupMarkerStats ]; then
+        echo "$cellgroupMarkerStats not found" 1>&2
+        if [ $expressionType = 'counts' ]; then
+            echo 1
+        fi
+    fi
+
+    # The following nested joins get two group identifiers (one for the cell
+    # group, one for the cell group for which the marker was identified), the
+    # latter of which is then used to find the marker identifier.
+
+    statsWithGroupIds=$(join -t , \
       $groupIds \
-      <(tail -n +2 "${cellgroupMarkerStats}" | sed s/\"//g | awk -F',' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -V) | \
-      cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } { print $2,$1,$3,$4,$5,$6,$7,$8 }' | sort -V
-    ) | cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } { print $3"_"$1,$2,$1,$3,$4,$5,$6,$7,$8 }' | sort -V) 
+      <(join -t , \
+        $groupIds \
+        <(tail -n +2 "${cellgroupMarkerStats}" | sed s/\"//g | awk -F',' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -V) | \
+        cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } { print $2,$1,$3,$4,$5,$6,$7,$8 }' | sort -V
+      ) | cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } { print $3"_"$1,$2,$1,$3,$4,$5,$6,$7,$8 }' | sort -V) 
 
-  echo "\"gene_id\",\"cell_group_id\",\"marker_id\",\"mean_expression\",\"median_expression\"" > $groupMarkerStatsToLoad 
-  join -t , $groupMarkerIds <(echo -e "$statsWithGroupIds") | cut -d',' --complement -f1 | awk -F',' 'BEGIN { OFS = ","; } {print $4, $3, $1, $8, $9 }' >> $groupMarkerStatsToLoad
-   
-  nStartingStats=$(wc -l ${cellgroupMarkerStats} | awk '{print $1}')
-  nFinalStats=$(wc -l ${groupMarkerStatsToLoad} | awk '{print $1}')
+    echo "\"gene_id\",\"cell_group_id\",\"marker_id\",\"expression_type\",\"mean_expression\",\"median_expression\"" > $groupMarkerStatsToLoad 
+    join -t , $groupMarkerIds <(echo -e "$statsWithGroupIds") | cut -d',' --complement -f1 | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $4, $3, $1, TYPE_CODE, $8, $9 }' >> $groupMarkerStatsToLoad
+       
+    nStartingStats=$(wc -l ${cellgroupMarkerStats} | awk '{print $1}')
+    nFinalStats=$(wc -l ${groupMarkerStatsToLoad} | awk '{print $1}')
 
-  # Sanity check that the join worked
+    # Sanity check that the join worked
 
-  if [ ! "$nStartingStats" -eq "$nFinalStats" ]; then
-    echo "Final list of marker stats values ($nFinalStats) not equal to input number ($nStartingStats) after resolving keys to cell groups table." 1>&2
-    exit 1
-  fi
+    if [ ! "$nStartingStats" -eq "$nFinalStats" ]; then
+      echo "Final list of marker stats values ($nFinalStats) not equal to input number ($nStartingStats) after resolving keys to cell groups table." 1>&2
+      exit 1
+    fi
 
-  # Try the DB load
+    # Try the DB load
 
-  printf "\copy scxa_cell_group_marker_gene_stats (gene_id, cell_group_id, marker_id, mean_expression, median_expression) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerStatsToLoad} | \
-    psql -v ON_ERROR_STOP=1 $dbConnection
-
-  s=$?
-
-  # Roll back if write was unsucessful
-  
-  if [ $s -ne 0 ]; then
-    echo "Group marker table write failed" 1>&2
-    echo "DELETE FROM scxa_cell_group_marker_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
+    printf "\copy scxa_cell_group_marker_gene_stats (gene_id, cell_group_id, marker_id, mean_expression, median_expression) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerStatsToLoad} | \
       psql -v ON_ERROR_STOP=1 $dbConnection
-    exit 1    
-  fi
+
+    s=$?
+
+    # Roll back if write was unsucessful
+      
+    if [ $s -ne 0 ]; then
+      echo "Group marker table write failed" 1>&2
+      echo "DELETE FROM scxa_cell_group_marker_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') and expression_type == $typeCode" | \
+        psql -v ON_ERROR_STOP=1 $dbConnection
+      exit 1    
+    fi
+  done
 
   rm -f $markerGenesToLoad $groupIds ${groupMarkerGenesToLoad} $groupMarkerIds ${groupMarkerStatsToLoad}
 
