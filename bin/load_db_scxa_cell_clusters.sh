@@ -31,6 +31,8 @@ wideSCCluster2longSCCluster.R -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $cluste
 
 # Delete clusters table content for current EXP_ID
 echo "clusters table: Delete rows for $EXP_ID:"
+echo "DELETE FROM scxa_cell_group_membership WHERE experiment_accession = '"$EXP_ID"'" | \
+  psql -v ON_ERROR_STOP=1 $dbConnection
 echo "DELETE FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
@@ -58,9 +60,11 @@ echo "Cell groups: Loading for $EXP_ID..."
 
 tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\""$2"\",\""$3"\",\""$4"\""}""' > $groupMembershipsToLoad
 
-for additionalCellGroupType in 'inferred cell type' 'authors inferred cell type'; do
-    grep -P "\t$additionalCellGroupType\t" $CONDENSED_SDRF_TSV | head | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $groupMembershipsToLoad    
-done
+if [ -n "$CONDENSED_SDRF_TSV" ]; then
+  for additionalCellGroupType in 'inferred cell type' 'authors inferred cell type'; do
+    grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $groupMembershipsToLoad    
+ done
+fi
 
 awk -F',' '{print $1","$3","$4}' $groupMembershipsToLoad | sort | uniq > $groupsToLoad
 
@@ -81,21 +85,21 @@ fi
 
 # Get the group keys back from the auto-increment
 
-echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' CSV HEADER" | \
+echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' CSV FORCE QUOTE concat" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Get the cell group memberships with a concatenated field to match the db query
 
-tail -n +2 $groupMembershipsToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$1"\",\""$2"\",\"\""}""' | sort > ${cellGroupMemberships}.tmp
+cat $groupMembershipsToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$1"\",\""$2"\""}' | sort > ${cellGroupMemberships}.tmp
 
 # Join the cell group IDs to the cell cluster memberships
-join -t , $groupIds ${cellGroupMemberships}.tmp | cut -d',' --complement -f1 > ${cellGroupMemberships}
+join -t , $groupIds ${cellGroupMemberships}.tmp | awk -F',' 'BEGIN { OFS = ","; } {print $2,$3,$4}' > ${cellGroupMemberships}
 
-nStartingClusterMemberships=$(tail -n +2 clustersToLoad | wc -l)
+nStartingClusterMemberships=$(wc -l $groupMembershipsToLoad | awk '{print $1}')
 nFinalClusterMemberships=$(wc -l ${cellGroupMemberships} | awk '{print $1}')
 
 if [ ! "$nStartingClusterMemberships" -eq "$nFinalClusterMemberships" ]; then
-    echo "Final list of cluster memberships ($nFinalClusterMemberships) not equal to input number (nStartingClusterMemberships) after resolving keys to cell groups table." 1>&2
+    echo "Final list of cluster memberships from ${cellGroupMemberships} ($nFinalClusterMemberships) not equal to input number from $clustersToLoad ($nStartingClusterMemberships) after resolving keys to cell groups table." 1>&2
     exit 1
 fi
 
@@ -116,6 +120,6 @@ fi
 
 # Clean up
 
-rm -f $clustersToLoad $groupsToLoad $groupIds ${cellGroupMemberships}.tmp ${cellGroupMemberships}
+rm -f $clustersToLoad $groupsToLoad $groupIds ${cellGroupMemberships}.tmp ${cellGroupMemberships} $groupMembershipsToLoad
 
 echo "Clusters: Loading done for $EXP_ID."
