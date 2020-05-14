@@ -159,6 +159,19 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Clusters: Check that load_db_scxa_clusters.sh is in the path" {
+  run which load_db_scxa_cell_clusters.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Load data" {
+  export EXP_ID=TEST-EXP1
+  run load_db_scxa_cell_clusters.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Marker genes: Check that load_db_scxa_marker_genes.sh is in the path" {
   run which load_db_scxa_marker_genes.sh
   [ "$status" -eq 0 ]
@@ -196,6 +209,7 @@
   cp $testsDir/marker-genes/TEST-EXP1.marker_genes_10.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_10.tsv
   cp $testsDir/marker-genes/TEST-EXP1.marker_genes_11.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_11.tsv
   export EXP_ID=TEST-EXP2
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -214,6 +228,7 @@
 @test "Marker genes: Load Scanpy data" {
   export EXP_ID=TEST-EXP3
   export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -223,6 +238,7 @@
   export EXP_ID=TEST-EXP3
   export NUMBER_MGENES_FILES=0
   export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -232,6 +248,7 @@
   export EXP_ID=TEST-EXP3
   export NUMBER_MGENES_FILES=3
   export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -267,19 +284,6 @@
   count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "Clusters: Check that load_db_scxa_clusters.sh is in the path" {
-  run which load_db_scxa_cell_clusters.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "Clusters: Load data" {
-  export EXP_ID=TEST-EXP1
-  run load_db_scxa_cell_clusters.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
