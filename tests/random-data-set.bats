@@ -167,6 +167,7 @@
 
 @test "Clusters: Load data" {
   export EXP_ID=TEST-EXP1
+  export CONDENSED_SDRF_TSV=$testsDir/marker-genes/TEST-EXP1.condensed-sdrf.tsv
   run load_db_scxa_cell_clusters.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -186,7 +187,7 @@
 
 @test "Marker genes: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes where experiment_accession='TEST-EXP1'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 274 ]
   echo "output = ${output}"
@@ -292,8 +293,8 @@
   # Get third line with count of total entries in the database after our load
   count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 4179 ]
-  echo "output = ${output}"
+  run [ $count -eq 12537 ]
+  echo "output = ${output} count = $count"
   [ "$status" -eq 0 ]
 }
 

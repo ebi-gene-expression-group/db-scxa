@@ -24,7 +24,6 @@ export EXPERIMENT_TSNE_PATH=$testsDir/tsne
 
 # For cluster loading testing
 export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
-export CONDENSED_SDRF_TSV=$testsDir/marker-genes/TEST-EXP1.condensed-sdrf.tsv
 
 if [ "$#" -eq 0 ]; then
 	bats --tap "$(dirname "${BASH_SOURCE[0]}")"
