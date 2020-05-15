@@ -14,6 +14,7 @@ dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
 EXPERIMENT_CLUSTERS_FILE=${EXPERIMENT_CLUSTERS_FILE:-$3}
 SCRATCH_DIR=${SCRATCH_DIR:-$(cd "$( dirname "${EXPERIMENT_CLUSTERS_FILE}" )" && pwd )}
+CELL_GROUP_TYPES=${CELL_GROUP_TYPES:-"inferred cell type,authors inferred cell type"}
 
 # Check that necessary environment variables are defined.
 [ ! -z ${dbConnection+x} ] || (echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1)
@@ -61,7 +62,8 @@ echo "Cell groups: Loading for $EXP_ID..."
 tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\""$2"\",\""$3"\",\""$4"\""}""' > $groupMembershipsToLoad
 
 if [ -n "$CONDENSED_SDRF_TSV" ]; then
-  for additionalCellGroupType in 'inferred cell type' 'authors inferred cell type'; do
+  IFS=, additionalCellGroupTypes=($(echo "$CELL_GROUP_TYPES"))
+  for additionalCellGroupType in "${additionalCellGroupTypes[@]}"; do
     grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $groupMembershipsToLoad    
  done
 fi
