@@ -68,9 +68,19 @@ if [ -n "$CONDENSED_SDRF_TSV" ]; then
  done
 fi
 
+# Cell groups correspond of:
+# 1. An experiment identifier
+# 2. the cell grouping variable (e.g. a k-clustering or a variable from the
+#    cell annoation)
+# 3. The value that variable takes for a given cell group (e.g. cell type A,
+#    cluster 2)
+#
+# We get the unique cell groups by just stripping out the atual cell ID from
+# the row and uniqueifying
+
 awk -F',' '{print $1","$3","$4}' $groupMembershipsToLoad | sort -t, -k 1,1 | uniq > $groupsToLoad
 
-# Delete existing content- including via FKs
+# Delete existing content- including via FKs (though this should really cascade now)
 echo "Deleting existing grouping data..."
 echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
@@ -97,7 +107,10 @@ fi
 echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' CSV FORCE QUOTE concat" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
-# Get the cell group memberships with a concatenated field to match the db query
+# Get the cell group memberships with a concatenated field to match the db
+# query. We're converting the delimited 'experiment_variable_value' to the
+# integer auto-increment ID from the cell groups table. The group membership is
+# just the experiment ID, the cell ID, and the integer cell group ID
 
 cat $groupMembershipsToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$1"\",\""$2"\""}' |  sort -t, -k 1,1 > ${cellGroupMemberships}.tmp
 
