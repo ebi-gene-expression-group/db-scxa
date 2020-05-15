@@ -32,10 +32,10 @@ fi
 checkDatabaseConnection $dbConnection
 
 # Input files may expect in the bundles
-authorsInferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/authors_celltype_markers.tsv
-inferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/celltype_markers.tsv
-cellgroupMarkerStatsCount=$EXPERIMENT_MGENES_PATH/filtered_normalised_stats.csv
-cellgroupMarkerStatsTPM=$EXPERIMENT_MGENES_PATH/tpm_filtered_stats.csv
+authorsInferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.authors_celltype_markers.tsv
+inferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.celltype_markers.tsv
+cellgroupMarkerStatsCount=$EXPERIMENT_MGENES_PATH/${EXP_ID}.filtered_normalised_stats.csv
+cellgroupMarkerStatsTPM=$EXPERIMENT_MGENES_PATH/${EXP_ID}.tpm_filtered_stats.csv
 
 # Files we'll be using (and cleaning up)
 markerGenesToLoad=$EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
