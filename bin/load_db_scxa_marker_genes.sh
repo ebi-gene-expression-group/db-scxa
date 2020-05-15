@@ -148,6 +148,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   # Sort and join with the groups file to add the auto-incremented key from the groups table
   cat ${groupMarkerGenesToLoad}.tmp |  sort -t, -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
+
   join -t , $groupIds ${groupMarkerGenesToLoad}.tmp.sorted | awk -F',' 'BEGIN { OFS = ","; } {print $3,$2,$4}' > ${groupMarkerGenesToLoad}
 
   nStartingMarkers=$(wc -l ${groupMarkerGenesToLoad}.tmp.sorted | awk '{print $1}')
@@ -225,7 +226,6 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
       ) | awk -F',' 'BEGIN { OFS = ","; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1 > $groupMarkerStatsWithIDs 
 
 
-    echo "Joining $groupMarkerIds and $groupMarkerStatsWithIDs"
     join -t , $groupMarkerIds $groupMarkerStatsWithIDs | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $4, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
        
     nStartingStats=$(tail -n +2 $cellgroupMarkerStats | wc -l)
