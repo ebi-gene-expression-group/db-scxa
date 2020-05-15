@@ -66,7 +66,7 @@ if [ -n "$CONDENSED_SDRF_TSV" ]; then
  done
 fi
 
-awk -F',' '{print $1","$3","$4}' $groupMembershipsToLoad | sort | uniq > $groupsToLoad
+awk -F',' '{print $1","$3","$4}' $groupMembershipsToLoad | sort -t, -k 1,1 | uniq > $groupsToLoad
 
 # Delete existing content- including via FKs
 
@@ -96,7 +96,7 @@ echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id 
 
 # Get the cell group memberships with a concatenated field to match the db query
 
-cat $groupMembershipsToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$1"\",\""$2"\""}' | sort > ${cellGroupMemberships}.tmp
+cat $groupMembershipsToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$1"\",\""$2"\""}' |  sort -t, -k 1,1 > ${cellGroupMemberships}.tmp
 
 # Join the cell group IDs to the cell cluster memberships
 join -t , $groupIds ${cellGroupMemberships}.tmp | awk -F',' 'BEGIN { OFS = ","; } {print $2,$3,$4}' > ${cellGroupMemberships}
