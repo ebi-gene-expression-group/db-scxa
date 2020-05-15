@@ -213,14 +213,19 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     # group, one for the cell group for which the marker was identified), the
     # latter of which is then used to find the marker identifier.
 
+    echo $groupIds
+    echo $cellgroupMarkerStats
+
     join -t , \
       $groupIds \
       <(join -t , \
         $groupIds \
-        <(tail -n +2 "${cellgroupMarkerStats}" | sed s/\"//g | awk -F',' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -V) | \
+        <(tail -n +2 "${cellgroupMarkerStats}" | sed s/\"//g | awk -F',' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -t, -k 1,1) | \
         awk -F',' 'BEGIN { OFS = ","; } { print $3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1
       ) | awk -F',' 'BEGIN { OFS = ","; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1 > $groupMarkerStatsWithIDs 
 
+
+    echo "Joining $groupMarkerIds and $groupMarkerStatsWithIDs"
     join -t , $groupMarkerIds $groupMarkerStatsWithIDs | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $4, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
        
     nStartingStats=$(tail -n +2 $cellgroupMarkerStats | wc -l)
