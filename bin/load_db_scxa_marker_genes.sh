@@ -42,7 +42,7 @@ fi
 # Delete marker gene table content for current EXP_ID
 echo "Marker genes: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
 
 if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Create file with data
@@ -67,10 +67,12 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
       tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
       { print EXP_ID, $4, k_value, $1, $2 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
     elif [ "$CLUSTERS_FORMAT" == "SCANPY" ]; then
-      # Scanpy produces marker genes with the following fields:
-      # names   groups  scores  logfc   pvals   pvals_adj
+      # Scanpy produces marker genes with the following fields with value like:
+      # 
+      # cluster	ref	rank	genes	scores	logfoldchanges	pvals	pvals_adj
+      # 0	rest	0	FBgn0003448	20.580915	6.0675416	2.3605626738867564e-47	1.1128872726039114e-43
       tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
-      { print EXP_ID, $1, k_value, $2, $6 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
+      { print EXP_ID, $4, k_value, $1, $8 }' >> $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
     else
       echo "ERROR: unrecognized CLUSTERS_FORMAT '"$CLUSTERS_FORMAT"', aborting load."
       echo "ERROR: this point should not have been reached..."
@@ -80,10 +82,23 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   # Load data
   echo "Marker genes: Loading data for $EXP_ID..."
+  
+  set +e
   printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv | \
-    psql $dbConnection
+    psql -v ON_ERROR_STOP=1 $dbConnection
+
+  s=$?
 
   rm $EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
+
+  # Roll back if write was unsucessful
+  
+  if [ $s -ne 0 ]; then
+    echo "Marker table write failed" 1>&2
+    echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
+      psql -v ON_ERROR_STOP=1 $dbConnection
+    exit 1    
+  fi
 
   echo "Marker genes: Loading done for $EXP_ID..."
 fi

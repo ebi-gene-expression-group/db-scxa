@@ -5,9 +5,9 @@
     - re-enable autovacuum (mandatory)
     - add a check constraint on the partition value (mandatory)
 */
-SET maintenance_work_mem='1GB';
+SET maintenance_work_mem='2GB';
 CLUSTER scxa_analytics_<EXP-ACCESSION> USING scxa_analytics_<EXP-ACCESSION>_pk;
 ANALYZE scxa_analytics_<EXP-ACCESSION>;
-RESET maintenance_work_mem ;
 alter table scxa_analytics_<EXP-ACCESSION> SET (autovacuum_enabled = true, toast.autovacuum_enabled = true);
 alter table scxa_analytics_<EXP-ACCESSION> add constraint check_e_ebi_<EXP-ACCESSION> check (experiment_accession='<EXP-ACC-UC>');
+RESET maintenance_work_mem ;

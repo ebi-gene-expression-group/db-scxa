@@ -31,7 +31,7 @@ checkDatabaseConnection $dbConnection
 # Delete tsne table content for current EXP_ID
 echo "tsne table: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Create file with data
 # Please note that this relies on:
@@ -42,14 +42,26 @@ rm -f $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
 for f in $(ls $EXPERIMENT_TSNE_PATH/$TSNE_PREFIX*$TSNE_SUFFIX); do
   persp=$(echo $f | sed s+$EXPERIMENT_TSNE_PATH/$TSNE_PREFIX++ | sed s/$TSNE_SUFFIX// )
   tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v persp_value="$persp" 'BEGIN { OFS = ","; }
-  { print EXP_ID, $3, $1, $2, persp_value }' >> $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
+  { print EXP_ID, $1, $2, $3, persp_value }' >> $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
 done
 
 # Load data
 echo "TSNE: Loading data for $EXP_ID..."
+
+set +e
 printf "\copy scxa_tsne (experiment_accession, cell_id, x, y, perplexity) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv | \
-  psql $dbConnection
+  psql -v ON_ERROR_STOP=1 $dbConnection
+
+s=$?
 
 rm $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
+
+# Roll back if unsucessful
+
+if [ $s -ne 0 ]; then
+  echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
+  exit 1
+fi
 
 echo "TSNE: Loading done for $EXP_ID..."

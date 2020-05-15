@@ -23,7 +23,7 @@
   run delete_db_scxa_analytics.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
   echo "output = ${output}"
@@ -39,7 +39,7 @@
 
 @test "Analytics: Expression levels of 0 TPMs (i.e. missing entries in the matrix) are skipped" {
   export EXP_ID=TEST-EXP1
-  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE expression_level = 0" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE expression_level = 0" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   run [ $count -eq 0 ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -47,7 +47,7 @@
 
 @test "Analytics: Query and compare loaded files" {
   export EXP_ID=TEST-EXP1
-  psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
+  psql -v ON_ERROR_STOP=1 -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
   run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -58,7 +58,7 @@
   run delete_db_scxa_analytics.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
   echo "output = ${output}"
@@ -74,7 +74,7 @@
 
 @test "Analytics: Query and compare loaded files second time" {
   export EXP_ID=TEST-EXP2
-  psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
+  psql -v ON_ERROR_STOP=1 -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
   run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -107,7 +107,7 @@
   run delete_db_scxa_analytics.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
   echo "output = ${output}"
@@ -124,7 +124,7 @@
 @test "Analytics: Query and compare reloaded data-set 1" {
   export EXP_ID=TEST-EXP1
   rm $EXP_ID.query_results.txt
-  psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
+  psql -v ON_ERROR_STOP=1 -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
   run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -135,7 +135,7 @@
   run delete_db_scxa_analytics.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_analytics WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
   echo "output = ${output}"
@@ -153,7 +153,7 @@
 @test "Analytics: Query and compare reloaded data-set 1 after pg9 type of loading" {
   export EXP_ID=TEST-EXP1
   rm $EXP_ID.query_results.txt
-  psql -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
+  psql -v ON_ERROR_STOP=1 -A $dbConnection < $EXP_ID.query_test.sql | awk -F'|' '{ print $1,$2,$3,$4 }' | sed \$d > $EXP_ID.query_results.txt
   run cmp -s $EXP_ID.query_expected.txt $EXP_ID.query_results.txt
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -161,12 +161,6 @@
 
 @test "Marker genes: Check that load_db_scxa_marker_genes.sh is in the path" {
   run which load_db_scxa_marker_genes.sh
-  [ "$status" -eq 0 ]
-}
-
-@test "Marker genes: Create table" {
-  run psql $dbConnection < $testsDir/marker-genes/01-optional-create-table.sql
-  echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
 
@@ -179,7 +173,7 @@
 
 @test "Marker genes: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 274 ]
   echo "output = ${output}"
@@ -188,7 +182,7 @@
 
 @test "Marker genes: Check that k=12 was not loaded" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes WHERE k = 12" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes WHERE k = 12" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   echo "Count: "$count
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
@@ -208,12 +202,12 @@
 }
 
 @test "Marker genes: Delete rows for experiment" {
-  countBefore=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql $dbConnection | awk 'NR==3')
+  countBefore=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   export EXP_ID=TEST-EXP2
   run delete_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  countAfter=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql $dbConnection | awk 'NR==3')
+  countAfter=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   [ $(( countBefore - countAfter )) == 274 ]
 }
 
@@ -249,12 +243,6 @@
   [ "$status" -eq 0 ]
 }
 
-@test "TSNE: Create table" {
-  run psql $dbConnection < $testsDir/tsne/01-optional-create-table.sql
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
 @test "TSNE: Load data" {
   export EXP_ID=TEST-EXP1
   run load_db_scxa_tsne.sh
@@ -264,7 +252,7 @@
 
 @test "TSNE: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_tsne" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_tsne" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 250 ]
   echo "output = ${output}"
@@ -276,7 +264,7 @@
   run delete_db_scxa_tsne.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
   echo "output = ${output}"
@@ -285,12 +273,6 @@
 
 @test "Clusters: Check that load_db_scxa_clusters.sh is in the path" {
   run which load_db_scxa_cell_clusters.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "Clusters: Create table" {
-  run psql $dbConnection < $testsDir/cell_clusters/01-optional-create-table.sql
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
@@ -304,7 +286,7 @@
 
 @test "Clusters: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 4179 ]
   echo "output = ${output}"
@@ -316,9 +298,71 @@
   run delete_db_scxa_cell_clusters.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | psql $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Create X" {
+  export COLL_ID=MYCOLLX
+  export COLL_NAME="My collection X"
+  run create_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Add experiments" {
+  count=$(echo "INSERT INTO experiment (accession, type, species, access_key) VALUES ('E-TEST-1', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '5770d1e1-677d-4486-96e3-1e88cea61d26'), ('E-TEST-2', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '6472724a-80f6-43af-b046-4e4acb89908e');" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  status=0
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Put experiments in collection" {
+  export COLL_ID=MYCOLLX
+  export EXP_IDS=E-TEST-1,E-TEST-2
+  run add_exps_to_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Delete experiments from collection" {
+  export COLL_ID=MYCOLLX
+  export EXP_IDS=E-TEST-1
+  run delete_exp_from_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Create Y with icon" {
+  export COLL_ID=MYCOLLY
+  export COLL_NAME="My collection Y"
+  export COLL_ICON_PATH=$testsDir/icon.png
+  run create_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Delete X" {
+  export COLL_ID=MYCOLLX
+  run delete_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Collections: Modify collection Y" {
+  export COLL_ID=MYCOLLY
+  export COLL_NAME="Better Y name"
+  export COLL_ICON_PATH=$testsDir/icon.png
+  run modify_collection.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Post-flight: reindex and cluster" {
+  run reindex_tables.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }

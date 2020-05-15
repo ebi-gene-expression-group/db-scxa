@@ -42,10 +42,8 @@ checkDatabaseConnection $dbConnection
 lc_exp_acc=$(echo $EXP_ID | tr '[:upper:]' '[:lower:]' | sed 's/-/_/g')
 # Delete partition for experiment if already exists
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/01-delete_existing_partition.sql.template | \
-psql $dbConnection
-# Create partition table.
-sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_partition_table.sql.template | \
-psql $dbConnection
+psql -v ON_ERROR_STOP=1 $dbConnection
+
 # Create file with data
 matrixMarket2csv.js -m $matrix_path \
                     -r $genes_path \
@@ -54,27 +52,29 @@ matrixMarket2csv.js -m $matrix_path \
                     -s 50000 \
                     -o $EXPERIMENT_MATRICES_PATH/expression2load.csv
 
-# Load data into partition table
-sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/03-load_data.sql.template | \
+
+# Create and load partition table in the same transaction.
+sed "s/<EXP-ACCESSION>/$lc_exp_acc/" $postgres_scripts_dir/02-create_and_load_partition_table.sql.template | \
     sed "s+<PATH-TO-DATA>+$EXPERIMENT_MATRICES_PATH/expression2load.csv+" | \
-    psql $dbConnection
+    psql -v ON_ERROR_STOP=1 $dbConnection
 
 rm $EXPERIMENT_MATRICES_PATH/expression2load.csv
 
 # Create primary key.
-sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/04-build_pk.sql.template | \
-    psql $dbConnection
+echo "Create PK"
+time sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/04-build_pk.sql.template | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Post-process partition table
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/05-post_processing.sql.template | \
     sed "s/<EXP-ACC-UC>/$EXP_ID/g" | \
-    psql $dbConnection
+    psql -v ON_ERROR_STOP=1 $dbConnection
 
 echo "Post-processing done"
 
 # Attach partition
 sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/06-attach_partition.sql.template | \
     sed "s/<EXP-ACC-UC>/$EXP_ID/g" | \
-    psql $dbConnection
+    psql -v ON_ERROR_STOP=1 $dbConnection
 
 echo "Partition table loaded for experiment $EXP_ID succesfully."
