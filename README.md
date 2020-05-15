@@ -1,7 +1,7 @@
-# Module for Single Cell Expression Atlas database loading (v0.2.2)  
+# Module for Single Cell Expression Atlas database loading (v0.2.3)  
 
-An AtlasProd module for loading scxa-* tables data to postgres 10. Release v0.2.2
-was used for the Dec 2019 Data release of Singe Cell Expression Atlas.
+An AtlasProd module for loading scxa-* tables data to postgres >=10. Release v0.2.3
+was used for the May 2020 Data release of Singe Cell Expression Atlas.
 
 For direct usage, this module requires Rscript (with optparse and tidyr, in Ubuntu and Debian-based distributions install packages `r-cran-optparse` and `r-cran-tidyr`), psql and node.
 
@@ -164,6 +164,15 @@ bash run_tests_with_containers.sh
 ```
 
 First run will be expensive due to build, subsequent runs will use your cache.
+Every run will leave the postgresql container running with the structure and
+some dummy data loaded in the database. You can connect to that database locally
+with the following credentials:
+
+```
+dbConnection='postgresql://scxa:postgresPass@localhost:5432/scxa-test'
+```
+
+On every run of the `run_tests_with_containers.sh` the container database will be deleted and re-created.
 
 # How to test it v2 (only db in container)
 
