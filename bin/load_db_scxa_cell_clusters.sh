@@ -76,6 +76,7 @@ echo "DELETE FROM scxa_cell_group_marker_genes WHERE cell_group_id in (select id
   psql -v ON_ERROR_STOP=1 $dbConnection
 echo "DELETE FROM scxa_cell_group WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
+echo "Copying cell groups data to the db..."
 printf "\copy scxa_cell_group (experiment_accession, variable, value) FROM '%s' DELIMITER ',' CSV;" $groupsToLoad | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 s=$?
