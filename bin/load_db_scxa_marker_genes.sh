@@ -52,6 +52,8 @@ else
   echo "WARNING No marker gene files declared on MANIFEST."
 fi
 
+echo "## Loading Marker genes for $EXP_ID (old layout)."
+
 # Delete marker gene table content for current EXP_ID
 echo "Marker genes: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
@@ -111,7 +113,8 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     exit 1    
   fi
 
-  echo "Marker genes: Loading done for $EXP_ID..."
+  echo "## Marker genes (old layout): Loading done for $EXP_ID"
+  echo "## Loading Marker genes for $EXP_ID (new layout)."
 
   # NEW LAYOUT: point at cell groups table, retrieving cell group integer IDs from there first 
     
@@ -167,7 +170,8 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     exit 1    
   fi
 
-  echo "Group marker genes: Loading done for $EXP_ID..."
+  echo "## Group marker genes (new layout): Loading done for $EXP_ID..."
+  echo "## Loading maker statistics for $EXP_ID"
 
   # The marker stats table has two foreign keys- one to the cell group table,
   # one to the marker genes table. We already downloaded the cell groups, now
@@ -240,7 +244,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     rm -f ${groupMarkerStatsToLoad}
  done
 
- echo "Group marker gene statistics: Loading done for $EXP_ID..."
+ echo "## Group marker gene statistics: Loading done for $EXP_ID..."
  
  # Clean up
  rm -f $markerGenesToLoad $groupIds ${groupMarkerGenesToLoad} ${groupMarkerGenesToLoad}.tmp.sorted $groupMarkerIds
