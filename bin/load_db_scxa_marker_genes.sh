@@ -39,10 +39,11 @@ cellgroupMarkerStatsTPM=$EXPERIMENT_MGENES_PATH/${EXP_ID}.tpm_filtered_stats.csv
 
 # Files we'll be using (and cleaning up)
 markerGenesToLoad=$EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
-groupIds=$SCRATCH_DIR/groupIds.csv
-groupMarkerIds=$SCRATCH_DIR/groupMarkerIds.csv
-groupMarkerGenesToLoad=$SCRATCH_DIR/groupMarkerGenesToLoad.csv
-groupMarkerStatsToLoad=$SCRATCH_DIR/groupMarkerStatsToLoad.csv
+groupIds=$EXPERIMENT_MGENES_PATH/groupIds.csv
+groupMarkerIds=$EXPERIMENT_MGENES_PATH/groupMarkerIds.csv
+groupMarkerGenesToLoad=$EXPERIMENT_MGENES_PATH/groupMarkerGenesToLoad.csv
+groupMarkerStatsToLoad=$EXPERIMENT_MGENES_PATH/groupMarkerStatsToLoad.csv
+groupMarkerStatsWithIDs=$EXPERIMENT_MGENES_PATH/groupMarkerStatsWithIDs
 
 if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Check that files are in place.
@@ -128,6 +129,9 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' CSV HEADER" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
+  # The join we need later is particular about sort order
+  tail -n +2 $groupIds | sort -t, -k 1,1 > ${groupIds}.tmp && mv ${groupIds}.tmp ${groupIds}
+  
   # Get marker genes in the format 'expid_variable_value,cell_id,padj, where experiment, variable and value define the cell grouping
   # First for cluster markers (with groups like k_1 etc)
 
@@ -143,8 +147,8 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   fi
 
   # Sort and join with the groups file to add the auto-incremented key from the groups table
-  cat ${groupMarkerGenesToLoad}.tmp | sort > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
-  join -t , <(tail -n +2 $groupIds) ${groupMarkerGenesToLoad}.tmp.sorted | awk -F',' 'BEGIN { OFS = ","; } {print $3,$2,$4}' > ${groupMarkerGenesToLoad}
+  cat ${groupMarkerGenesToLoad}.tmp |  sort -t, -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
+  join -t , $groupIds ${groupMarkerGenesToLoad}.tmp.sorted | awk -F',' 'BEGIN { OFS = ","; } {print $3,$2,$4}' > ${groupMarkerGenesToLoad}
 
   nStartingMarkers=$(wc -l ${groupMarkerGenesToLoad}.tmp.sorted | awk '{print $1}')
   nFinalMarkers=$(wc -l ${groupMarkerGenesToLoad} | awk '{print $1}')
@@ -183,6 +187,9 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   echo "\copy (select concat(gene_id, '_', cell_group_id), id from scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') ORDER BY gene_id, cell_group_id) TO '$groupMarkerIds' CSV HEADER" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
+  # The join we need later is particular about sort order
+  tail -n +2 $groupMarkerIds | sort -t, -k 1,1 > ${groupMarkerIds}.tmp && mv ${groupMarkerIds}.tmp ${groupMarkerIds}
+
   for expressionType in counts tpm; do
 
     if [ "$expressionType" == 'counts' ]; then
@@ -206,15 +213,15 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     # group, one for the cell group for which the marker was identified), the
     # latter of which is then used to find the marker identifier.
 
-    statsWithGroupIds=$(join -t , \
-       <(tail -n +2 $groupIds) \
+    join -t , \
+      $groupIds \
       <(join -t , \
-        <(tail -n +2 $groupIds) \
+        $groupIds \
         <(tail -n +2 "${cellgroupMarkerStats}" | sed s/\"//g | awk -F',' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -V) | \
-        awk -F',' 'BEGIN { OFS = ","; } { print $3,$2,$4,$5,$6,$7,$8,$9 }' | sort -V
-      ) | awk -F',' 'BEGIN { OFS = ","; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -V) 
+        awk -F',' 'BEGIN { OFS = ","; } { print $3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1
+      ) | awk -F',' 'BEGIN { OFS = ","; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1 > $groupMarkerStatsWithIDs 
 
-    join -t , <(tail -n +2 $groupMarkerIds) <(echo -e "$statsWithGroupIds") | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $4, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
+    join -t , $groupMarkerIds $groupMarkerStatsWithIDs | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $4, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
        
     nStartingStats=$(tail -n +2 $cellgroupMarkerStats | wc -l)
     nFinalStats=$(wc -l ${groupMarkerStatsToLoad} | awk '{print $1}')
@@ -222,7 +229,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     # Sanity check that the join worked
 
     if [ ! "$nStartingStats" -eq "$nFinalStats" ]; then
-      echo "Final list of marker stats values ($nFinalStats) from ${groupMarkerStatsToLoad} not equal to input number ($nStartingStats) from $cellgroupMarkerStats after resolving keys to cell groups table." 1>&2
+      echo "Final list of marker stats values ($nFinalStats) from ${groupMarkerStatsToLoad}, derived from ${cellgroupMarkerStats}, not equal to input number ($nStartingStats) from $cellgroupMarkerStats after resolving keys to cell groups table." 1>&2
       exit 1
     fi
 
