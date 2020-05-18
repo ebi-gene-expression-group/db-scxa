@@ -210,12 +210,11 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
         fi
     fi
 
+    echo "Group IDs: $groupIds"
+
     # The following nested joins get two group identifiers (one for the cell
     # group, one for the cell group for which the marker was identified), the
     # latter of which is then used to find the marker identifier.
-
-    echo $groupIds
-    echo $cellgroupMarkerStats
 
     join -t , \
       $groupIds \
@@ -226,8 +225,10 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
       ) | awk -F',' 'BEGIN { OFS = ","; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1 > $groupMarkerStatsWithIDs 
 
 
-    join -t , $groupMarkerIds $groupMarkerStatsWithIDs | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $4, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
-       
+    join -t , $groupMarkerIds $groupMarkerStatsWithIDs | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $3, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
+    echo "Join $groupMarkerIds with $groupMarkerStatsWithIDs"
+
+
     nStartingStats=$(tail -n +2 $cellgroupMarkerStats | wc -l)
     nFinalStats=$(wc -l ${groupMarkerStatsToLoad} | awk '{print $1}')
 
@@ -239,7 +240,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     fi
 
     # Try the DB load
-
+    echo "Loading $groupMarkerStatsToLoad"
     printf "\copy scxa_cell_group_marker_gene_stats (gene_id, cell_group_id, marker_id, expression_type,  mean_expression, median_expression) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerStatsToLoad} | \
       psql -v ON_ERROR_STOP=1 $dbConnection
 
