@@ -107,6 +107,9 @@ fi
 echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' CSV FORCE QUOTE concat" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
+# The join we need later is particular about sort order
+cat $groupIds | sort -t, -k 1,1 > ${groupIds}.tmp && mv ${groupIds}.tmp ${groupIds}
+
 # Get the cell group memberships with a concatenated field to match the db
 # query. We're converting the delimited 'experiment_variable_value' to the
 # integer auto-increment ID from the cell groups table. The group membership is
