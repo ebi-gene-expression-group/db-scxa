@@ -27,18 +27,25 @@ groupsToLoad=$SCRATCH_DIR/groupsToLoad.csv
 groupIds=$SCRATCH_DIR/groupIds.csv
 cellGroupMemberships=$SCRATCH_DIR/cellGroupMemberships.csv
 
-echo "Clusters: Create data file for $EXP_ID..."
+print_log() {
+    local message=$1
+    local level=${2:-'1'}
+
+    echo [`date "+%m/%d/%Y %H:%M:%S"`] "$(printf '%.s ' $(seq 1 $((level * 4))))" "$message"
+}
+
+print_log "Clusters: Create data file for $EXP_ID..."
 wideSCCluster2longSCCluster.R -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $clustersToLoad
 
 # Delete clusters table content for current EXP_ID
-echo "clusters table: Delete rows for $EXP_ID:"
+print_log "clusters table: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_cell_group_membership WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 echo "DELETE FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Load data
-echo "Clusters: Loading data for $EXP_ID..."
+print_log "Clusters: Loading data for $EXP_ID..."
 set +e
 printf "\copy scxa_cell_clusters (experiment_accession, cell_id, k, cluster_id) FROM '%s' DELIMITER ',' CSV HEADER;" $clustersToLoad | \
   psql -v ON_ERROR_STOP=1 $dbConnection
@@ -55,7 +62,7 @@ fi
 
 # NEW LAYOUT: define clusterings as cell groups in the DB
 
-echo "Cell groups: Loading for $EXP_ID..."
+print_log "Cell groups: Loading for $EXP_ID (new layout)..."
 
 # Also use annotation-based cell groups from the condensed SDRF, to be processed alongside the clusterings
 
@@ -81,14 +88,14 @@ fi
 awk -F',' '{print $1","$3","$4}' $groupMembershipsToLoad | sort -t, -k 1,1 | uniq > $groupsToLoad
 
 # Delete existing content- including via FKs (though this should really cascade now)
-echo "Deleting existing grouping data..."
+print_log "Deleting existing grouping data..."
 echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 echo "DELETE FROM scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 echo "DELETE FROM scxa_cell_group WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
-echo "Copying cell groups data to the db..."
+print_log "Copying cell groups data to the db..."
 printf "\copy scxa_cell_group (experiment_accession, variable, value) FROM '%s' DELIMITER ',' CSV;" $groupsToLoad | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 s=$?
@@ -147,4 +154,4 @@ fi
 
 rm -f $clustersToLoad $groupsToLoad $groupIds ${cellGroupMemberships}.tmp ${cellGroupMemberships} $groupMembershipsToLoad
 
-echo "Clusters: Loading done for $EXP_ID."
+print_log "Clusters: Loading done for $EXP_ID."

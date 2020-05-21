@@ -28,6 +28,13 @@ if [[ ! "$CLUSTERS_FORMAT" =~ ^(ISL|SCANPY)$ ]]; then
     exit 1
 fi
 
+print_log() {
+    local message=$1
+    local level=${2:-'1'}
+
+    echo [`date "+%m/%d/%Y %H:%M:%S"`] "$(printf '%.s ' $(seq 1 $((level * 4))))" "$message"
+}
+
 # Check that database connection is valid
 checkDatabaseConnection $dbConnection
 
@@ -53,10 +60,10 @@ else
   echo "WARNING No marker gene files declared on MANIFEST."
 fi
 
-echo "## Loading Marker genes for $EXP_ID (old layout)."
+print_log "## Loading Marker genes for $EXP_ID (old layout)."
 
 # Delete marker gene table content for current EXP_ID
-echo "Marker genes: Delete rows for $EXP_ID:"
+print_log "Marker genes: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
@@ -65,7 +72,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Please note that this relies on:
   # - Column ordering on the marker genes file: clusts padj auroc feat
   # - Table ordering of columns: experiment_accession gene_id k cluster_id marker_probability
-  echo "Marker genes: Create data file for $EXP_ID..."
+  print_log "Marker genes: Create data file for $EXP_ID..."
   rm -f $markerGenesToLoad
   for f in $(ls $EXPERIMENT_MGENES_PATH/$MGENES_PREFIX*$MGENES_SUFFIX); do
     k=$(echo $f | sed s+$EXPERIMENT_MGENES_PATH/$MGENES_PREFIX++ | sed s/$MGENES_SUFFIX// )
@@ -97,7 +104,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   done
 
   # Load data
-  echo "Marker genes: Loading data for $EXP_ID..."
+  print_log "Marker genes: Loading data for $EXP_ID..."
   
   set +e
   printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" $markerGenesToLoad | \
@@ -114,8 +121,8 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     exit 1    
   fi
 
-  echo "## Marker genes (old layout): Loading done for $EXP_ID"
-  echo "## Loading Marker genes for $EXP_ID (new layout)."
+  print_log "## Marker genes (old layout): Loading done for $EXP_ID"
+  print_log "## Loading Marker genes for $EXP_ID (new layout)."
 
   # NEW LAYOUT: point at cell groups table, retrieving cell group integer IDs from there first 
     
@@ -175,8 +182,8 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     exit 1    
   fi
 
-  echo "## Group marker genes (new layout): Loading done for $EXP_ID..."
-  echo "## Loading maker statistics for $EXP_ID"
+  print_log "## Group marker genes (new layout): Loading done for $EXP_ID..."
+  print_log "## Loading maker statistics for $EXP_ID"
 
   # The marker stats table has two foreign keys- one to the cell group table,
   # one to the marker genes table. We already downloaded the cell groups, now
@@ -210,8 +217,6 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
         fi
     fi
 
-    echo "Group IDs: $groupIds"
-
     # The following nested joins get two group identifiers (one for the cell
     # group, one for the cell group for which the marker was identified), the
     # latter of which is then used to find the marker identifier.
@@ -226,8 +231,6 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
 
     join -t , $groupMarkerIds $groupMarkerStatsWithIDs | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $3, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
-    echo "Join $groupMarkerIds with $groupMarkerStatsWithIDs"
-
 
     nStartingStats=$(tail -n +2 $cellgroupMarkerStats | wc -l)
     nFinalStats=$(wc -l ${groupMarkerStatsToLoad} | awk '{print $1}')
@@ -240,7 +243,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     fi
 
     # Try the DB load
-    echo "Loading $groupMarkerStatsToLoad"
+    print_log "Loading $groupMarkerStatsToLoad"
     printf "\copy scxa_cell_group_marker_gene_stats (gene_id, cell_group_id, marker_id, expression_type,  mean_expression, median_expression) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerStatsToLoad} | \
       psql -v ON_ERROR_STOP=1 $dbConnection
 
@@ -257,7 +260,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     rm -f ${groupMarkerStatsToLoad}
  done
 
- echo "## Group marker gene statistics: Loading done for $EXP_ID..."
+ print_log "## Group marker gene statistics: Loading done for $EXP_ID..."
  
  # Clean up
  rm -f $markerGenesToLoad $groupIds ${groupMarkerGenesToLoad} ${groupMarkerGenesToLoad}.tmp.sorted $groupMarkerIds
