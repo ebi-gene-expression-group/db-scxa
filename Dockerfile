@@ -4,7 +4,7 @@ FROM continuumio/miniconda3:4.8.2
 RUN /opt/conda/bin/conda config --add channels defaults && \
     /opt/conda/bin/conda config --add channels conda-forge && \
     /opt/conda/bin/conda config --add channels bioconda && \
-    /opt/conda/bin/conda install r-base r-tidyr r-optparse r-matrix openjdk
+    /opt/conda/bin/conda install r-base r-tidyr r-optparse r-matrix openjdk r-data.table
 
 USER root
 # RUN apk update && apk add postgresql-client bash wget nodejs bats
