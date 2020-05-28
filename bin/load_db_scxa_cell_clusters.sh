@@ -66,12 +66,12 @@ print_log "Cell groups: Loading for $EXP_ID (new layout)..."
 
 # Also use annotation-based cell groups from the condensed SDRF, to be processed alongside the clusterings
 
-tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' '{print "\""$1"\",\""$2"\",\""$3"\",\""$4"\""}""' > $groupMembershipsToLoad
+tail -n +2 $clustersToLoad | sed s/\"//g | tail -n +2 clustersToLoad.csv | sed s/\"//g | awk -F',' 'BEGIN { OFS = "|"; } {print $1,$2,$3,$4}' > $groupMembershipsToLoad
 
 if [ -n "$CONDENSED_SDRF_TSV" ]; then
   IFS=, additionalCellGroupTypes=($(echo "$CELL_GROUP_TYPES"))
   for additionalCellGroupType in "${additionalCellGroupTypes[@]}"; do
-    grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | awk -F'\t' '{print "\""$1"\",\""$3"\",\""$5"\",\""$6"\""}' >> $groupMembershipsToLoad    
+    grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | awk -F'\t' 'BEGIN { OFS = "|"; } {print $1,$3,$5,$6}' >> $groupMembershipsToLoad    
  done
 fi
 
@@ -85,7 +85,7 @@ fi
 # We get the unique cell groups by just stripping out the atual cell ID from
 # the row and uniqueifying
 
-awk -F',' '{print $1","$3","$4}' $groupMembershipsToLoad | sort -t, -k 1,1 | uniq > $groupsToLoad
+awk -F'|' 'BEGIN { OFS = "|"; } {print $1,$3,$4}' $groupMembershipsToLoad | sort -t$'|' -k 1,1 | uniq > $groupsToLoad
 
 # Delete existing content- including via FKs (though this should really cascade now)
 print_log "Deleting existing grouping data..."
@@ -96,7 +96,7 @@ echo "DELETE FROM scxa_cell_group_marker_genes WHERE cell_group_id in (select id
 echo "DELETE FROM scxa_cell_group WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 print_log "Copying cell groups data to the db..."
-printf "\copy scxa_cell_group (experiment_accession, variable, value) FROM '%s' DELIMITER ',' CSV;" $groupsToLoad | \
+printf "\copy scxa_cell_group (experiment_accession, variable, value) FROM '%s' DELIMITER '|' CSV;" $groupsToLoad | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 s=$?
 
@@ -111,21 +111,21 @@ fi
 
 # Get the group keys back from the auto-increment
 
-echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' CSV FORCE QUOTE concat" | \
+echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' DELIMITER '|' CSV" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
 # The join we need later is particular about sort order
-cat $groupIds | sort -t, -k 1,1 > ${groupIds}.tmp && mv ${groupIds}.tmp ${groupIds}
+cat $groupIds | sort -t$'|' -k 1,1 > ${groupIds}.tmp && mv ${groupIds}.tmp ${groupIds}
 
 # Get the cell group memberships with a concatenated field to match the db
 # query. We're converting the delimited 'experiment_variable_value' to the
 # integer auto-increment ID from the cell groups table. The group membership is
 # just the experiment ID, the cell ID, and the integer cell group ID
 
-cat $groupMembershipsToLoad | sed s/\"//g | awk -F',' '{print "\""$1"_"$3"_"$4"\",\""$1"\",\""$2"\""}' |  sort -t, -k 1,1 > ${cellGroupMemberships}.tmp
+cat $groupMembershipsToLoad | awk -F'|' 'BEGIN { OFS = "|"; } {print $1"_"$3"_"$4,$1,$2}' |  sort -t'|' -k 1,1 > ${cellGroupMemberships}.tmp
 
 # Join the cell group IDs to the cell cluster memberships
-join -t , $groupIds ${cellGroupMemberships}.tmp | awk -F',' 'BEGIN { OFS = ","; } {print $2,$3,$4}' > ${cellGroupMemberships}
+join -t '|' $groupIds ${cellGroupMemberships}.tmp | awk -F'|' 'BEGIN { OFS = "|"; } {print $2,$3,$4}' > ${cellGroupMemberships}
 
 nStartingClusterMemberships=$(wc -l $groupMembershipsToLoad | awk '{print $1}')
 nFinalClusterMemberships=$(wc -l ${cellGroupMemberships} | awk '{print $1}')
@@ -137,7 +137,7 @@ fi
 
 echo "DELETE FROM scxa_cell_group_membership WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
-printf "\copy scxa_cell_group_membership (cell_group_id, experiment_accession, cell_id) FROM '%s' DELIMITER ',' CSV;" ${cellGroupMemberships} | \
+printf "\copy scxa_cell_group_membership (cell_group_id, experiment_accession, cell_id) FROM '%s' DELIMITER '|' CSV;" ${cellGroupMemberships} | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 s=$?
 
