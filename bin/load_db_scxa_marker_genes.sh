@@ -36,6 +36,7 @@ print_log() {
 }
 
 # Check that database connection is valid
+echo checkDatabaseConnection $dbConnection
 checkDatabaseConnection $dbConnection
 
 # Input files may expect in the bundles
@@ -126,37 +127,39 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   # NEW LAYOUT: point at cell groups table, retrieving cell group integer IDs from there first 
     
+  print_log "## Cleaning pre-existing marker genes for $EXP_ID (new layout)."
   echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
   echo "DELETE FROM scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
+  print_log "## Done cleaning pre-existing marker genes for $EXP_ID (new layout)."
 
   # Get the group keys back from the auto-increment
 
-  echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' CSV HEADER" | \
+  echo "\copy (select concat(experiment_accession, '_', variable, '_', value), id from scxa_cell_group WHERE experiment_accession = '"$EXP_ID"' ORDER BY experiment_accession, variable, value) TO '$groupIds' DELIMITER '|' CSV HEADER" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
   # The join we need later is particular about sort order
-  tail -n +2 $groupIds | sort -t, -k 1,1 > ${groupIds}.tmp && mv ${groupIds}.tmp ${groupIds}
+  tail -n +2 $groupIds | sort -t'|' -k 1,1 > ${groupIds}.tmp && mv ${groupIds}.tmp ${groupIds}
   
   # Get marker genes in the format 'expid_variable_value,cell_id,padj, where experiment, variable and value define the cell grouping
   # First for cluster markers (with groups like k_1 etc)
 
-  cat $markerGenesToLoad | awk -F',' 'BEGIN { OFS = ","; } {print $1"_"$3"_"$4, $2, $5}' > ${groupMarkerGenesToLoad}.tmp
+  cat $markerGenesToLoad | awk -F',' 'BEGIN { OFS = "|"; } {print $1"_"$3"_"$4, $2, $5}' > ${groupMarkerGenesToLoad}.tmp
   
   # Add in the markers from annotation sources
 
   if [ -e "$inferredCelltypeMarkers" ]; then
-    tail -n +2 $inferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
+    tail -n +2 $inferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
   fi
   if [ -e "$authorsInferredCelltypeMarkers" ]; then
-    tail -n +2 $authorsInferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_authors inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp  
+    tail -n +2 $authorsInferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } { print EXP_ID"_authors inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp  
   fi
 
   # Sort and join with the groups file to add the auto-incremented key from the groups table
-  cat ${groupMarkerGenesToLoad}.tmp |  sort -t, -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
+  cat ${groupMarkerGenesToLoad}.tmp |  sort -t'|' -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
 
-  join -t , $groupIds ${groupMarkerGenesToLoad}.tmp.sorted | awk -F',' 'BEGIN { OFS = ","; } {print $3,$2,$4}' > ${groupMarkerGenesToLoad}
+  join -t '|' $groupIds ${groupMarkerGenesToLoad}.tmp.sorted | awk -F'|' 'BEGIN { OFS = "|"; } {print $3,$2,$4}' > ${groupMarkerGenesToLoad}
 
   nStartingMarkers=$(wc -l ${groupMarkerGenesToLoad}.tmp.sorted | awk '{print $1}')
   nFinalMarkers=$(wc -l ${groupMarkerGenesToLoad} | awk '{print $1}')
@@ -168,7 +171,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     exit 1
   fi
 
-  printf "\copy scxa_cell_group_marker_genes (gene_id, cell_group_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerGenesToLoad} | \
+  printf "\copy scxa_cell_group_marker_genes (gene_id, cell_group_id, marker_probability) FROM '%s' WITH (DELIMITER '|');" ${groupMarkerGenesToLoad} | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
   s=$?
@@ -192,11 +195,11 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
   
-  echo "\copy (select concat(gene_id, '_', cell_group_id), id from scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') ORDER BY gene_id, cell_group_id) TO '$groupMarkerIds' CSV HEADER" | \
+  echo "\copy (select concat(gene_id, '_', cell_group_id), id from scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') ORDER BY gene_id, cell_group_id) TO '$groupMarkerIds' DELIMITER '|' CSV HEADER" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
   # The join we need later is particular about sort order
-  tail -n +2 $groupMarkerIds | sort -t, -k 1,1 > ${groupMarkerIds}.tmp && mv ${groupMarkerIds}.tmp ${groupMarkerIds}
+  tail -n +2 $groupMarkerIds | sort -t'|' -k 1,1 > ${groupMarkerIds}.tmp && mv ${groupMarkerIds}.tmp ${groupMarkerIds}
 
   for expressionType in counts tpm; do
 
@@ -220,17 +223,21 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     # The following nested joins get two group identifiers (one for the cell
     # group, one for the cell group for which the marker was identified), the
     # latter of which is then used to find the marker identifier.
+    #
+    # The complex seds here sort out commas used as delimiters from those used
+    # as part the cell type field. In retrospect we shouln't have used commas,
+    # and this can be addressed at a later date.
 
-    join -t , \
+    join -t '|' \
       $groupIds \
-      <(join -t , \
+      <(join -t '|' \
         $groupIds \
-        <(tail -n +2 "${cellgroupMarkerStats}" | sed s/\"//g | awk -F',' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = ","; } { print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -t, -k 1,1) | \
-        awk -F',' 'BEGIN { OFS = ","; } { print $3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1
-      ) | awk -F',' 'BEGIN { OFS = ","; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t, -k 1,1 > $groupMarkerStatsWithIDs 
+        <(tail -n +2 "${cellgroupMarkerStats}" | sed 's/, /REALCOMMA/g' | sed s/\"//g | sed s/,/\|/g | sed 's/REALCOMMA/, /g' |awk -F'|' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } {gsub("^None$","Not available",$3); gsub("^None$","Not available",$4); print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -t'|' -k 1,1) | \
+        awk -F'|' 'BEGIN { OFS = "|"; } { print $3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t'|' -k 1,1
+      ) | awk -F'|' 'BEGIN { OFS = "|"; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t'|' -k 1,1 > $groupMarkerStatsWithIDs 
 
 
-    join -t , $groupMarkerIds $groupMarkerStatsWithIDs | awk -F',' -v TYPE_CODE=$typeCode 'BEGIN { OFS = ","; } {print $5, $3, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
+    join -t '|' $groupMarkerIds $groupMarkerStatsWithIDs | awk -F'|' -v TYPE_CODE=$typeCode 'BEGIN { OFS = "|"; } {print $5, $3, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
 
     nStartingStats=$(tail -n +2 $cellgroupMarkerStats | wc -l)
     nFinalStats=$(wc -l ${groupMarkerStatsToLoad} | awk '{print $1}')
@@ -244,7 +251,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
     # Try the DB load
     print_log "Loading $groupMarkerStatsToLoad"
-    printf "\copy scxa_cell_group_marker_gene_stats (gene_id, cell_group_id, marker_id, expression_type,  mean_expression, median_expression) FROM '%s' WITH (DELIMITER ',');" ${groupMarkerStatsToLoad} | \
+    printf "\copy scxa_cell_group_marker_gene_stats (gene_id, cell_group_id, marker_id, expression_type,  mean_expression, median_expression) FROM '%s' WITH (DELIMITER '|');" ${groupMarkerStatsToLoad} | \
       psql -v ON_ERROR_STOP=1 $dbConnection
 
     s=$?
