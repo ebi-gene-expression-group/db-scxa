@@ -34,6 +34,12 @@ print_log() {
     echo [`date "+%m/%d/%Y %H:%M:%S"`] "$(printf '%.s ' $(seq 1 $((level * 4))))" "$message"
 }
 
+cleanup() {
+    rm -f $clustersToLoad $groupsToLoad ${groupsToLoad}.tmp $groupIds ${cellGroupMemberships}.tmp ${cellGroupMemberships} $groupMembershipsToLoad
+}
+
+cleanup
+
 print_log "Clusters: Create data file for $EXP_ID..."
 wideSCCluster2longSCCluster.R -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $clustersToLoad
 
@@ -71,7 +77,13 @@ tail -n +2 $clustersToLoad | sed s/\"//g | tail -n +2 clustersToLoad.csv | sed s
 if [ -n "$CONDENSED_SDRF_TSV" ]; then
   IFS=, additionalCellGroupTypes=($(echo "$CELL_GROUP_TYPES"))
   for additionalCellGroupType in "${additionalCellGroupTypes[@]}"; do
-    grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | awk -F'\t' 'BEGIN { OFS = "|"; } {print $1,$3,$5,$6}' >> $groupMembershipsToLoad    
+    grep -m 1 "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV >/dev/null
+    if [ $? -eq 0 ]; then
+        grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | awk -F'\t' 'BEGIN { OFS = "|"; } {print $1,$3,$5,$6}' >> $groupMembershipsToLoad    
+        
+        # Add the option of the unknown cell type
+        echo "${EXP_ID}|$additionalCellGroupType|Not available" >> ${groupsToLoad}.tmp
+    fi
  done
 fi
 
@@ -85,7 +97,8 @@ fi
 # We get the unique cell groups by just stripping out the atual cell ID from
 # the row and uniqueifying
 
-awk -F'|' 'BEGIN { OFS = "|"; } {print $1,$3,$4}' $groupMembershipsToLoad | sort -t$'|' -k 1,1 | uniq > $groupsToLoad
+awk -F'|' 'BEGIN { OFS = "|"; } {print $1,$3,$4}' $groupMembershipsToLoad >> ${groupsToLoad}.tmp
+cat ${groupsToLoad}.tmp | sort -t$'|' -k 1,1 | uniq > $groupsToLoad
 
 # Delete existing content- including via FKs (though this should really cascade now)
 print_log "Deleting existing grouping data..."
@@ -152,6 +165,6 @@ fi
 
 # Clean up
 
-rm -f $clustersToLoad $groupsToLoad $groupIds ${cellGroupMemberships}.tmp ${cellGroupMemberships} $groupMembershipsToLoad
+cleanup
 
 print_log "Clusters: Loading done for $EXP_ID."
