@@ -72,7 +72,7 @@ print_log "Cell groups: Loading for $EXP_ID (new layout)..."
 
 # Also use annotation-based cell groups from the condensed SDRF, to be processed alongside the clusterings
 
-tail -n +2 $clustersToLoad | sed s/\"//g | tail -n +2 $clustersToLoad | sed s/\"//g | awk -F',' 'BEGIN { OFS = "|"; } {print $1,$2,$3,$4}' > $groupMembershipsToLoad
+tail -n +2 $clustersToLoad | sed s/\"//g | tail -n +2 clustersToLoad.csv | sed s/\"//g | awk -F',' 'BEGIN { OFS = "|"; } {print $1,$2,$3,$4}' > $groupMembershipsToLoad
 
 if [ -n "$CONDENSED_SDRF_TSV" ]; then
   IFS=, additionalCellGroupTypes=($(echo "$CELL_GROUP_TYPES"))
