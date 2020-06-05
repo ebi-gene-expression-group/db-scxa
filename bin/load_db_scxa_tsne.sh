@@ -83,7 +83,7 @@ rm $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
 # Roll back if unsucessful
 
 if [ $s -ne 0 ]; then
-  echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
+  echo "DELETE FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"' and method = 'tsne'" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
   exit 1
 fi
