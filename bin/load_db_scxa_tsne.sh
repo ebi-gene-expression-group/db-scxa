@@ -64,4 +64,28 @@ if [ $s -ne 0 ]; then
   exit 1
 fi
 
+# Write to the new generic coordinates table
+
+for f in $(ls $EXPERIMENT_TSNE_PATH/$TSNE_PREFIX*$TSNE_SUFFIX); do
+  persp=$(echo $f | sed s+$EXPERIMENT_TSNE_PATH/$TSNE_PREFIX++ | sed s/$TSNE_SUFFIX// )
+  tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="perplexity=$persp"  -v method='tsne' 'BEGIN { OFS = ","; }
+  { print EXP_ID, method, $1, $2, $3, params }' >> $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
+done
+
+set +e
+printf "\copy scxa_coords (experiment_accession, method, cell_id, x, y, parameterisation) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv | \
+  psql -v ON_ERROR_STOP=1 $dbConnection
+
+s=$?
+
+rm $EXPERIMENT_TSNE_PATH/tsneDataToLoad.csv
+
+# Roll back if unsucessful
+
+if [ $s -ne 0 ]; then
+  echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
+  exit 1
+fi
+
 echo "TSNE: Loading done for $EXP_ID..."
