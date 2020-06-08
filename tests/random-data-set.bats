@@ -262,15 +262,15 @@
   [ "$status" -eq 0 ]
 }
 
-@test "TSNE: Check that load_db_scxa_tsne.sh is in the path" {
-  run which load_db_scxa_tsne.sh
+@test "TSNE: Check that load_db_scxa_dimred.sh is in the path" {
+  run which load_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
 
 @test "TSNE: Load data" {
   export EXP_ID=TEST-EXP1
-  run load_db_scxa_tsne.sh
+  run load_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
