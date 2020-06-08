@@ -14,7 +14,7 @@ dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
 EXPERIMENT_DIMRED_PATH=${EXPERIMENT_DIMRED_PATH:-$3}
 TSNE_PREFIX=${TSNE_PREFIX:-"$EXP_ID.tsne_perp_"}
-UMAP_PREFIX=${TSNE_PREFIX:-"$EXP_ID.umap_neigh_"}
+UMAP_PREFIX=${UMAP_PREFIX:-"$EXP_ID.umap_neigh_"}
 DIMRED_SUFFIX=${DIMRED_SUFFIX:-".tsv"}
 
 # Check that necessary environment variables are defined.
@@ -69,6 +69,7 @@ echo "TSNE: Loading done for $EXP_ID..."
 # Write to the new generic coordinates table
 
 echo "Dimension reductions: Loading data for $EXP_ID (new layout)..."
+rm -f $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv
 
 # Delete table content for current EXP_ID
 echo "coords table: Delete rows for $EXP_ID:"
@@ -78,14 +79,14 @@ echo "DELETE FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | \
 for dimred_type in tsne umap; do
   dimred_prefix=$TSNE_PREFIX
   dimred_param=perplexity
-  if [ $dimred_type = 'umap' ]; then
+  if [ "$dimred_type" = 'umap' ]; then
     dimred_prefix=$UMAP_PREFIX
     dimred_param=n_neighbors
   fi  
 
   for f in $(ls $EXPERIMENT_DIMRED_PATH/$dimred_prefix*$DIMRED_SUFFIX); do
     paramval=$(echo $f | sed s+$EXPERIMENT_DIMRED_PATH/$dimred_prefix++ | sed s/$DIMRED_SUFFIX// )
-    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="$dimred_param=$paramval" -v method="$dimred_method" 'BEGIN { OFS = ","; }
+    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="$dimred_param=$paramval" -v method="$dimred_type" 'BEGIN { OFS = ","; }
     { print EXP_ID, method, $1, $2, $3, params }' >> $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv
   done
 done
