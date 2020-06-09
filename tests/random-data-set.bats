@@ -286,7 +286,7 @@
 
 @test "TSNE: Delete experiment" {
   export EXP_ID=TEST-EXP1
-  run delete_db_scxa_tsne.sh
+  run delete_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
   count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')

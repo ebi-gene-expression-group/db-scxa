@@ -96,13 +96,13 @@ load_db_scxa_dimred.sh
 
 ## Delete data for experiment
 
-Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_tsne.sh`:
+Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_dimred.sh`:
 
 ```
 export EXP_ID=TEST-EXP1
 export dbConnection=...
 
-delete_db_scxa_tsne.sh
+delete_db_scxa_dimred.sh
 ```
 
 # `scxa_cell_clusters` Table
