@@ -159,6 +159,27 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Collections: Add experiments" {
+  count=$(echo "INSERT INTO experiment (accession, type, species, access_key) VALUES ('TEST-EXP1', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '5770d1e1-677d-4486-96e3-1e88cea61d26'), ('TEST-EXP2', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '5770d1e1-677d-4486-96e3-1e88cea61d26'), ('TEST-EXP3', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '5770d1e1-677d-4486-96e3-1e88cea61d26'), ('E-TEST-1', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '5770d1e1-677d-4486-96e3-1e88cea61d26'), ('E-TEST-2', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '6472724a-80f6-43af-b046-4e4acb89908e');" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  status=0
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Check that load_db_scxa_clusters.sh is in the path" {
+  run which load_db_scxa_cell_clusters.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Clusters: Load data" {
+  export EXP_ID=TEST-EXP1
+  export CONDENSED_SDRF_TSV=$testsDir/marker-genes/TEST-EXP1.condensed-sdrf.tsv
+  run load_db_scxa_cell_clusters.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Marker genes: Check that load_db_scxa_marker_genes.sh is in the path" {
   run which load_db_scxa_marker_genes.sh
   [ "$status" -eq 0 ]
@@ -173,7 +194,7 @@
 
 @test "Marker genes: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes where experiment_accession='TEST-EXP1'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 274 ]
   echo "output = ${output}"
@@ -196,6 +217,7 @@
   cp $testsDir/marker-genes/TEST-EXP1.marker_genes_10.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_10.tsv
   cp $testsDir/marker-genes/TEST-EXP1.marker_genes_11.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_11.tsv
   export EXP_ID=TEST-EXP2
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -214,6 +236,7 @@
 @test "Marker genes: Load Scanpy data" {
   export EXP_ID=TEST-EXP3
   export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -223,6 +246,7 @@
   export EXP_ID=TEST-EXP3
   export NUMBER_MGENES_FILES=0
   export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -232,20 +256,21 @@
   export EXP_ID=TEST-EXP3
   export NUMBER_MGENES_FILES=3
   export CLUSTERS_FORMAT="SCANPY"
+  run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
 
-@test "TSNE: Check that load_db_scxa_tsne.sh is in the path" {
-  run which load_db_scxa_tsne.sh
+@test "TSNE: Check that load_db_scxa_dimred.sh is in the path" {
+  run which load_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
 
 @test "TSNE: Load data" {
   export EXP_ID=TEST-EXP1
-  run load_db_scxa_tsne.sh
+  run load_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
@@ -261,7 +286,7 @@
 
 @test "TSNE: Delete experiment" {
   export EXP_ID=TEST-EXP1
-  run delete_db_scxa_tsne.sh
+  run delete_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
   count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
@@ -271,25 +296,12 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Clusters: Check that load_db_scxa_clusters.sh is in the path" {
-  run which load_db_scxa_cell_clusters.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "Clusters: Load data" {
-  export EXP_ID=TEST-EXP1
-  run load_db_scxa_cell_clusters.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
 @test "Clusters: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
   count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 4179 ]
-  echo "output = ${output}"
+  run [ $count -eq 12537 ]
+  echo "output = ${output} count = $count"
   [ "$status" -eq 0 ]
 }
 
@@ -309,13 +321,6 @@
   export COLL_ID=MYCOLLX
   export COLL_NAME="My collection X"
   run create_collection.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "Collections: Add experiments" {
-  count=$(echo "INSERT INTO experiment (accession, type, species, access_key) VALUES ('E-TEST-1', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '5770d1e1-677d-4486-96e3-1e88cea61d26'), ('E-TEST-2', 'SINGLE_CELL_RNASEQ_MRNA_BASELINE', 'Homo sapiens', '6472724a-80f6-43af-b046-4e4acb89908e');" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
-  status=0
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }

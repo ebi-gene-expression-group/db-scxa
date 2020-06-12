@@ -76,7 +76,7 @@ test_clusters[[weird_names[1]]] <- 1:5
 test_clusters[[weird_names[2]]] <- 1:5
 test_clusters[[weird_names[3]]] <- 1:5
 
-write.table(test_clusters, file=paste0(exp_id, ".clusters_weird_names.txt"), sep="\t", quote = FALSE)
+write.table(test_clusters, file=paste0(exp_id, ".clusters_weird_names.txt"), sep="\t", quote = FALSE, row.names = FALSE)
 
 # Write the same weird names as dataframe content
 writeLines(weird_names, paste0(exp_id, ".weird_names.txt"))

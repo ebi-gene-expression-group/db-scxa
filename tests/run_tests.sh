@@ -20,7 +20,7 @@ export EXPERIMENT_MATRICES_PATH=$PWD
 export EXPERIMENT_MGENES_PATH=$testsDir/marker-genes
 
 # For tsne loading testing
-export EXPERIMENT_TSNE_PATH=$testsDir/tsne
+export EXPERIMENT_DIMRED_PATH=$testsDir/dimred
 
 # For cluster loading testing
 export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv

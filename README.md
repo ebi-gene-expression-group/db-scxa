@@ -83,26 +83,26 @@ Same as in `scxa_analytics` currently.
 
 ## Load data
 
-The main executable is `bin/load_db_scxa_tsne.sh`, which requires the following environment variables to be set:
+The main executable is `bin/load_db_scxa_dimred.sh`, which requires the following environment variables to be set:
 - `EXP_ID`: Atlas Experiment identifier.
-- `EXPERIMENT_TSNE_PATH`: path to directory containing tsne files for loading. Files are expected to have the structure <prefix><persplexity_number><suffix> structure, with the default suffix and prefix defined in the script. These can be configured from outside through env vars.
+- `EXPERIMENT_DIMRED_PATH`: path to directory containing tsne files for loading. Files are expected to have the structure <prefix><persplexity_number><suffix> structure, with the default suffix and prefix defined in the script. These can be configured from outside through env vars.
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a postgres 10 server where the expected `scxa_tsne` table exists.
 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
 ```
-load_db_scxa_tsne.sh
+load_db_scxa_dimred.sh
 ```
 
 ## Delete data for experiment
 
-Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_tsne.sh`:
+Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_dimred.sh`:
 
 ```
 export EXP_ID=TEST-EXP1
 export dbConnection=...
 
-delete_db_scxa_tsne.sh
+delete_db_scxa_dimred.sh
 ```
 
 # `scxa_cell_clusters` Table
