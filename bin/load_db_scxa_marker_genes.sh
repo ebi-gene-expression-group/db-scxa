@@ -36,7 +36,6 @@ print_log() {
 }
 
 # Check that database connection is valid
-echo checkDatabaseConnection $dbConnection
 checkDatabaseConnection $dbConnection
 
 # Input files may expect in the bundles
