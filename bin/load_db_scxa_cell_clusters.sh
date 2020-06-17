@@ -79,7 +79,7 @@ if [ -n "$CONDENSED_SDRF_TSV" ]; then
   for additionalCellGroupType in "${additionalCellGroupTypes[@]}"; do
     grep -m 1 "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV >/dev/null
     if [ $? -eq 0 ]; then
-        grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | sort | uniq | awk -F'\t' 'BEGIN { OFS = "|"; } {print $1,$3,$5,$6}' | sed 's/ *$//' >> $groupMembershipsToLoad    
+        grep "$(printf '\t')$additionalCellGroupType$(printf '\t')" $CONDENSED_SDRF_TSV | awk -F'\t' 'BEGIN { OFS = "|"; } {print $1,$3,$5,$6}' | sort | uniq | sed 's/ *$//' >> $groupMembershipsToLoad    
         
         # Add the option of the unknown cell type
         echo "${EXP_ID}|$additionalCellGroupType|Not available" >> ${groupsToLoad}.tmp
