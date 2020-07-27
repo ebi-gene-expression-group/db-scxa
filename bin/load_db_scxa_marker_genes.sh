@@ -16,7 +16,6 @@ EXPERIMENT_MGENES_PATH=${EXPERIMENT_MGENES_PATH:-$3}
 MGENES_PREFIX=${MGENES_PREFIX:-"$EXP_ID.marker_genes_"}
 MGENES_SUFFIX=${MGENES_SUFFIX:-".tsv"}
 CLUSTERS_FORMAT=${CLUSTERS_FORMAT:-"ISL"}
-CELL_GROUP_TYPES=${CELL_GROUP_TYPES:-"inferred cell type,authors inferred cell type,inferred cell type,inferred cell type - ontology labels,inferred cell type - authors labels"}
 
 # Check that necessary environment variables are defined.
 [ ! -z ${dbConnection+x} ] || (echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1)
@@ -145,15 +144,18 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   cat $markerGenesToLoad | awk -F',' 'BEGIN { OFS = "|"; } {print $1"_"$3"_"$4, $2, $5}' > ${groupMarkerGenesToLoad}.tmp
   
-  # Add in the markers from annotation sources
+  # Add in the markers from annotation source- basically match any non-numeric
+  # field in the file name
 
-  IFS=, additionalCellGroupTypes=($(echo "$CELL_GROUP_TYPES"))
+  re='^[0-9]+$s'
+    
+  for markerGenesFile in $(ls EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes*.tsv); do
+    markerType=$(basename $markerGenesFile | sed 's/.*.marker_genes_//' | sed 's/.tsv//')
+    
+    if ! [[ $markerType =~ $re ]] ; then    
+        spacedCellGroupType=$(echo -e "$markerType" | sed 's/_/ /g')
+        tail -n +2 $markerGenesFile | awk -F'\t' -v EXP_ID="$EXP_ID" -v CELL_GROUP_TYPE="$spacedCellGroupType" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_CELL_GROUP_TYPE_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
 
-  for additionalCellGroupType in "${additionalCellGroupTypes[@]}"; do
-    celltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes_${additionalCellGroupType}.tsv
-    if [ -e "$celltypeMarkers" ]; then
-        spacedCellGroupType=$(echo -e "$additionalCellGroupType" | sed 's/_/ /g')
-        tail -n +2 $celltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" -v CELL_GROUP_TYPE="$spacedCellGroupType" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_CELL_GROUP_TYPE_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
     fi
   done
 
