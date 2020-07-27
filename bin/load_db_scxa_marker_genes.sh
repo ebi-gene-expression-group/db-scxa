@@ -16,6 +16,7 @@ EXPERIMENT_MGENES_PATH=${EXPERIMENT_MGENES_PATH:-$3}
 MGENES_PREFIX=${MGENES_PREFIX:-"$EXP_ID.marker_genes_"}
 MGENES_SUFFIX=${MGENES_SUFFIX:-".tsv"}
 CLUSTERS_FORMAT=${CLUSTERS_FORMAT:-"ISL"}
+CELL_GROUP_TYPES=${CELL_GROUP_TYPES:-"inferred cell type,authors inferred cell type,inferred cell type,inferred cell type - ontology labels,inferred cell type - authors labels"}
 
 # Check that necessary environment variables are defined.
 [ ! -z ${dbConnection+x} ] || (echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1)
@@ -39,8 +40,6 @@ print_log() {
 checkDatabaseConnection $dbConnection
 
 # Input files may expect in the bundles
-inferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes_inferred_cell_type.tsv
-authorsInferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes_authors_inferred_cell_type.tsv
 cellgroupMarkerStatsCount=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_stats_filtered_normalised.tsv
 cellgroupMarkerStatsTPM=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_stats_tpm_filtered.tsv
 
@@ -148,12 +147,15 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   
   # Add in the markers from annotation sources
 
-  if [ -e "$inferredCelltypeMarkers" ]; then
-    tail -n +2 $inferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
-  fi
-  if [ -e "$authorsInferredCelltypeMarkers" ]; then
-    tail -n +2 $authorsInferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } { print EXP_ID"_authors inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp  
-  fi
+  IFS=, additionalCellGroupTypes=($(echo "$CELL_GROUP_TYPES"))
+
+  for additionalCellGroupType in "${additionalCellGroupTypes[@]}"; do
+    celltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes_${additionalCellGroupType}.tsv
+    if [ -e "$celltypeMarkers" ]; then
+        spacedCellGroupType=$(echo -e "$additionalCellGroupType" | sed 's/_/ /g')
+        tail -n +2 $celltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" -v CELL_GROUP_TYPE="$spacedCellGroupType" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_CELL_GROUP_TYPE_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
+    fi
+  done
 
   # Sort and join with the groups file to add the auto-incremented key from the groups table
   cat ${groupMarkerGenesToLoad}.tmp |  sort -t'|' -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
