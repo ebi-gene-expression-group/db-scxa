@@ -147,15 +147,14 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Add in the markers from annotation source- basically match any non-numeric
   # field in the file name
 
-  re='^[0-9]+$s'
+  re='^[0-9]+$'
     
-  for markerGenesFile in $(ls EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes*.tsv); do
+  for markerGenesFile in $(ls $EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes*.tsv); do
     markerType=$(basename $markerGenesFile | sed 's/.*.marker_genes_//' | sed 's/.tsv//')
     
-    if ! [[ $markerType =~ $re ]] ; then    
+    if ! [[ "$markerType" =~ $re ]] ; then
         spacedCellGroupType=$(echo -e "$markerType" | sed 's/_/ /g')
-        tail -n +2 $markerGenesFile | awk -F'\t' -v EXP_ID="$EXP_ID" -v CELL_GROUP_TYPE="$spacedCellGroupType" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_CELL_GROUP_TYPE_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
-
+        tail -n +2 $markerGenesFile | awk -F'\t' -v EXP_ID="$EXP_ID" -v CELL_GROUP_TYPE="$spacedCellGroupType" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_"CELL_GROUP_TYPE"_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
     fi
   done
 
