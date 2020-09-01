@@ -39,8 +39,6 @@ print_log() {
 checkDatabaseConnection $dbConnection
 
 # Input files may expect in the bundles
-inferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes_inferred_cell_type.tsv
-authorsInferredCelltypeMarkers=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes_authors_inferred_cell_type.tsv
 cellgroupMarkerStatsCount=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_stats_filtered_normalised.tsv
 cellgroupMarkerStatsTPM=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_stats_tpm_filtered.tsv
 
@@ -146,14 +144,19 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   cat $markerGenesToLoad | awk -F',' 'BEGIN { OFS = "|"; } {print $1"_"$3"_"$4, $2, $5}' > ${groupMarkerGenesToLoad}.tmp
   
-  # Add in the markers from annotation sources
+  # Add in the markers from annotation source- basically match any non-numeric
+  # field in the file name
 
-  if [ -e "$inferredCelltypeMarkers" ]; then
-    tail -n +2 $inferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
-  fi
-  if [ -e "$authorsInferredCelltypeMarkers" ]; then
-    tail -n +2 $authorsInferredCelltypeMarkers | awk -F'\t' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } { print EXP_ID"_authors inferred cell type_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp  
-  fi
+  re='^[0-9]+$'
+    
+  for markerGenesFile in $(ls $EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes*.tsv); do
+    markerType=$(basename $markerGenesFile | sed 's/.*.marker_genes_//' | sed 's/.tsv//')
+    
+    if ! [[ "$markerType" =~ $re ]] ; then
+        spacedCellGroupType=$(echo -e "$markerType" | sed 's/_/ /g')
+        tail -n +2 $markerGenesFile | awk -F'\t' -v EXP_ID="$EXP_ID" -v CELL_GROUP_TYPE="$spacedCellGroupType" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_"CELL_GROUP_TYPE"_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
+    fi
+  done
 
   # Sort and join with the groups file to add the auto-incremented key from the groups table
   cat ${groupMarkerGenesToLoad}.tmp |  sort -t'|' -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
