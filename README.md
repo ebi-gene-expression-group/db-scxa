@@ -76,6 +76,7 @@ The main executable is `bin/load_db_scxa_cell_clusters.sh`, which requires the f
 - `EXP_ID`: Atlas Experiment identifier.
 - `EXPERIMENT_CLUSTERS_FILE`: path to the file containing the clusters in wide format (as defined by iRAP SC).
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_cell_group`, `scxa_cell_group_membership`, `scxa_cell_clusters` and `scxa_cell_group_marker_gene_stats` tables exist.
+- `CONDENSED_SDRF_TSV`: path to the condensed SDRF file of the experiment. This will be used to derive cell groups from the metadata, in addition to the clusters. 
 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
@@ -107,7 +108,6 @@ Same as in `scxa_analytics` currently.
 The main executable is `bin/load_db_scxa_marker_genes.sh`, which requires the following environment variables to be set:
 - `EXP_ID`: Atlas experiment identifier.
 - `EXPERIMENT_MGENES_PATH`: path of marker genes files for transforming and loading.
-- `CONDENSED_SDRF_TSV`: patht to the condensed SDRF file of the experiment.
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_marker_genes`, `scxa_cell_group_marker_gene_stats`, `scxa_cell_group_marker_genes` and `scxa_cell_group` tables exist.
 Optionally, you can set `CLUSTERS_FORMAT` and `NUMBER_MGENES_FILES`:
 
