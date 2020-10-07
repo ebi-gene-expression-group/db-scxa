@@ -8,7 +8,7 @@ For direct usage, this module requires Rscript (with optparse and tidyr, in Ubun
 
 ## Create schema
 
-Currently, schema for postgres scxa-* tables is stored at https://github.com/ebi-gene-expression-group/atlas/tree/dev/atlas-misc/scripts/db_updates. In time, the schema will be either consumed from this or a dedicated repo.
+Currently, schema for postgres scxa-* tables is stored at https://github.com/ebi-gene-expression-group/atlas-schemas/tree/master/flyway/scxa.
 
 ## Load data
 
