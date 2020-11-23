@@ -1,8 +1,8 @@
-# Module for Single Cell Expression Atlas database loading (v0.2.3)  
+# Module for Single Cell Expression Atlas database loading (v0.2.3)
 
 An AtlasProd module for loading scxa-* tables data to postgres >=10. Release v0.2.3 was used for the May 2020 Data release of Singe Cell Expression Atlas.
 
-For direct usage, this module requires Rscript (with optparse and tidyr, in Ubuntu and Debian-based distributions install packages `r-cran-optparse` and `r-cran-tidyr`), psql and node.
+For direct usage, this module requires Rscript (with optparse, tidyr and data.table, in Ubuntu and Debian-based distributions install packages `r-cran-optparse` , `r-cran-tidyr` and `r-cran-data.table`), psql and node.
 
 # `scxa_analytics` Table
 
@@ -76,7 +76,7 @@ The main executable is `bin/load_db_scxa_cell_clusters.sh`, which requires the f
 - `EXP_ID`: Atlas Experiment identifier.
 - `EXPERIMENT_CLUSTERS_FILE`: path to the file containing the clusters in wide format (as defined by iRAP SC).
 - `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_cell_group`, `scxa_cell_group_membership`, `scxa_cell_clusters` and `scxa_cell_group_marker_gene_stats` tables exist.
-- `CONDENSED_SDRF_TSV`: path to the condensed SDRF file of the experiment. This will be used to derive cell groups from the metadata, in addition to the clusters. 
+- `CONDENSED_SDRF_TSV`: path to the condensed SDRF file of the experiment. This will be used to derive cell groups from the metadata, in addition to the clusters.
 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
