@@ -102,10 +102,6 @@ cat ${groupsToLoad}.tmp | sort -t$'|' -k 1,1 | uniq > $groupsToLoad
 
 # Delete existing content- including via FKs (though this should really cascade now)
 print_log "Deleting existing grouping data..."
-echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
-echo "DELETE FROM scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
 echo "DELETE FROM scxa_cell_group WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 print_log "Copying cell groups data to the db..."
