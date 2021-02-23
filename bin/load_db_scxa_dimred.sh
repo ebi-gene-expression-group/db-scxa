@@ -95,7 +95,7 @@ done
 echo "coords: Loading data for $EXP_ID..."
 
 set +e
-printf "\copy scxa_coords (experiment_accession, method, cell_id, x, y, json_parameterisation) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv | \
+printf "\copy scxa_coords (experiment_accession, method, cell_id, x, y, parameterisation) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
 s=$?
