@@ -275,6 +275,12 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Dimred parameters: check that JSON queries run and return expected values" {
+    target_perps="1 5 10 15 20  "
+    perps=$(echo "select distinct parameterisation->0->'perplexity' as perplexity from scxa_coords order by perplexity" | psql -At $dbConnection | tr '\n' ' ')
+    run [ "$perps" = "$target_perps" ]
+}
+
 @test "TSNE: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
   count=$(echo "SELECT COUNT(*) FROM scxa_tsne" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')

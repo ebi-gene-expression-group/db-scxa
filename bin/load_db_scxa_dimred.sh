@@ -86,7 +86,7 @@ for dimred_type in tsne umap; do
 
   for f in $(ls $EXPERIMENT_DIMRED_PATH/$dimred_prefix*$DIMRED_SUFFIX); do
     paramval=$(echo $f | sed s+$EXPERIMENT_DIMRED_PATH/$dimred_prefix++ | sed s/$DIMRED_SUFFIX// )
-    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="$dimred_param=$paramval" -v method="$dimred_type" 'BEGIN { OFS = ","; }
+    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="[{\"$dimred_param\": $paramval}]" -v method="$dimred_type" 'BEGIN { OFS = ","; }
     { print EXP_ID, method, $1, $2, $3, params }' >> $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv
   done
 done
