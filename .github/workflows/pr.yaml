@@ -6,6 +6,12 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
+
+    - name: Add workspace to path
+      run: |
+        echo "${GITHUB_WORKSPACE}" >> $GITHUB_PATH
+    
     - uses: docker-practice/actions-setup-docker@master
     - run: |
-        bash run_tests_with_containers.sh
+        run_tests_with_containers.sh
