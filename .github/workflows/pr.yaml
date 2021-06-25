@@ -1,0 +1,11 @@
+name: Test db-scxa operations
+
+on: [pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: docker-practice/actions-setup-docker@master
+    - run: |
+        bash run_tests_with_containers.sh
