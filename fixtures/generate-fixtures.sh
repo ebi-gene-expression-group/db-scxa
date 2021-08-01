@@ -30,18 +30,18 @@ export POSTGRES_PORT=${POSTGRES_PORT:-5432}
 # Query DB and export data to TSV files, remember to pass argument as a string!
 for EXP_ID in $1
 do
-  ${SCRIPT_DIR}/sample-scxa_analytics.sh ${EXP_ID} 100 >> ./scxa_analytics.tsv
+  ${SCRIPT_DIR}/01-sample-scxa_analytics.sh ${EXP_ID} 100 >> ./scxa_analytics.tsv
 done
 
-${SCRIPT_DIR}/01-scxa_coords.sh ./scxa_analytics.tsv > ./scxa_coords.tsv
+${SCRIPT_DIR}/02-scxa_coords.sh ./scxa_analytics.tsv > ./scxa_coords.tsv
 
 # Rather than defining the cell groups we go in reverse: we pick up the cell group IDs for the selected cells
-${SCRIPT_DIR}/02a-scxa_cell_group_membership.sh ./scxa_analytics.tsv > ./scxa_cell_group_membership.tsv
-${SCRIPT_DIR}/02b-scxa_cell_group.sh ./scxa_cell_group_membership.tsv > ./scxa_cell_group.tsv
+${SCRIPT_DIR}/03a-scxa_cell_group_membership.sh ./scxa_analytics.tsv > ./scxa_cell_group_membership.tsv
+${SCRIPT_DIR}/03b-scxa_cell_group.sh ./scxa_cell_group_membership.tsv > ./scxa_cell_group.tsv
 
-${SCRIPT_DIR}/03-scxa_cell_group_marker_genes.sh ./scxa_analytics.tsv > ./scxa_cell_group_marker_genes.tsv
+${SCRIPT_DIR}/04-scxa_cell_group_marker_genes.sh ./scxa_analytics.tsv > ./scxa_cell_group_marker_genes.tsv
 
-${SCRIPT_DIR}/04-scxa_cell_group_marker_gene_stats.sh ./scxa_analytics.tsv > ./scxa_cell_group_marker_gene_stats.tsv
+${SCRIPT_DIR}/05-scxa_cell_group_marker_gene_stats.sh ./scxa_analytics.tsv > ./scxa_cell_group_marker_gene_stats.tsv
 
 
 # Transform TSV files to SQL INSERTs
