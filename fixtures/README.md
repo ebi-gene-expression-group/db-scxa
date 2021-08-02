@@ -23,10 +23,10 @@ and `POSTGRES_DB` are mandatory.
 
 Example:
 ```bash
-# POSTGRES_USER=atlasprd3 \
-# POSTGRES_DB=gxpscxadev \
-# generate-fixtures.sh \
-# 'E-CURD-4 E-EHCA-2 E-GEOD-71585 E-GEOD-81547 E-GEOD-99058 E-MTAB-5061'
+POSTGRES_USER=atlasprd3 \
+POSTGRES_DB=gxpscxadev \
+generate-fixtures.sh \
+'E-CURD-4 E-EHCA-2 E-GEOD-71585 E-GEOD-81547 E-GEOD-99058 E-MTAB-5061'
 ```
 
 The script can be called from any directory. All files will be written to $PWD.
