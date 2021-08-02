@@ -9,7 +9,7 @@ POSTGRES_PORT=${POSTGRES_PORT:-5432}
 
 # Input file has cell group ID in 3rd column (e.g. output of
 # scxa_cell_group_membership.sh)
-SUBQUERY="SELECT * FROM scxa_cell_group WHERE id IN(`cut -f 3 -d $'\t' $1 | ${SCRIPT_DIR}/join-lines.sh`)";
+SUBQUERY="SELECT * FROM scxa_cell_group WHERE id IN(`cut -f 3 -d $'\t' $1 | ${SCRIPT_DIR}/join-lines.sh`) OR id IN(`cut -f 3 -d $'\t' $2 | ${SCRIPT_DIR}/join-lines.sh`) OR id IN(`cut -f 2 -d $'\t' $3  | ${SCRIPT_DIR}/join-lines.sh`)";
 
 echo "COPY (SELECT * FROM (${SUBQUERY}) AS foobar ORDER BY experiment_accession) TO STDOUT DELIMITER E'\t';" | \
 psql -U ${POSTGRES_USER} -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -d ${POSTGRES_DB}
