@@ -262,42 +262,8 @@
   [ "$status" -eq 0 ]
 }
 
-@test "TSNE: Check that load_db_scxa_dimred.sh is in the path" {
+@test "TSNE and UMAP: Check that load_db_scxa_dimred.sh is in the path" {
   run which load_db_scxa_dimred.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "TSNE: Load data" {
-  export EXP_ID=TEST-EXP1
-  run load_db_scxa_dimred.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "Dimred parameters: check that JSON queries run and return expected values" {
-    target_perps="1 5 10 15 20  "
-    perps=$(echo "select distinct parameterisation->0->'perplexity' as perplexity from scxa_coords order by perplexity" | psql -At $dbConnection | tr '\n' ' ')
-    run [ "$perps" = "$target_perps" ]
-}
-
-@test "TSNE: Check number of loaded rows" {
-  # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_tsne" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
-  # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 250 ]
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "TSNE: Delete experiment" {
-  export EXP_ID=TEST-EXP1
-  run delete_db_scxa_dimred.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
-  # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 0 ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
