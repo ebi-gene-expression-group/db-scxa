@@ -29,42 +29,6 @@ DIMRED_SUFFIX=${DIMRED_SUFFIX:-".tsv"}
 # Check that database connection is valid
 checkDatabaseConnection $dbConnection
 
-# Delete tsne table content for current EXP_ID
-echo "tsne table: Delete rows for $EXP_ID:"
-echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
-
-# Create file with data
-# Please note that this relies on:
-# - Column ordering on the marker genes file: tSNE_1 tSNE_2 Label
-# - Table ordering of columns: experiment_accession cell_id x y perplexity
-echo "Marker genes: Create data file for $EXP_ID..."
-rm -f $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv
-for f in $(ls $EXPERIMENT_DIMRED_PATH/$TSNE_PREFIX*$DIMRED_SUFFIX); do
-  persp=$(echo $f | sed s+$EXPERIMENT_DIMRED_PATH/$TSNE_PREFIX++ | sed s/$DIMRED_SUFFIX// )
-  tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v persp_value="$persp" 'BEGIN { OFS = ","; }
-  { print EXP_ID, $1, $2, $3, persp_value }' >> $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv
-done
-
-# Load data
-echo "TSNE: Loading data for $EXP_ID..."
-
-set +e
-printf "\copy scxa_tsne (experiment_accession, cell_id, x, y, perplexity) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
-
-s=$?
-
-rm $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv
-
-# Roll back if unsucessful
-
-if [ $s -ne 0 ]; then
-  echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
-    psql -v ON_ERROR_STOP=1 $dbConnection
-  exit 1
-fi
-echo "TSNE: Loading done for $EXP_ID..."
 
 # Write to the new generic coordinates table
 
