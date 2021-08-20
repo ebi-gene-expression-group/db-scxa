@@ -34,7 +34,7 @@ export dbConnection=...
 delete_db_scxa_analytics.sh
 ```
 
-# `scxa_tsne` Table
+# `scxa_coords` Table
 
 ## Create schema
 
@@ -44,8 +44,8 @@ Same as in `scxa_analytics` currently.
 
 The main executable is `bin/load_db_scxa_dimred.sh`, which requires the following environment variables to be set:
 - `EXP_ID`: Atlas experiment identifier.
-- `EXPERIMENT_DIMRED_PATH`: path to directory containing tsne files for loading. Files are expected to have the structure <prefix><perplexity_number><suffix>, with the default suffix and prefix defined in the script. These can be configured from outside through env vars.
-- `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_tsne` and `scxa_coords` tables exist.
+- `EXPERIMENT_DIMRED_PATH`: path to directory containing tsne and umap files for loading. Files are expected to have the structure <prefix><perplexity_number><suffix> (tsne) or <prefix><neighbors_number><suffix> (umap) with the default suffix and prefix defined in the script. These can be configured from outside through env vars.
+- `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_coords` table exist.
 
 Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
 
