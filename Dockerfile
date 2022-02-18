@@ -1,10 +1,10 @@
-FROM continuumio/miniconda3:4.8.2
+FROM mambaorg/micromamba:0.17.0
 # debian
 
-RUN /opt/conda/bin/conda config --add channels defaults && \
-    /opt/conda/bin/conda config --add channels conda-forge && \
-    /opt/conda/bin/conda config --add channels bioconda && \
-    /opt/conda/bin/conda install r-base r-tidyr r-optparse r-matrix openjdk r-data.table
+RUN micromamba config --add channels defaults && \
+    micromamba config --add channels conda-forge && \
+    micromamba config --add channels bioconda && \
+    micromamba install r-base r-tidyr r-optparse r-matrix openjdk r-data.table
 
 USER root
 # RUN apk update && apk add postgresql-client bash wget nodejs bats
