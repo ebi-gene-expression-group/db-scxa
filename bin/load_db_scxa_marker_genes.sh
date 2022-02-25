@@ -13,6 +13,7 @@ source $scriptDir/db_scxa_common.sh
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
 EXPERIMENT_MGENES_PATH=${EXPERIMENT_MGENES_PATH:-$3}
+SCRATCH_DIR=${SCRATCH_DIR:-"$EXPERIMENT_MGENES_PATH"}
 MGENES_PREFIX=${MGENES_PREFIX:-"$EXP_ID.marker_genes_"}
 MGENES_SUFFIX=${MGENES_SUFFIX:-".tsv"}
 CLUSTERS_FORMAT=${CLUSTERS_FORMAT:-"ISL"}
@@ -43,12 +44,12 @@ cellgroupMarkerStatsCount=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_stats_filtere
 cellgroupMarkerStatsTPM=$EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_stats_tpm_filtered.tsv
 
 # Files we'll be using (and cleaning up)
-markerGenesToLoad=$EXPERIMENT_MGENES_PATH/mgenesDataToLoad.csv
-groupIds=$EXPERIMENT_MGENES_PATH/groupIds.csv
-groupMarkerIds=$EXPERIMENT_MGENES_PATH/groupMarkerIds.csv
-groupMarkerGenesToLoad=$EXPERIMENT_MGENES_PATH/groupMarkerGenesToLoad.csv
-groupMarkerStatsToLoad=$EXPERIMENT_MGENES_PATH/groupMarkerStatsToLoad.csv
-groupMarkerStatsWithIDs=$EXPERIMENT_MGENES_PATH/groupMarkerStatsWithIDs
+markerGenesToLoad=$SCRATCH_DIR/mgenesDataToLoad.csv
+groupIds=$SCRATCH_DIR/groupIds.csv
+groupMarkerIds=$SCRATCH_DIR/groupMarkerIds.csv
+groupMarkerGenesToLoad=$SCRATCH_DIR/groupMarkerGenesToLoad.csv
+groupMarkerStatsToLoad=$SCRATCH_DIR/groupMarkerStatsToLoad.csv
+groupMarkerStatsWithIDs=$SCRATCH_DIR/groupMarkerStatsWithIDs
 
 if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Check that files are in place.
@@ -89,7 +90,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
       { print EXP_ID, $4, k_value, $1, $2 }' >> $markerGenesToLoad
     elif [ "$CLUSTERS_FORMAT" == "SCANPY" ]; then
       # Scanpy produces marker genes with the following fields with value like:
-      # 
+      #
       # cluster	ref	rank	genes	scores	logfoldchanges	pvals	pvals_adj
       # 0	rest	0	FBgn0003448	20.580915	6.0675416	2.3605626738867564e-47	1.1128872726039114e-43
       tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v k_value="$k" 'BEGIN { OFS = ","; }
@@ -103,7 +104,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   # Load data
   print_log "Marker genes: Loading data for $EXP_ID..."
-  
+
   set +e
   printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" $markerGenesToLoad | \
     psql -v ON_ERROR_STOP=1 $dbConnection
@@ -111,19 +112,19 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   s=$?
 
   # Roll back if write was unsucessful
-  
+
   if [ $s -ne 0 ]; then
     echo "Marker table write failed" 1>&2
     echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
       psql -v ON_ERROR_STOP=1 $dbConnection
-    exit 1    
+    exit 1
   fi
 
   print_log "## Marker genes (old layout): Loading done for $EXP_ID"
   print_log "## Loading Marker genes for $EXP_ID (new layout)."
 
-  # NEW LAYOUT: point at cell groups table, retrieving cell group integer IDs from there first 
-    
+  # NEW LAYOUT: point at cell groups table, retrieving cell group integer IDs from there first
+
   print_log "## Cleaning pre-existing marker genes for $EXP_ID (new layout)."
   echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
@@ -138,20 +139,20 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   # The join we need later is particular about sort order
   tail -n +2 $groupIds | sort -t'|' -k 1,1 > ${groupIds}.tmp && mv ${groupIds}.tmp ${groupIds}
-  
+
   # Get marker genes in the format 'expid_variable_value,cell_id,padj, where experiment, variable and value define the cell grouping
   # First for cluster markers (with groups like k_1 etc)
 
   cat $markerGenesToLoad | awk -F',' 'BEGIN { OFS = "|"; } {print $1"_"$3"_"$4, $2, $5}' > ${groupMarkerGenesToLoad}.tmp
-  
+
   # Add in the markers from annotation source- basically match any non-numeric
   # field in the file name
 
   re='^[0-9]+$'
-    
+
   for markerGenesFile in $(ls $EXPERIMENT_MGENES_PATH/${EXP_ID}.marker_genes*.tsv); do
     markerType=$(basename $markerGenesFile | sed 's/.*.marker_genes_//' | sed 's/.tsv//')
-    
+
     if ! [[ "$markerType" =~ $re ]] ; then
         spacedCellGroupType=$(echo -e "$markerType" | sed 's/_/ /g')
         tail -n +2 $markerGenesFile | awk -F'\t' -v EXP_ID="$EXP_ID" -v CELL_GROUP_TYPE="$spacedCellGroupType" 'BEGIN { OFS = "|"; } { gsub("^nan$","Not available",$1); print EXP_ID"_"CELL_GROUP_TYPE"_"$1, $4, $8 }' >> ${groupMarkerGenesToLoad}.tmp
@@ -179,12 +180,12 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   s=$?
 
   # Roll back if write was unsucessful
-  
+
   if [ $s -ne 0 ]; then
     echo "Group marker table write failed" 1>&2
     echo "DELETE FROM scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
       psql -v ON_ERROR_STOP=1 $dbConnection
-    exit 1    
+    exit 1
   fi
 
   print_log "## Group marker genes (new layout): Loading done for $EXP_ID..."
@@ -196,7 +197,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
   echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"')" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
-  
+
   echo "\copy (select concat(gene_id, '_', cell_group_id), id from scxa_cell_group_marker_genes WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') ORDER BY gene_id, cell_group_id) TO '$groupMarkerIds' DELIMITER '|' CSV HEADER" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
@@ -211,7 +212,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     elif [ "$expressionType" == 'tpm' ]; then
         cellgroupMarkerStats=$cellgroupMarkerStatsTPM
         typeCode=1
-    fi 
+    fi
 
     if [ ! -e "$cellgroupMarkerStats" ]; then
         echo "$cellgroupMarkerStats not found, not loading TPM stats (probably droplet experiment)" 1>&2
@@ -236,7 +237,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
         $groupIds \
         <(tail -n +2 "${cellgroupMarkerStats}" | sed 's/, /REALCOMMA/g' | sed s/\"//g | sed s/,/\|/g | sed 's/REALCOMMA/, /g' |awk -F'|' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } {gsub("^None$","Not available",$3); gsub("^None$","Not available",$4); print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -t'|' -k 1,1) | \
         awk -F'|' 'BEGIN { OFS = "|"; } { print $3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t'|' -k 1,1
-      ) | awk -F'|' 'BEGIN { OFS = "|"; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t'|' -k 1,1 > $groupMarkerStatsWithIDs 
+      ) | awk -F'|' 'BEGIN { OFS = "|"; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t'|' -k 1,1 > $groupMarkerStatsWithIDs
 
 
     join -t '|' $groupMarkerIds $groupMarkerStatsWithIDs | awk -F'|' -v TYPE_CODE=$typeCode 'BEGIN { OFS = "|"; } {print $5, $3, $2, TYPE_CODE, $9, $10 }' > $groupMarkerStatsToLoad
@@ -259,18 +260,18 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
     s=$?
 
     # Roll back if write was unsucessful
-      
+
     if [ $s -ne 0 ]; then
       echo "Group marker table write failed" 1>&2
       echo "DELETE FROM scxa_cell_group_marker_gene_stats WHERE cell_group_id in (select id from scxa_cell_group where experiment_accession = '"$EXP_ID"') and expression_type = $typeCode" | \
         psql -v ON_ERROR_STOP=1 $dbConnection
-      exit 1    
+      exit 1
     fi
     rm -f ${groupMarkerStatsToLoad}
  done
 
  print_log "## Group marker gene statistics: Loading done for $EXP_ID..."
- 
+
  # Clean up
  rm -f $markerGenesToLoad $groupIds ${groupMarkerGenesToLoad} ${groupMarkerGenesToLoad}.tmp.sorted $groupMarkerIds
 
