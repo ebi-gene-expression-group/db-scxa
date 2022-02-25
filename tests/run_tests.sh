@@ -14,6 +14,9 @@ flyway migrate -url=jdbc:postgresql://${HOST}:5432/${DB} -user=${USER} -password
 create-test-matrix-market-files.R TEST-EXP1
 create-test-matrix-market-files.R TEST-EXP2
 
+# For use within micromamba container
+export SCRATCH_DIR=/tmp
+
 export EXPERIMENT_MATRICES_PATH=$PWD
 
 # For marker genes loading testing
