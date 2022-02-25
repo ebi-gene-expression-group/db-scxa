@@ -212,11 +212,13 @@
 }
 
 @test "Marker genes: Add second dataset for deletion tests" {
-  cp $testsDir/marker-genes/TEST-EXP1.clusters.tsv $testsDir/marker-genes/TEST-EXP2.clusters.tsv
-  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_9.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_9.tsv
-  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_10.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_10.tsv
-  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_11.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_11.tsv
+  cp $testsDir/marker-genes/TEST-EXP1.clusters.tsv $SCRATCH_DIR/TEST-EXP2.clusters.tsv
+  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_9.tsv $SCRATCH_DIR/TEST-EXP2.marker_genes_9.tsv
+  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_10.tsv $SCRATCH_DIR/TEST-EXP2.marker_genes_10.tsv
+  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_11.tsv $SCRATCH_DIR/TEST-EXP2.marker_genes_11.tsv
   export EXP_ID=TEST-EXP2
+  export EXPERIMENT_MGENES_PATH=$SCRATCH_DIR
+  export EXPERIMENT_CLUSTERS_FILE=$SCRATCH_DIR/TEST-EXP2.clusters.tsv
   run load_db_scxa_cell_clusters.sh
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
