@@ -2,7 +2,7 @@
 set -e
 psql -v ON_ERROR_STOP=1 $dbConnection <<EOF
 SET maintenance_work_mem='2GB';
-REINDEX TABLE scxa_coord;
+REINDEX TABLE scxa_coords;
 REINDEX TABLE scxa_marker_genes;
 REINDEX TABLE scxa_cell_clusters;
 REINDEX TABLE experiment;
