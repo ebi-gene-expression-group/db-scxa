@@ -212,7 +212,7 @@
 }
 
 @test "Marker genes: Add second dataset for deletion tests and do cell clusters" {
-  cp -r $testsDir/marker-genes $SCRATCH_DIR/
+  cp -r $testsDir/marker-genes $SCRATCH_DIR/marker_genes
 
   export EXP_ID=TEST-EXP2
   export EXPERIMENT_MGENES_PATH=$SCRATCH_DIR/marker-genes
