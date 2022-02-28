@@ -6,5 +6,3 @@ ADD postgres_routines /usr/local/postgres_routines
 USER root
 RUN chmod a+w /usr/local
 USER micromamba
-
-ENV PATH "/bin:/sbin:/usr/bin:/usr/local/bin:/opt/conda/bin"
