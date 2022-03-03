@@ -40,16 +40,6 @@ docker run --rm -i --net mynet \
   flyway migrate -url=$jdbc_url -user=$POSTGRES_USER \
   -password=$POSTGRES_PASSWORD -locations=filesystem:/flyway/scxa
 
-# # Test load of experiments through CLI
-# docker run --rm -it --net mynet -v $( pwd )/tests:/usr/local/tests:rw \
-#   -v $( pwd )/fixtures:/fixtures \
-#   -v $( pwd )/bin:/usr/local/bin \
-
-#   -e ACCESSIONS=E-MTAB-2983 \
-#   -e BIOENTITIES=/fixtures/ \
-#   -e EXPERIMENT_FILES=/fixtures/experiment_files \
-#   test/db-scxa-module load_experiment_web_cli.sh
-
 docker build $docker_arch_line -t test/db-scxa-module .
 
 docker run --net mynet -i $docker_arch_line \
