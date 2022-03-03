@@ -23,6 +23,13 @@ export EXPERIMENT_DIMRED_PATH=$testsDir/dimred
 # For cluster loading testing
 export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
 
+echo "/tmp contents"
+ls -l /tmp
+echo "****************"
+echo "/tmp/fixtures contents"
+ls -l /tmp/fixtures
+
+
 if [ "$#" -eq 0 ]; then
 	bats --tap "$(dirname "${BASH_SOURCE[0]}")"
 else
