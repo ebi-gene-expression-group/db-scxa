@@ -27,11 +27,11 @@ export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
 cp -r /fixtures /tmp/fixtures
 # Look at this
 echo "Content of /tmp/fixtures/experiment_files/expdesign"
-ls -l /tmp/fixtures/experiment_files/expdesign
+ls -l /tmp/fixtures/experiment_files/expDesign
 echo "**********************"
 echo "Content of /tmp/fixtures/experiment_files"
 ls -l /tmp/fixtures/experiment_files 
-chmod -R a+w /tmp/fixtures/experiment_files/expdesign 
+chmod -R a+w /tmp/fixtures/experiment_files/expDesign 
 
 
 if [ "$#" -eq 0 ]; then
