@@ -25,8 +25,8 @@
 
 @test "Loading: E-MTAB-2983 through cli" {
   export ACCESSIONS=E-MTAB-2983
-  export BIOENTITIES=/fixtures/
-  export EXPERIMENT_FILES=/fixtures/experiment_files
+  export BIOENTITIES=/tmp/fixtures/
+  export EXPERIMENT_FILES=/tmp/fixtures/experiment_files
 
   run load_experiment_web_cli.sh
   echo "output = ${output}"
