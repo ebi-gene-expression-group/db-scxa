@@ -23,11 +23,8 @@ export EXPERIMENT_DIMRED_PATH=$testsDir/dimred
 # For cluster loading testing
 export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
 
-echo "/tmp contents"
-ls -l /tmp
-echo "****************"
-echo "/tmp/fixtures contents"
-ls -l /tmp/fixtures
+# For fixtures to be able to be writable.
+cp -r /fixtures /tmp/fixtures
 
 
 if [ "$#" -eq 0 ]; then
