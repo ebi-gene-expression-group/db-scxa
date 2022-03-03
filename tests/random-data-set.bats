@@ -211,13 +211,23 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Marker genes: Add second dataset for deletion tests" {
-  cp $testsDir/marker-genes/TEST-EXP1.clusters.tsv $testsDir/marker-genes/TEST-EXP2.clusters.tsv
-  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_9.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_9.tsv
-  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_10.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_10.tsv
-  cp $testsDir/marker-genes/TEST-EXP1.marker_genes_11.tsv $testsDir/marker-genes/TEST-EXP2.marker_genes_11.tsv
+@test "Marker genes: Add second dataset for deletion tests and do cell clusters" {
+  cp -r $testsDir/marker-genes $SCRATCH_DIR/marker-genes
+
   export EXP_ID=TEST-EXP2
+  export EXPERIMENT_MGENES_PATH=$SCRATCH_DIR/marker-genes
+  export EXPERIMENT_CLUSTERS_FILE=$SCRATCH_DIR/marker-genes/TEST-EXP2.clusters.tsv
   run load_db_scxa_cell_clusters.sh
+
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Marker genes: Marker genes for second dataset for deletion tests" {
+  export EXP_ID=TEST-EXP2
+  export EXPERIMENT_MGENES_PATH=$SCRATCH_DIR/marker-genes
+  export EXPERIMENT_CLUSTERS_FILE=$SCRATCH_DIR/marker-genes/TEST-EXP2.clusters.tsv
+
   run load_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
@@ -262,13 +272,7 @@
   [ "$status" -eq 0 ]
 }
 
-@test "TSNE: Check that load_db_scxa_dimred.sh is in the path" {
-  run which load_db_scxa_dimred.sh
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "TSNE: Load data" {
+@test "Coords: Load tSNE data" {
   export EXP_ID=TEST-EXP1
   run load_db_scxa_dimred.sh
   echo "output = ${output}"
@@ -281,23 +285,29 @@
     run [ "$perps" = "$target_perps" ]
 }
 
-@test "TSNE: Check number of loaded rows" {
+@test "Coords: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_tsne" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_coords" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 250 ]
+  run [ $count -eq 300 ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
 
-@test "TSNE: Delete experiment" {
+@test "Coords: Delete experiment" {
   export EXP_ID=TEST-EXP1
   run delete_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Coords: Check that load_db_scxa_dimred.sh is in the path" {
+  run which load_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }

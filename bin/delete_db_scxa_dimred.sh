@@ -6,7 +6,5 @@ set -e
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
 
-echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection
-
 echo "DELETE FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection

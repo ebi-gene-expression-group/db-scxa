@@ -13,6 +13,7 @@ source $scriptDir/db_scxa_common.sh
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
 EXPERIMENT_DIMRED_PATH=${EXPERIMENT_DIMRED_PATH:-$3}
+SCRATCH_DIR=${SCRATCH_DIR:-"$EXPERIMENT_DIMRED_PATH"}
 TSNE_PREFIX=${TSNE_PREFIX:-"$EXP_ID.tsne_perp_"}
 UMAP_PREFIX=${UMAP_PREFIX:-"$EXP_ID.umap_neigh_"}
 DIMRED_SUFFIX=${DIMRED_SUFFIX:-".tsv"}
@@ -29,47 +30,11 @@ DIMRED_SUFFIX=${DIMRED_SUFFIX:-".tsv"}
 # Check that database connection is valid
 checkDatabaseConnection $dbConnection
 
-# Delete tsne table content for current EXP_ID
-echo "tsne table: Delete rows for $EXP_ID:"
-echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
-
-# Create file with data
-# Please note that this relies on:
-# - Column ordering on the marker genes file: tSNE_1 tSNE_2 Label
-# - Table ordering of columns: experiment_accession cell_id x y perplexity
-echo "Marker genes: Create data file for $EXP_ID..."
-rm -f $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv
-for f in $(ls $EXPERIMENT_DIMRED_PATH/$TSNE_PREFIX*$DIMRED_SUFFIX); do
-  persp=$(echo $f | sed s+$EXPERIMENT_DIMRED_PATH/$TSNE_PREFIX++ | sed s/$DIMRED_SUFFIX// )
-  tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v persp_value="$persp" 'BEGIN { OFS = ","; }
-  { print EXP_ID, $1, $2, $3, persp_value }' >> $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv
-done
-
-# Load data
-echo "TSNE: Loading data for $EXP_ID..."
-
-set +e
-printf "\copy scxa_tsne (experiment_accession, cell_id, x, y, perplexity) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
-
-s=$?
-
-rm $EXPERIMENT_DIMRED_PATH/tsneDataToLoad.csv
-
-# Roll back if unsucessful
-
-if [ $s -ne 0 ]; then
-  echo "DELETE FROM scxa_tsne WHERE experiment_accession = '"$EXP_ID"'" | \
-    psql -v ON_ERROR_STOP=1 $dbConnection
-  exit 1
-fi
-echo "TSNE: Loading done for $EXP_ID..."
 
 # Write to the new generic coordinates table
 
 echo "Dimension reductions: Loading data for $EXP_ID (new layout)..."
-rm -f $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv
+rm -f $SCRATCH_DIR/dimredDataToLoad.csv
 
 # Delete table content for current EXP_ID
 echo "coords table: Delete rows for $EXP_ID:"
@@ -87,7 +52,7 @@ for dimred_type in tsne umap; do
   for f in $(ls $EXPERIMENT_DIMRED_PATH/$dimred_prefix*$DIMRED_SUFFIX); do
     paramval=$(echo $f | sed s+$EXPERIMENT_DIMRED_PATH/$dimred_prefix++ | sed s/$DIMRED_SUFFIX// )
     tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="[{\"$dimred_param\": $paramval}]" -v method="$dimred_type" 'BEGIN { OFS = ","; }
-    { print EXP_ID, method, $1, $2, $3, params }' >> $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv
+    { print EXP_ID, method, $1, $2, $3, params }' >> $SCRATCH_DIR/dimredDataToLoad.csv
   done
 done
 
@@ -95,12 +60,12 @@ done
 echo "coords: Loading data for $EXP_ID..."
 
 set +e
-printf "\copy scxa_coords (experiment_accession, method, cell_id, x, y, parameterisation) FROM '%s' WITH (DELIMITER ',');" $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv | \
+printf "\copy scxa_coords (experiment_accession, method, cell_id, x, y, parameterisation) FROM '%s' WITH (DELIMITER ',');" $SCRATCH_DIR/dimredDataToLoad.csv | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
 s=$?
 
-rm $EXPERIMENT_DIMRED_PATH/dimredDataToLoad.csv
+rm $SCRATCH_DIR/dimredDataToLoad.csv
 
 # Roll back if unsucessful
 
