@@ -25,6 +25,13 @@ export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
 
 # For fixtures to be able to be writable.
 cp -r /fixtures /tmp/fixtures
+# Look at this
+echo "Content of /tmp/fixtures/experiment_files/expdesign"
+ls -l /tmp/fixtures/experiment_files/expdesign
+echo "**********************"
+echo "Content of /tmp/fixtures/experiment_files"
+ls -l /tmp/fixtures/experiment_files 
+chmod -R a+w /tmp/fixtures/experiment_files/expdesign 
 
 
 if [ "$#" -eq 0 ]; then
