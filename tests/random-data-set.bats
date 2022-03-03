@@ -18,6 +18,28 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Loading: Check that load_experiment_web_cli.sh is in the path" {
+  run which load_experiment_web_cli.sh
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: E-MTAB-2983 through cli" {
+  export ACCESSIONS=E-MTAB-2983
+  export BIOENTITIES=/fixtures/
+  export EXPERIMENT_FILES=/fixtures/experiment_files
+
+  run load_experiment_web_cli.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: Check that E-MTAB-2983 was loaded" {
+  count=$(echo "SELECT COUNT(*) FROM experiment WHERE accession = 'E-MTAB-2983'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  run [ $count -eq 1 ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Delete experiment data-set-1" {
   export EXP_ID=TEST-EXP1
   run delete_db_scxa_analytics.sh

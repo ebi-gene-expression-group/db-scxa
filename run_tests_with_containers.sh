@@ -21,8 +21,8 @@ docker stop postgres && docker rm postgres
 docker network rm mynet
 docker network create mynet
 
-docker run --rm --net mynet --name $ZK_HOST -d -p $ZK_PORT:$ZK_PORT -e ZOO_MY_ID=1 -e ZOO_SERVERS='server.1=0.0.0.0:2888:3888' -t zookeeper:3.4.14
-docker run --rm --net mynet --name my_solr -d -p 8983:8983 -e ZK_HOST=$ZK_HOST:$ZK_PORT -t solr:7.1-alpine -DzkRun -Denable.runtime.lib=true -m 2g
+docker run --rm --net mynet --name $ZK_HOST -d -p $ZK_PORT:$ZK_PORT -e ZOO_MY_ID=1 -e ZOO_SERVERS='server.1=0.0.0.0:2888:3888' -t zookeeper:3.5.8
+docker run --rm --net mynet --name my_solr -d -p 8983:8983 -e ZK_HOST=$ZK_HOST:$ZK_PORT -t solr:7.7.1-alpine -DzkRun -Denable.runtime.lib=true -m 2g
 
 
 docker run --rm --name postgres --net mynet \
@@ -40,26 +40,28 @@ docker run --rm -i --net mynet \
   flyway migrate -url=$jdbc_url -user=$POSTGRES_USER \
   -password=$POSTGRES_PASSWORD -locations=filesystem:/flyway/scxa
 
-# Test load of experiments through CLI
-docker run --rm -it --net mynet -v $( pwd )/tests:/usr/local/tests:rw \
+# # Test load of experiments through CLI
+# docker run --rm -it --net mynet -v $( pwd )/tests:/usr/local/tests:rw \
+#   -v $( pwd )/fixtures:/fixtures \
+#   -v $( pwd )/bin:/usr/local/bin \
+
+#   -e ACCESSIONS=E-MTAB-2983 \
+#   -e BIOENTITIES=/fixtures/ \
+#   -e EXPERIMENT_FILES=/fixtures/experiment_files \
+#   test/db-scxa-module load_experiment_web_cli.sh
+
+docker build $docker_arch_line -t test/db-scxa-module .
+
+docker run --net mynet -i $docker_arch_line \
+  -v $( pwd )/tests:/usr/local/tests:rw \
+  -v $( pwd )/atlas-schemas:/atlas-schemas:rw \
+  -v $( pwd )/bin:/usr/local/bin:rw \
   -v $( pwd )/fixtures:/fixtures \
-  -v $( pwd )/bin:/usr/local/bin \
   -e SOLR_HOST=$SOLR_HOST -e ZK_HOST=$ZK_HOST -e ZK_PORT=$ZK_PORT \
   -e POSTGRES_USER=$POSTGRES_USER \
   -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
   -e jdbc_username=$POSTGRES_USER \
   -e jdbc_password=$POSTGRES_PASSWORD \
   -e jdbc_url=$jdbc_url \
-  -e ACCESSIONS=E-MTAB-2983 \
-  -e BIOENTITIES=/fixtures/ \
-  -e EXPERIMENT_FILES=/fixtures/experiment_files \
-  test/db-scxa-module load_experiment_web_cli.sh
-
-docker build $docker_arch_line -t test/db-scxa-module .
-
-docker run --net mynet -i $docker_arch_line \
-  -v $( pwd )/tests:/opt/tests \
-  -v $( pwd )/atlas-schemas:/atlas-schemas \
-  -v $( pwd )/bin:/opt/bin \
   -e dbConnection=$dbConnection \
-  --entrypoint=/opt/tests/run_tests.sh test/db-scxa-module
+  --entrypoint=/usr/local/tests/run_tests.sh test/db-scxa-module
