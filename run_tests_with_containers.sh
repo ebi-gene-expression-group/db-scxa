@@ -56,7 +56,7 @@ docker run --net mynet -i $docker_arch_line \
   -v $( pwd )/tests:/usr/local/tests:rw \
   -v $( pwd )/atlas-schemas:/atlas-schemas:rw \
   -v $( pwd )/bin:/usr/local/bin:rw \
-  -v $( pwd )/fixtures:/fixtures \
+  -v $( pwd )/fixtures:/fixtures:rw \
   -e SOLR_HOST=$SOLR_HOST -e ZK_HOST=$ZK_HOST -e ZK_PORT=$ZK_PORT \
   -e POSTGRES_USER=$POSTGRES_USER \
   -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
