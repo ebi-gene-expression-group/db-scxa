@@ -7,5 +7,5 @@ USER root
 RUN chmod a+w /usr/local
 # fixtures for tests need to be writable
 RUN mkdir /tmp/fixtures
-RUN chnod a+w /tmp/fixtures
+RUN chmod o+w /tmp/fixtures
 USER micromamba
