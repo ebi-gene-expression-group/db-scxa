@@ -289,7 +289,7 @@
   # Get third line with count of total entries in the database after our load
   count=$(echo "SELECT COUNT(*) FROM scxa_coords" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 250 ]
+  run [ $count -eq 300 ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
