@@ -34,8 +34,8 @@
 }
 
 @test "Loading: Check that E-MTAB-2983 was loaded" {
-  count=$(echo "SELECT COUNT(*) FROM experiment WHERE accession = 'E-MTAB-2983'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
-  run [ $count -eq 1 ]
+  species=$(get_experiment_info.sh $dbConnection E-MTAB-2983 species)
+  run [ "$species" == "Homo sapiens" ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
