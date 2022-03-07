@@ -34,7 +34,9 @@
 }
 
 @test "Loading: Check that E-MTAB-2983 was loaded" {
-  species=$(get_experiment_info.sh $dbConnection E-MTAB-2983 species)
+  export EXP_ID=E-MTAB-2983
+  export FIELDS=species
+  species=$(get_experiment_info.sh)
   run [ "$species" == "Homo sapiens" ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]

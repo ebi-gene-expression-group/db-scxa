@@ -35,6 +35,10 @@ java_opts="$java_opts -Djdbc.username=$jdbc_username"
 java_opts="$java_opts -Djdbc.password=$jdbc_password"
 java_opts="$java_opts -Djdbc.max_pool_size=2"
 java_opts="$java_opts -Dserver.port=8888"
+# This turns off some extensions for large vector calculations
+# which are bit irrelevant to the current task and give issues on
+# running this through an emulated container on M1
+java_opts="$java_opts -XX:UseAVX=0"
 
 # Generate JSONL files from bulk experiments
 echo "PATH: "$PATH

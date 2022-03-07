@@ -17,5 +17,5 @@ FIELDS=${FIELDS:-$3}
 [ -z ${FIELDS+x} ] && echo "Env var FIELDS for fields (comma separated) from the experiment table to retrieve needs to be defined." && exit 1
 
 fields=$(echo $FIELDS | sed 's/,/, /' )
-echo "SELECT $fields FROM experiment WHERE accession='"${exp_id}"'" |\
+echo "SELECT $fields FROM experiment WHERE accession='"${EXP_ID}"'" | \
     psql -v ON_ERROR_STOP=1 -F ',' -A $dbConnection | awk 'NR == 2'
