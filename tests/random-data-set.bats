@@ -18,6 +18,30 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Loading: Check that load_experiment_web_cli.sh is in the path" {
+  run which load_experiment_web_cli.sh
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: E-MTAB-2983 through cli" {
+  export ACCESSIONS=E-MTAB-2983
+  export BIOENTITIES=/tmp/fixtures/
+  export EXPERIMENT_FILES=/tmp/fixtures/experiment_files
+
+  run load_experiment_web_cli.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: Check that E-MTAB-2983 was loaded" {
+  export EXP_ID=E-MTAB-2983
+  export FIELDS=species
+  species=$(get_experiment_info.sh)
+  run [ "$species" == "Homo sapiens" ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Analytics: Delete experiment data-set-1" {
   export EXP_ID=TEST-EXP1
   run delete_db_scxa_analytics.sh

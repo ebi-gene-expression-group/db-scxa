@@ -1,0 +1,10 @@
+ensgene	mirbase_accession	ortholog	symbol	goterm	ensfamily	uniprot	description	ensprotein	interpro	gene_biotype	embl	mirbase_id	hgnc_symbol	ensfamily_description	enstranscript	interproterm	refseq	entrezgene	go	synonym
+ENSG00000224166			PRYP1				PTPN13 like Y-linked pseudogene 1 [Source:HGNC Symbol;Acc:HGNC:34018]			unprocessed_pseudogene			PRYP1		ENST00000412474					PRY4P@@PRYP7
+ENSG00000262090			AC136944.5				protein phosphatase 2, regulatory subunit B'', beta (PPP2R3B) pseudogene								ENST00000573021					
+ENSG00000235360																				D6S53E@@G4
+ENSG00000288355																				hsa-mir-6859-3
+ENSG00000287292			AC002460.2				novel transcript			lncRNA					ENST00000661928@@ENST00000669991					
+ENSG00000207180		ENSPANG00000033673@@ENSGGOG00000037443@@ENSMMUG00000053418@@ENSPPYG00000024602@@ENSCSAG00000025859@@ENSMODG00000040573@@ENSPTRG00000047377	RNU6-411P				RNA, U6 small nuclear 411, pseudogene [Source:HGNC Symbol;Acc:HGNC:47374]			snRNA			RNU6-411P		ENST00000384451					
+ENSG00000259619			AC010867.1				intraflagellar transport 80 homolog (Chlamydomonas) (IFT80) pseudogene			processed_pseudogene					ENST00000558038					
+ENSG00000256079			AC092451.2				family with sequence similarity 133, member B (FAM133B) pseudogene			processed_pseudogene					ENST00000538746					
+ENSG00000199571		ENSMMUG00000026047@@ENSXETG00000000392@@ENSCSAG00000020957@@ENSPTRG00000032836@@ENSPPYG00000022469@@ENSAPLG00000000192@@ENSXETG00000000394@@ENSOANG00000018544@@ENSGALG00000021743@@ENSBTAG00000046596@@ENSMODG00000021843@@ENSGGOG00000033861@@ENSTNIG00000020442@@ENSTNIG00000020453@@ENSPANG00000000293@@ENSECAG00000025314	AC121336.1							snoRNA					ENST00000362701					

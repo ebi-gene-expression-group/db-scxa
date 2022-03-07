@@ -1,0 +1,63 @@
+MAGE-TAB Version	1.1		
+Investigation Title	Functional germ line stem cells do not exist in adult mammalian ovaries		
+			
+Experimental Design	cell type comparison design		
+Experimental Design Term Source REF	EFO		
+Experimental Design Term Accession Number			
+			
+Experimental Factor Name	single cell identifier		
+Experimental Factor Type	single cell identifier		
+Experimental Factor Term Source REF			
+Experimental Factor Term Accession Number			
+			
+Person Last Name	Hovatta	Edsgard	Panula
+Person First Name	Outi	Daniel	Sarita
+Person Mid Initials			
+Person Email	Outi.Hovatta@ki.se	daniel.edsgard@ki.se	Sarita.Panula@ki.se
+Person Phone			
+Person Fax			
+Person Affiliation	Division of Obstetrics and Gynecology, Department of Clinical Sciences, Intervention and Technology, Karolinska Institute and Karolinska University Hospital Huddinge	Department of Cell and Molecular Biology, Karolinska Institutet	Division of Obstetrics and Gynecology, Department of Clinical Sciences, Intervention and Technology, Karolinska Institute and Karolinska University Hospital Huddinge
+Person Address	Stockholm, 141 86, Sweden	17177, Stockholm, Sweden	141 86, Stockholm, Sweden
+Person Roles	investigator	data analyst;submitter	experiment performer
+Person Roles Term Source REF			
+Person Roles Term Accession Number			
+			
+Date of Experiment	2014-09-07		
+Public Release Date	2015-10-01		
+			
+PubMed ID	26444631		
+Publication DOI	10.1038/nm.3775		
+Publication Author List	Hua Zhang, Sarita Panula, Sophie Petropoulos, Daniel Edsgärd, Kiran Busayavalasa, Lian Liu, Xin Li, Sanjiv Risal, Yan Shen, Jingchen Shao, Meng Liu, Susann Li, Dongdong Zhang, Xiaoxi Zhang, Romana Raphaela Gerner, Mona Sheikhi, Pauliina Damdimopoulou, Rickard Sandberg, Iyadh Douagi, Jan-Åke Gustafsson, Lin Liu, Fredrik Lanner, Outi Hovatta & Kui Liu		
+Publication Title	Adult human and mouse ovaries lack DDX4-expressing functional oogonial stem cells		
+Publication Status	published		
+Publication Status Term Source REF			
+Publication Status Term Accession Number			
+			
+Experiment Description	Single-cell RNA-seq of DDX4 FACS sorted cells from ovarian cortical tissue. Regarding singe cell quality, genes were filtered based on a RPKM greater than or equal to 1 in at least one cell, where the RPKM cutoff was determined from histograms of number of expressed transcripts versus RPKM, and it was also sensible with respect to the number of molecules per RPKM estimated from the ERCC spike-in. Three clear outliers were observed in a principal component analysis and therefore removed from further analysis.		
+			
+Protocol Name	P-MTAB-41450	P-MTAB-41449	P-MTAB-41471
+Protocol Type	nucleic acid sequencing protocol	nucleic acid library construction protocol	sample collection protocol
+Protocol Term Source REF	EFO	EFO	EFO
+Protocol Term Accession Number			
+Protocol Description	Single-end sequencing was performed using the TrueSeq dual-index sequencing primers (Illumina) according to manufacturers recommendation on a HiSeq 2000.	Picelli et al, Full-length RNA-seq from single cells using Smart-seq2, Nature Protocols, 2014	Single cells (n = 41) were randomly picked by mouth pipetting with a finely pulled glass capillary and placed directly into lysis buffer containing 1 uL of RNase inhibitor and 19 uL of 0.2% (vol/vol) Triton X-100 solution (Sigma-Aldrich, Germany). The 8-strip PCR tubes containing cells were immediately frozen on dry ice and kept at -80C for downstream applications. Regarding spike-ins: 0.1uL of a 4*10^-6 dilution of the ERCC RNA spike-in mix 1 (Ambion) was added to each sample.
+Protocol Parameters			
+Protocol Hardware	Illumina HiSeq 2000		
+Protocol Software			
+Protocol Contact			
+			
+Term Source Name	EFO	ArrayExpress	
+Term Source File	http://www.ebi.ac.uk/efo/	http://www.ebi.ac.uk/arrayexpress/	
+Term Source Version	2.38		
+			
+SDRF File	E-MTAB-2983.sdrf.txt		
+Comment [Submitted Name]	Functional germ line stem cells do not exist in adult mammalian ovaries		
+Comment [SecondaryAccession]	ERP007170		
+Comment [SequenceDataURI]	http://www.ebi.ac.uk/ena/data/view/ERR647946-ERR647983		
+Comment [AEExperimentType]	RNA-seq of coding RNA from single cells		
+Comment[ArrayExpressAccession]	E-MTAB-2983		
+Comment [AdditionalFile:fa]	ERCC92.fa		
+			
+Comment[EAExperimentType]	baseline		
+Comment[EAAdditionalAttributes]			
+Comment[EAExpectedClusters]			
+Comment[EACurator]	Anja Fullgrabe		

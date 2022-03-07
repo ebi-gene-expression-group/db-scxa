@@ -1,0 +1,35 @@
+[{
+  "name":"Homo_sapiens",
+  "defaultQueryFactorType":"ORGANISM_PART",
+  "kingdom":"animals",
+  "resources":[{
+    "type":"genome_browser",
+    "name":"Ensembl",
+    "url":"https://www.ensembl.org/Homo_sapiens"
+  }]
+},
+{
+  "name":"Arabidopsis_lyrata",
+  "defaultQueryFactorType":"ORGANISM_PART",
+  "kingdom":"plants",
+  "resources":[{
+    "type":"genome_browser",
+    "name":"Gramene",
+    "url":"http://ensembl.gramene.org/Arabidopsis_lyrata"
+  },{
+    "type":"genome_browser",
+    "name":"Ensembl Genomes",
+    "url":"https://plants.ensembl.org/Arabidopsis_lyrata"
+  }]
+},
+{
+  "name":"Danio_rerio",
+  "defaultQueryFactorType":"ORGANISM_PART",
+  "kingdom":"animals",
+  "resources":[{
+    "type":"genome_browser",
+    "name":"Ensembl",
+    "url":"https://www.ensembl.org/Danio_rerio"
+  }]
+}
+]
