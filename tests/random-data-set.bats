@@ -42,6 +42,21 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Loading: Update experiment design for E-MTAB-2983 after deleting expDesign file" {
+  export ACCESSIONS=E-MTAB-2983
+  export BIOENTITIES=/tmp/fixtures/
+  export EXPERIMENT_FILES=/tmp/fixtures/experiment_files
+
+  expDesignFile=$EXPERIMENT_FILES/expdesign/ExpDesign-${ACCESSIONS}.tsv
+  rm -rf $expDesignFile
+
+  run update_experiment_web_cli.sh
+
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  [ -f $expDesignFile ]
+}
+
 @test "Analytics: Delete experiment data-set-1" {
   export EXP_ID=TEST-EXP1
   run delete_db_scxa_analytics.sh
