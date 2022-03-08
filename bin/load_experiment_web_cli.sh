@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # 
 # This script:
-# - Checks if the experiment is loaded or not to do a load or update.
-# - Adds the appropiate line to the experiments table
+# - Checks if the experiment is loaded and stops it is already loaded.
+# - Adds the appropiate line to the experiments table if it doesn't exist.
 # - Generates the experiment design file from condensed SDRF and SDRF files in $EXPERIMENT_FILES/expdesign
 #
 # Most of the variables required for this are usually defined in the environment file for each setup (test, prod, etc).

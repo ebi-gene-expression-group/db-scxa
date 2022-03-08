@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 
 # This script:
-# - Checks if the experiment is loaded or not to do a load or update.
-# - Adds the appropiate line to the experiments table
-# - Generates the experiment design file from condensed SDRF and SDRF files in $EXPERIMENT_FILES/expdesign
+# - Checks if the experiment is loaded to do an update.
+# - Updates if needed the entry on the experiment table, keeping the original load date.
+# - Updates the experiment design file from condensed SDRF and SDRF files in $EXPERIMENT_FILES/expdesign
 #
 # Most of the variables required for this are usually defined in the environment file for each setup (test, prod, etc).
 # The experiment designs file might need to be synced to an appropiate location at the web application instance disk
