@@ -36,13 +36,9 @@ checkDatabaseConnection $dbConnection
 echo "Dimension reductions: Loading data for $EXP_ID (new layout)..."
 rm -f $SCRATCH_DIR/dimredDataToLoad.csv
 
-# Delete table content for current EXP_ID
-echo "coords table: Delete rows for $EXP_ID:"
-echo "DELETE FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Transform the TSV coords into the DB table structure
-tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="$DIMRED_PARAM_JSON" -v method="$DIMRED_TYPE" 'BEGIN { OFS = ","; }
+tail -n +2 $DIMRED_FILE_PATH | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="$DIMRED_PARAM_JSON" -v method="$DIMRED_TYPE" 'BEGIN { OFS = ","; }
 { print EXP_ID, method, $1, $2, $3, params }' >> $SCRATCH_DIR/dimredDataToLoad.csv
 
 # Load data

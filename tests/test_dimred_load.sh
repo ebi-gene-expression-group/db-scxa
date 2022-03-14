@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Delete table content for current EXP_ID
+echo "coords table: Delete rows for $EXP_ID:"
+echo "DELETE FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | \
+  psql -v ON_ERROR_STOP=1 $dbConnection
+
 # Normally we won't be extracting parameter values from file names, but we'll
 # do it just for testing
 
