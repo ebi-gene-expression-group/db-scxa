@@ -12,24 +12,24 @@ source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
-EXPERIMENT_DIMRED_PATH=${EXPERIMENT_DIMRED_PATH:-$3}
-SCRATCH_DIR=${SCRATCH_DIR:-"$EXPERIMENT_DIMRED_PATH"}
-TSNE_PREFIX=${TSNE_PREFIX:-"$EXP_ID.tsne_perp_"}
-UMAP_PREFIX=${UMAP_PREFIX:-"$EXP_ID.umap_neigh_"}
-DIMRED_SUFFIX=${DIMRED_SUFFIX:-".tsv"}
+DIMRED_TYPE=${DIMRED_TYPE:-$3}
+DIMRED_FILE_PATH=${DIMRED_FILE_PATH:-$4}
+DIMRED_PARAM_JSON=${DIMRED_PARAM_JSON:-$5}
 
 # Check that necessary environment variables are defined.
-[ ! -z ${dbConnection+x} ] || (echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1)
-[ ! -z ${EXP_ID+x} ] || (echo "Env var EXP_ID for the id/accession of the experiment needs to be defined." && exit 1)
-[ ! -z ${EXPERIMENT_DIMRED_PATH+x} ] || (echo "Env var EXPERIMENT_DIMRED_PATH for location of marker genes files for web needs to be defined." && exit 1)
+[ -n ${dbConnection+x} ] || (echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1)
+[ -n ${EXP_ID+x} ] || (echo "Env var EXP_ID for the id/accession of the experiment needs to be defined." && exit 1)
+[ -n ${DIMRED_TYPE+x} ] || (echo "Env var DIMRED_TYPE for the dimension reduction type needs to be defined." && exit 1)
+[ -n ${DIMRED_FILE_PATH+x} ] || (echo "Env var DIMRED_FILE_PATH for location of a TSV-format coordinates file for a dimension reduction needs to be defined." && exit 1)
+[ -n ${DIMRED_PARAM_JSON+x} ] || (echo "Env var DIMRED_PARAM_JSON, holding JSON-format parameters for dimension reduction, needs to be defined." && exit 1)
 
 # Check that files are in place.
-[ $(ls -1 $EXPERIMENT_DIMRED_PATH/$TSNE_PREFIX*$DIMRED_SUFFIX | wc -l) -gt 0 ] \
-  || (echo "No tsne tsv files could be found on $EXPERIMENT_DIMRED_PATH" && exit 1)
+if [ ! -s "$DIMRED_FILE_PATH" ]; then
+    echo "No valid file found at $DIMRED_FILE_PATH" && exit 1
+fi
 
 # Check that database connection is valid
 checkDatabaseConnection $dbConnection
-
 
 # Write to the new generic coordinates table
 
@@ -41,23 +41,9 @@ echo "coords table: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
-for dimred_type in tsne umap; do
-  dimred_prefix=$TSNE_PREFIX
-  dimred_type_name='t-SNE'
-  dimred_param=perplexity
-
-  if [ "$dimred_type" = 'umap' ]; then
-    dimred_prefix=$UMAP_PREFIX
-    dimred_param=n_neighbors
-    dimred_type_name='UMAP'
-  fi  
-
-  for f in $(ls $EXPERIMENT_DIMRED_PATH/$dimred_prefix*$DIMRED_SUFFIX); do
-    paramval=$(echo $f | sed s+$EXPERIMENT_DIMRED_PATH/$dimred_prefix++ | sed s/$DIMRED_SUFFIX// )
-    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="[{\"$dimred_param\": $paramval}]" -v method="$dimred_type_name" 'BEGIN { OFS = ","; }
-    { print EXP_ID, method, $1, $2, $3, params }' >> $SCRATCH_DIR/dimredDataToLoad.csv
-  done
-done
+# Transform the TSV coords into the DB table structure
+tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="$DIMRED_PARAM_JSON" -v method="$DIMRED_TYPE" 'BEGIN { OFS = ","; }
+{ print EXP_ID, method, $1, $2, $3, params }' >> $SCRATCH_DIR/dimredDataToLoad.csv
 
 # Load data
 echo "coords: Loading data for $EXP_ID..."
