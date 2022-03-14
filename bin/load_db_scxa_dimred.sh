@@ -43,15 +43,18 @@ echo "DELETE FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | \
 
 for dimred_type in tsne umap; do
   dimred_prefix=$TSNE_PREFIX
+  dimred_type_name='t-SNE'
   dimred_param=perplexity
+
   if [ "$dimred_type" = 'umap' ]; then
     dimred_prefix=$UMAP_PREFIX
     dimred_param=n_neighbors
+    dimred_type_name='UMAP'
   fi  
 
   for f in $(ls $EXPERIMENT_DIMRED_PATH/$dimred_prefix*$DIMRED_SUFFIX); do
     paramval=$(echo $f | sed s+$EXPERIMENT_DIMRED_PATH/$dimred_prefix++ | sed s/$DIMRED_SUFFIX// )
-    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="[{\"$dimred_param\": $paramval}]" -v method="$dimred_type" 'BEGIN { OFS = ","; }
+    tail -n +2 $f | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="[{\"$dimred_param\": $paramval}]" -v method="$dimred_type_name" 'BEGIN { OFS = ","; }
     { print EXP_ID, method, $1, $2, $3, params }' >> $SCRATCH_DIR/dimredDataToLoad.csv
   done
 done
