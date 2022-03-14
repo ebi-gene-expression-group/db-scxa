@@ -36,16 +36,19 @@ checkDatabaseConnection $dbConnection
 echo "Dimension reductions: Loading data for $EXP_ID (new layout)..."
 rm -f $SCRATCH_DIR/dimredDataToLoad.csv
 
+# Insert a new row into the dimension reductions table
+echo "INSERT INTO scxa_dimension_reduction (experiment_accession, method, parameterisation) VALUES ('$EXP_ID', '$DIMRED_TYPE', '$DIMRED_PARAM_JSON');" | psql -v ON_ERROR_STOP=1 $dbConnection
+drid=$(echo "SELECT id FROM scxa_dimension_reduction WHERE experiment_access = '$EXP_ID' AND method = '$DIMRED_TYPE' AND parameterisation = '$DIMRED_PARAM_JSON';")
 
 # Transform the TSV coords into the DB table structure
-tail -n +2 $DIMRED_FILE_PATH | awk -F'\t' -v EXP_ID="$EXP_ID" -v params="$DIMRED_PARAM_JSON" -v method="$DIMRED_TYPE" 'BEGIN { OFS = ","; }
-{ print EXP_ID, method, $1, $2, $3, params }' >> $SCRATCH_DIR/dimredDataToLoad.csv
+tail -n +2 $DIMRED_FILE_PATH | awk -F'\t' -v drid="$drid" -v params="$DIMRED_PARAM_JSON" -v method="$DIMRED_TYPE" 'BEGIN { OFS = ","; }
+{ print drid, $1, $2, $3 }' >> $SCRATCH_DIR/dimredDataToLoad.csv
 
 # Load data
 echo "coords: Loading data for $EXP_ID..."
 
 set +e
-printf "\copy scxa_coords (experiment_accession, method, cell_id, x, y, parameterisation) FROM '%s' WITH (DELIMITER ',');" $SCRATCH_DIR/dimredDataToLoad.csv | \
+printf "\copy scxa_coords (dimension_reduction_id, cell_id, x, y) FROM '%s' WITH (DELIMITER ',');" $SCRATCH_DIR/dimredDataToLoad.csv | \
   psql -v ON_ERROR_STOP=1 $dbConnection
 
 s=$?
