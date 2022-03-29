@@ -41,7 +41,7 @@ echo "INSERT INTO scxa_dimension_reduction (experiment_accession, method, parame
 drid=$(echo "SELECT id FROM scxa_dimension_reduction WHERE experiment_accession = '$EXP_ID' AND method = '$DIMRED_TYPE' AND parameterisation = '$DIMRED_PARAM_JSON';" | psql -qtAX -v ON_ERROR_STOP=1 $dbConnection)
 
 # Transform the TSV coords into the DB table structure
-tail -n +2 $DIMRED_FILE_PATH | awk -F'\t' -v drid="$drid" -v params="$DIMRED_PARAM_JSON" -v method="$DIMRED_TYPE" 'BEGIN { OFS = ","; }
+tail -n +2 $DIMRED_FILE_PATH | awk -F'\t' -v drid="$drid" 'BEGIN { OFS = ","; }
 { print drid, $1, $2, $3 }' >> $SCRATCH_DIR/dimredDataToLoad.csv
 
 # Load data
