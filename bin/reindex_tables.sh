@@ -6,7 +6,7 @@ REINDEX TABLE scxa_coords;
 REINDEX TABLE scxa_cell_group;
 REINDEX TABLE scxa_cell_group_membership;
 REINDEX TABLE scxa_cell_group_marker_genes;
-REINDEX TABLE scxa_cell_group_marker_gene_stats 
+REINDEX TABLE scxa_cell_group_marker_gene_stats; 
 REINDEX TABLE experiment;
 
 RESET maintenance_work_mem;
