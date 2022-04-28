@@ -233,7 +233,7 @@
 
 @test "Marker genes: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes where experiment_accession='TEST-EXP1'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_group_marker_genes, scxa_cell_group where scxa_cell_group_marker_genes.cell_group_id = scxa_cell_group.id and experiment_accession='TEST-EXP1'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 274 ]
   echo "output = ${output}"
