@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# This script takes the marker genes data, normally available in an irap
-# sc_bundle, which is split in different files one per k_value (number of clusters)
-# and loads it into the scxa_marker_genes table of AtlasProd.
+# This script takes the marker genes data, normally available in an scxa
+# sc_bundle, which is split in different files one per k_value (number of
+# clusters) or cell annotation type and loads them into the
+# scxa_cell_groups_marker_genes table of AtlasProd.
 set -e
 
 # TODO this type of function should be loaded from a common set of scripts.
@@ -59,13 +60,6 @@ else
   echo "WARNING No marker gene files declared on MANIFEST."
 fi
 
-print_log "## Loading Marker genes for $EXP_ID (old layout)."
-
-# Delete marker gene table content for current EXP_ID
-print_log "Marker genes: Delete rows for $EXP_ID:"
-echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
-
 if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   # Create file with data
   # Please note that this relies on:
@@ -106,22 +100,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   print_log "Marker genes: Loading data for $EXP_ID..."
 
   set +e
-  printf "\copy scxa_marker_genes (experiment_accession, gene_id, k, cluster_id, marker_probability) FROM '%s' WITH (DELIMITER ',');" $markerGenesToLoad | \
-    psql -v ON_ERROR_STOP=1 $dbConnection
-
-  s=$?
-
-  # Roll back if write was unsucessful
-
-  if [ $s -ne 0 ]; then
-    echo "Marker table write failed" 1>&2
-    echo "DELETE FROM scxa_marker_genes WHERE experiment_accession = '"$EXP_ID"'" | \
-      psql -v ON_ERROR_STOP=1 $dbConnection
-    exit 1
-  fi
-
-  print_log "## Marker genes (old layout): Loading done for $EXP_ID"
-  print_log "## Loading Marker genes for $EXP_ID (new layout)."
+  print_log "## Loading Marker genes for $EXP_ID."
 
   # NEW LAYOUT: point at cell groups table, retrieving cell group integer IDs from there first
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# This script takes the marker genes data, normally available in an irap
-# sc_bundle, which is split in different files one per k_value (number of clusters)
-# and loads it into the scxa_marker_genes table of AtlasProd.
+# This script takes the unsupervised clusterings and curated cell types,
+# normally available in an scxa sc_bundle and loads them into the
+# scxa_cell_group_membership table of AtlasProd.
 set -e
 
 # TODO this type of function should be loaded from a common set of scripts.
@@ -47,24 +47,10 @@ wideSCCluster2longSCCluster.R -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $cluste
 print_log "clusters table: Delete rows for $EXP_ID:"
 echo "DELETE FROM scxa_cell_group_membership WHERE experiment_accession = '"$EXP_ID"'" | \
   psql -v ON_ERROR_STOP=1 $dbConnection
-echo "DELETE FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Load data
 print_log "Clusters: Loading data for $EXP_ID..."
 set +e
-printf "\copy scxa_cell_clusters (experiment_accession, cell_id, k, cluster_id) FROM '%s' DELIMITER ',' CSV HEADER;" $clustersToLoad | \
-  psql -v ON_ERROR_STOP=1 $dbConnection
-s=$?
-
-# Roll back if write was unsucessful
-
-if [ $s -ne 0 ]; then
-  echo "Clusters write failed" 1>&2
-  echo "DELETE FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | \
-    psql -v ON_ERROR_STOP=1 $dbConnection
-  exit 1
-fi
 
 # NEW LAYOUT: define clusterings as cell groups in the DB
 
