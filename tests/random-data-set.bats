@@ -233,16 +233,17 @@
 
 @test "Marker genes: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes where experiment_accession='TEST-EXP1'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_group_marker_genes, scxa_cell_group where scxa_cell_group_marker_genes.cell_group_id = scxa_cell_group.id and experiment_accession='TEST-EXP1'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 274 ]
+  run [ $count -eq 330 ]
+  echo "count = $count"
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
 
 @test "Marker genes: Check that k=12 was not loaded" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_marker_genes WHERE k = 12" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_group_marker_genes, scxa_cell_group where scxa_cell_group_marker_genes.cell_group_id = scxa_cell_group.id and variable='12'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   echo "Count: "$count
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
@@ -273,12 +274,13 @@
 }
 
 @test "Marker genes: Delete rows for experiment" {
-  countBefore=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  countBefore=$(echo "SELECT COUNT(*) FROM scxa_cell_group_marker_genes, scxa_cell_group where scxa_cell_group_marker_genes.cell_group_id = scxa_cell_group.id" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   export EXP_ID=TEST-EXP2
   run delete_db_scxa_marker_genes.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  countAfter=$(echo "SELECT COUNT(*) FROM scxa_marker_genes" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  countAfter=$(echo "SELECT COUNT(*) FROM scxa_cell_group_marker_genes, scxa_cell_group where scxa_cell_group_marker_genes.cell_group_id = scxa_cell_group.id" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  echo "Count before: $countBefore , count after: $countAfter"
   [ $(( countBefore - countAfter )) == 274 ]
 }
 
@@ -356,9 +358,9 @@
 
 @test "Clusters: Check number of loaded rows" {
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_group_membership" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
-  run [ $count -eq 12537 ]
+  run [ $count -eq 13930 ]
   echo "output = ${output} count = $count"
   [ "$status" -eq 0 ]
 }
@@ -368,7 +370,7 @@
   run delete_db_scxa_cell_clusters.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_cell_clusters WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_cell_group_membership, scxa_cell_group WHERE scxa_cell_group_membership.cell_group_id=scxa_cell_group.id AND scxa_cell_group.experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
   echo "output = ${output}"

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# This script takes the marker genes data, normally available in an irap
-# sc_bundle, which is split in different files one per k_value (number of clusters)
-# and loads it into the scxa_marker_genes table of AtlasProd.
+# This script takes the dimension reduction coordinate data, normally available
+# in an SCXA sc_bundle, which is split in different methods and
+# parameterisations, and loads it into the scxa_coords table of AtlasProd.
 set -e
 
 # TODO this type of function should be loaded from a common set of scripts.
