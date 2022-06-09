@@ -214,7 +214,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
       $groupIds \
       <(join -t '|' \
         $groupIds \
-        <(tail -n +2 "${cellgroupMarkerStats}" | sed 's/, /REALCOMMA/g' | sed s/\"//g | sed s/,/\|/g | sed 's/REALCOMMA/, /g' |awk -F'|' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } {gsub("^None$","Not available",$3); gsub("^None$","Not available",$4); print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -t'|' -k 1,1) | \
+        <(tail -n +2 "${cellgroupMarkerStats}" | sed 's/, /REALCOMMA/g' | sed s/\"//g | sed s/,/\|/g | sed 's/REALCOMMA/, /g' |awk -F'|' -v EXP_ID="$EXP_ID" 'BEGIN { OFS = "|"; } {gsub("_", " ", $2); gsub("^None$","Not available",$3); gsub("^None$","Not available",$4); print EXP_ID"_"$2"_"$4,EXP_ID"_"$2"_"$3,$1,$2,$3,$4,$6,$7 }' | sort -t'|' -k 1,1) | \
         awk -F'|' 'BEGIN { OFS = "|"; } { print $3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t'|' -k 1,1
       ) | awk -F'|' 'BEGIN { OFS = "|"; } { print $4"_"$2,$3,$2,$4,$5,$6,$7,$8,$9 }' | sort -t'|' -k 1,1 > $groupMarkerStatsWithIDs
 

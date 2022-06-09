@@ -313,9 +313,16 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Coords: Check that load_db_scxa_dimred.sh is in the path" {
+  run which load_db_scxa_dimred.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Coords: Load tSNE data" {
   export EXP_ID=TEST-EXP1
-  run load_db_scxa_dimred.sh
+  run $testsDir/test_dimred_load.sh
+
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
@@ -327,11 +334,13 @@
 }
 
 @test "Coords: Check number of loaded rows" {
+  export EXP_ID=TEST-EXP1
   # Get third line with count of total entries in the database after our load
-  count=$(echo "SELECT COUNT(*) FROM scxa_coords" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_dimension_reduction d, scxa_coords c WHERE d.id = c.dimension_reduction_id and d.experiment_accession = '$EXP_ID'" | psql -qtAX -v ON_ERROR_STOP=1 $dbConnection)
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 300 ]
   echo "output = ${output}"
+  echo "count = ${count}"
   [ "$status" -eq 0 ]
 }
 
@@ -340,15 +349,9 @@
   run delete_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
-  count=$(echo "SELECT COUNT(*) FROM scxa_coords WHERE experiment_accession = '"$EXP_ID"'" | psql -v ON_ERROR_STOP=1 $dbConnection | awk 'NR==3')
+  count=$(echo "SELECT COUNT(*) FROM scxa_dimension_reduction d, scxa_coords c WHERE d.id = c.dimension_reduction_id and d.experiment_accession = '$EXP_ID'" | psql -qtAX -v ON_ERROR_STOP=1 $dbConnection)
   # TODO improve, highly dependent on test files we have, but in a hurry for now.
   run [ $count -eq 0 ]
-  echo "output = ${output}"
-  [ "$status" -eq 0 ]
-}
-
-@test "Coords: Check that load_db_scxa_dimred.sh is in the path" {
-  run which load_db_scxa_dimred.sh
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
