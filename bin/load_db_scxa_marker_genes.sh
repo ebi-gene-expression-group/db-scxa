@@ -228,6 +228,9 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
 
     if [ ! "$nStartingStats" -eq "$nFinalStats" ]; then
       echo "Final list of marker stats values ($nFinalStats) from ${groupMarkerStatsToLoad}, derived from ${cellgroupMarkerStats}, not equal to input number ($nStartingStats) from $cellgroupMarkerStats after resolving keys to cell groups table." 1>&2
+      echo "This list of markers comes from a join between files coming from the metadata (groupMarkerIDs) and from the analysis (the markers file)." 1>&2
+      echo "In the past, this error has been traced to differences between the cells.txt metadata file (curators SCXA Metadata gitlab repo) and the Scanpy analysis results, containing different cell type categories." 1>&2
+      echo "This can be checked by looking at the condensed SDRF or the SDRF file inferred cell type, and comparing it with the <accession>.marker_genes_inferred_cell_type_-_ontology_labels.tsv file, derived from the tertiary analysis." 1>&2
       exit 1
     fi
 
