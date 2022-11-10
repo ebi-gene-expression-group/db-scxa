@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export testsDir=$scriptDir
 export PATH=$scriptDir/../bin:$scriptDir/../tests:$PATH
 
