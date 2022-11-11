@@ -1,36 +1,30 @@
-condensed_sdrf_file=E-PROT-15.condensed-sdrf.tsv
-sdrf_file=E-PROT-15.sdrf.txt
+#!/bin/bash
 
-checkDatabaseConnection() {
-  pg_user=$(echo $1 | sed s+postgresql://++ | awk -F':' '{ print $1}')
-  pg_host_port=$(echo $1 | awk -F':' '{ print $3}' \
-           | awk -F'@' '{ print $2}' | awk -F'/' '{ print $1 }')
-  pg_host=$(echo $pg_host_port  | awk -F':' '{print $1}')
-  pg_port=$(echo $pg_host_port  | awk -F':' '{print $2}')
-  if [ ! -z "$pg_port" ]; then
-    pg_isready -U $pg_user -h $pg_host -p $pg_port || (echo "No db connection." && exit 1)
-  else
-    pg_isready -U $pg_user -h $pg_host || (echo "No db connection" && exit 1)
-  fi
-}
+set -e
+
+scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}
+condensed_sdrf_file=${CONDENSED_SDRF_FILE:-$2}
+sdrf_file=${SDRF_FILE:-$3}
 
-checkDatabaseConnection $dbConnection
+# Check that necessary environment variables are defined.
+[ -z ${dbConnection+x} ] && echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1
+[ -z ${CONDENSED_SDRF_FILE+x} ] && echo "Env var CONDENSED_SDRF_FILE for the experiment design data needs to be defined." && exit 1
+[ -z ${SDRF_FILE+x} ] && echo "Env var SDRF_FILE for column sequence of experiment design needs to be defined." && exit 1
 
 while IFS=$'\t' read exp_acc sample sample_type col_name annot_value annot_url
 do
-        echo "Experiment is     : $exp_acc"
-        echo "Sample is: $sample"
-        echo "Sample Type is  : $sample_type"
-        echo "Column name is  : $col_name"
-        echo "Annotation value is  : $annot_value"
-        echo "Annotation url is  : $annot_url"
-        column_order=$(awk -v col="$annot" -v RS='\t' '$0 ~ col {print NR; exit}' $sdrf_file)
-        echo "Column seq is : $column_order"
-
+        if [ $sample_type == 'characteristic' ]
+        then
+            search_column="Characteristics[${col_name}]"
+            column_order=$(awk -v val="$search_column" -F '\t' '{for (i=1; i<=NF; i++) if ($i==val) {print i} }' $sdrf_file)
+        else
+            search_column="FactorValue[${col_name}]"
+            column_order=$(awk -v val="$search_column" -F '\t' '{for (i=1; i<=NF; i++) if ($i==val) {print i} }' $sdrf_file)
+        fi
         echo "INSERT INTO exp_design_column (experiment_accession, column_name, sample_type, column_order) VALUES ('$exp_acc', '$col_name', '$sample_type', '$column_order');" | psql -v ON_ERROR_STOP=1 $dbConnection
-
-        echo "INSERT INTO exp_design (sample, annot_value, annot_ont_uri) VALUES ('$sample', '$annot_value', '$annot_url');" | psql -v ON_ERROR_STOP=1 $dbConnection
+        echo "INSERT INTO exp_design (sample, annot_value, annot_ont_uri, exp_design_column_id) VALUES ('$sample', '$annot_value', '$annot_url', (SELECT id FROM exp_design_column WHERE experiment_accession='$exp_acc' AND column_name='$col_name' AND sample_type='$sample_type'));" | psql -v ON_ERROR_STOP=1 $dbConnection
 
 done < $condensed_sdrf_file
