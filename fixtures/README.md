@@ -2,11 +2,21 @@
 Set of scripts to create database test fixtures for the
 [Single Cell Expression Atlas web app](https://github.com/ebi-gene-expression-group/atlas-web-single-cell).
 They are stored in
-[the corresponding test resources directory](https://github.com/ebi-gene-expression-group/atlas-web-single-cell/tree/develop/app/src/testresources/fixtures)
+[the corresponding `test/resources` directory](https://github.com/ebi-gene-expression-group/atlas-web-single-cell/tree/develop/app/src/tes/tresources/fixtures),
 and they are used to initialise the testing Postgres database to a known state
 before running any tests.
 
-The scripts will pick a set of unique 100 gene IDs and 100 cell IDs from each
+The scripts will pick a set of three cell group variables:
+- two *k* values smaller than 30
+- one cell type variable, that is, one that starts with “inferred cell type”
+
+The reason for picking a “small” *k* is that we are going to later sample 50 cell IDs randomly. In this way we ensure
+that there will be some actual clustering, rather than many clusters with one cell or even empty clusters. Raising the
+number of cell IDs solves this issue but incurs in bigger fixtures.
+
+From the cell group variables we select a full coverage of all the values that will become the cell group fixture.  
+
+- gene IDs and 100 cell IDs from each
 experiment, and then they will get all rows from the remaining tables that
 reference those genes/cells. A TSV file will be written for each table and
 as a last step the TSV files are transformed to SQL files with `sed`.
@@ -15,10 +25,10 @@ as a last step the TSV files are transformed to SQL files with `sed`.
 
 # Usage
 ```bash
-[POSTGRES_HOST=HOST] [POSTGRES_PORT=PORT] POSTGRES_USER=USER POSTGRES_DB=DB generate-fixtures.sh 'EXPERIMENT_ACCESSION [EXPERIMENT_ACCESSION]...'
+[POSTGRES_HOST=...] [POSTGRES_PORT=...] POSTGRES_USER=... POSTGRES_DB=... generate-fixtures.sh 'EXPERIMENT_ACCESSION [EXPERIMENT_ACCESSION]...'
 ```
 
-By default the script will try to connect to `localhost:5432`; `POSTGRES_USER`
+By default, the script will try to connect to `localhost:5432`; `POSTGRES_USER`
 and `POSTGRES_DB` are mandatory.
 
 Example:
