@@ -1,162 +1,138 @@
-# Module for Single Cell Expression Atlas database loading (v0.2.3)
+# Single Cell Expression Atlas database loading module (v1.0.0)
 
-An AtlasProd module for loading scxa-* tables data to postgres >=10. Release v0.2.3 was used for the May 2020 Data release of Singe Cell Expression Atlas.
+A [Single Cell Expression Atlas](https://www.ebi.ac.uk/gxa/sc) module for loading experiments to a Postgres 10 
+database. Release v0.4.0 was used for [the October 2022 data release of Singe Cell Expression 
+Atlas](https://www.ebi.ac.uk/gxa/sc/release-notes.html).
 
-For direct usage, this module requires Rscript (with optparse, tidyr and data.table, in Ubuntu and Debian-based distributions install packages `r-cran-optparse` , `r-cran-tidyr` and `r-cran-data.table`), psql and node.
+## Requirements
+- Rscript with `optparse`, `tidyr` and `data.table` (in Ubuntu and Debian-based distributions install packages 
+  `r-cran-optparse` , `r-cran-tidyr` and `r-cran-data.table`)
+- PostgreSQL 11
+- Node v12+
 
-# `scxa_analytics` Table
+## Database schemas
+Schema definitions and migrations of the database used by Single Cell Expression Atlas are managed by Flyway. They are
+stored at https://github.com/ebi-gene-expression-group/atlas-schemas/tree/master/flyway/scxa. An example of how to
+initialise a Docker container with Flyaway is available in[the development environment of Single Cell Expression
+Atlas](https://github.com/ebi-gene-expression-group/atlas-web-single-cell/blob/develop/docker/docker-compose-postgres.yml).
 
-## Create schema
+## `scxa_analytics` table
 
-Currently, schema for postgres scxa-* tables is stored at https://github.com/ebi-gene-expression-group/atlas-schemas/tree/master/flyway/scxa.
+### Load data
+Run `bin/load_db_scxa_analytics.sh`. It requires the following environment variables:
 
-## Load data
+| Variable name              | Description                                                                                                                                                                            |
+|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `EXP_ID`                   | Experiment accession                                                                                                                                                                   |
+| `EXPRESSION_TYPE`          | The expression type of the matrices (see next row); e.g. `aggregated_filtered_counts`; default value is `expression_tpm`                                                               |
+| `EXPERIMENT_MATRICES_PATH` | Path where `$EXP_ID/$EXP_ID.$EXPRESSION_TYPE.mtx_cols_rows.gz` files are stored                                                                                                        |
+| `dbConnection`             | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_analytics` table exists |
 
-The main executable is script is `bin/load_db_scxa_analytics.sh`, which requires the following environment variables to be set:
-- `EXP_ID`: Atlas Experiment identifier.
-- `EXPERIMENT_MATRICES_PATH`: The path to the directory where the `$EXP_ID/.expression_tpm.mtx[|_cols|_rows].gz` matrix market files reside.
-- `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_analytics` table exists.
+It is recommended that `bin` is prepended to the `PATH`.
 
-Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
-
+### Delete data
+Set `dbConnection` and `EXP_ID`, then run `delete_db_scxa_analytics.sh`:
 ```bash
-load_db_scxa_analytics.sh
-```
-
-## Delete data for experiment
-
-Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_analytics.sh`:
-
-```bash
-export EXP_ID=TEST-EXP1
+export EXP_ID=...
 export dbConnection=...
 
 delete_db_scxa_analytics.sh
 ```
 
-# `scxa_coords` Table
+## `scxa_coords` and `scxa_dimension_reduction` tables
 
-## Create schema
+### Load data
+Run `bin/load_db_scxa_dimred.sh`. It requires the following environment variables:
 
-Same as in `scxa_analytics` currently.
+| Variable name       | Description                                                                                                                                                                                                        |
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `EXP_ID`            | Experiment accession                                                                                                                                                                                               |
+| `DIMRED_TYPE`       | The dimension reduction type, such as "umap" or "tsne"; the value is arbitrary and supplied by the user                                                                                                            |
+| `DIMRED_FILE_PATH`  | TSV file with the coordinates                                                                                                                                                                                      |
+| `DIMRED_PARAM_JSON` | Optional array of parameters with the parameters used by the dimension reduction method (e.g. perplexity is typical for t-SNE, thus `[{"perplexity": 20}]`)                                                        |
+| `dbConnection`      | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_coords` and `scxa_dimension_reduction` tables exist |
 
-## Load data
+It is recommended that `bin` is prepended to the `PATH`.
 
-The main executable is `bin/load_db_scxa_dimred.sh`, which requires the following environment variables to be set:
-- `EXP_ID`: Atlas experiment identifier.
-- `EXPERIMENT_DIMRED_PATH`: path to directory containing tsne and umap files for loading. Files are expected to have the structure <prefix><perplexity_number><suffix> (tsne) or <prefix><neighbors_number><suffix> (umap) with the default suffix and prefix defined in the script. These can be configured from outside through env vars.
-- `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_coords` table exist.
-
-Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
-
+### Delete data
+Set `dbConnection` and `EXP_ID`, then run `delete_db_scxa_dimred.sh`:
 ```bash
-load_db_scxa_dimred.sh
-```
-
-## Delete data for experiment
-
-Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_dimred.sh`:
-
-```bash
-export EXP_ID=TEST-EXP1
+export EXP_ID=...
 export dbConnection=...
 
 delete_db_scxa_dimred.sh
 ```
 
-# `scxa_cell_clusters` Table
+## `scxa_cell_group` and `scxa_cell_group_membership` table
 
-## Create schema
+### Load data
+Run `bin/load_db_scxa_cell_clusters.sh`. It requires the following environment variables:
 
-Same as in `scxa_analytics` currently.
+| Variable name              | Description                                                                                                                                                                                                              |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `EXP_ID`                   | Experiment accession                                                                                                                                                                                                     |
+| `EXPERIMENT_CLUSTERS_FILE` | Path to the file containing the clusters in wide format (as defined by iRAP SC)                                                                                                                                          |
+| `CONDENSED_SDRF_TSV`       | Path to the condensed SDRF file of the experiment; it will be used to derive cell groups from the metadata, in addition to the clusters                                                                                  |
+| `dbConnection`             | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_cell_group` and `scxa_cell_group_membership` tables exist |
 
-## Load data
+It is recommended that `bin` is prepended to the `PATH`.
 
-The main executable is `bin/load_db_scxa_cell_clusters.sh`, which requires the following environment variables to be set:
-- `EXP_ID`: Atlas Experiment identifier.
-- `EXPERIMENT_CLUSTERS_FILE`: path to the file containing the clusters in wide format (as defined by iRAP SC).
-- `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_cell_group`, `scxa_cell_group_membership`, `scxa_cell_clusters` and `scxa_cell_group_marker_gene_stats` tables exist.
-- `CONDENSED_SDRF_TSV`: path to the condensed SDRF file of the experiment. This will be used to derive cell groups from the metadata, in addition to the clusters.
-
-Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
-
-```bash
-load_db_scxa_cell_clusters.sh
-```
-
-## Delete data for experiment
-
-Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_cell_clusters.sh`:
+### Delete data
+Set `dbConnection` and `EXP_ID`, then run `delete_db_scxa_cell_clusters.sh`:
 
 ```bash
-export EXP_ID=TEST-EXP1
+export EXP_ID=...
 export dbConnection=...
 
 delete_db_scxa_cell_clusters.sh
 ```
 
-# `scxa_marker_genes` Table
+## `scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats` tables
+The script that loads data into `scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats` reads the table 
+`scxa_cell_group`. Ensure you’ve run `load_db_scxa_cell_clusters.sh` as detailed above to successfully carry out ths 
+operation.
 
-The script that loads data into `scxa_marker_genes` reads the table `scxa_cell_group`. Ensure you’ve run `load_db_scxa_cell_clusters.sh` as detailed above to successfully carry out ths operation.
+### Load data
+Run `bin/load_db_scxa_marker_genes.sh`. It requires the following environment variables:
 
-## Create schema
+| Variable name            | Description                                                                                                                                                                                                                                  |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `EXP_ID`                 | Experiment accession                                                                                                                                                                                                                         |
+| `EXPERIMENT_MGENES_PATH` | Path of marker genes files for transforming and loading                                                                                                                                                                                      |
+| `CLUSTERS_FORMAT`        | `ISL` or `SCANPY`; default value is `ISL`                                                                                                                                                                                                    |
+| `NUMBER_MGENES_FILES`    | Hints at whether there are marker genes files to load (zero or positive integer); this is optional                                                                                                                                           |
+| `dbConnection`           | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats` tables exist |
 
-Same as in `scxa_analytics` currently.
+It is recommended that `bin` is prepended to the `PATH`.
 
-## Load data
-
-The main executable is `bin/load_db_scxa_marker_genes.sh`, which requires the following environment variables to be set:
-- `EXP_ID`: Atlas experiment identifier.
-- `EXPERIMENT_MGENES_PATH`: path of marker genes files for transforming and loading.
-- `dbConnection`: A postgres db connection string of the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 10 server where the expected `scxa_marker_genes`, `scxa_cell_group_marker_gene_stats`, `scxa_cell_group_marker_genes` and `scxa_cell_group` tables exist.
-Optionally, you can set `CLUSTERS_FORMAT` and `NUMBER_MGENES_FILES`:
-
-The `CLUSTERS_FORMAT` variable to set the format to one of the following:
-- `ISL` (default)
-- `SCANPY`
-
-The `NUMBER_MGENES_FILES` variable (zero or positive integer) hints whether there are marker genes files to be loaded. If the variable is set to zero by an external process, then the script won't fail if no marker genes files are found. Currently the script only considers whether the variable is 0 (no marker genes files) or greater (there are that number of marker gene files). This is mostly to be able to fail if we expected to have marker gene files but for some reasons these were not created due to an unknown issue.
-
-Additionally, it is recommended that `bin` directory on the root is prepended to the `PATH`. Then execute:
+### Delete data for experiment
+Set `dbConnection` and `EXP_ID`, then run `delete_db_scxa_marker_genes.sh`:
 
 ```bash
-load_db_scxa_marker_genes.sh
-```
-
-## Delete data for experiment
-
-Set the desired database connection in `dbConnection` and experiment accession in `EXP_ID` and use `delete_db_scxa_marker_genes.sh`:
-
-```bash
-export EXP_ID=TEST-EXP1
+export EXP_ID=...
 export dbConnection=...
 
 delete_db_scxa_marker_genes.sh
 ```
 
+## Post-loading a batch of experiments
+Once a number of experiments have been loaded, tables should be re-indexed:
 
-# Post-loading a batch of experiments
-
-Once a number of experiments have been loaded, tables should be re-indexed and materialised views **NEED** to be refreshed:
-
-```
+```bash
 # if not set, set the dbConnection
 export dbConnection=...
 reindex_tables.sh
-refresh_materialised_views.sh
 ```
 
-# Collections: consuming icons
-
-Icons stored in the collections table can be consumed through the `lo_export` function within a SELECT statement, for instance:
+## Collections: consuming icons
+Icons stored in the collections table can be consumed through the `lo_export` function within a `SELECT` statement, for instance:
 
 ```sql
 SELECT lo_export(collections.icon, '/tmp/icon.png') FROM collections
     WHERE coll_id = 'PHANTOM';
 ```
 
-# How to test it
-
+## How to test it
 This is the preferred and most reproducible way of testing using containers. It requires docker to be installed:
 
 ```bash
@@ -174,8 +150,7 @@ dbConnection='postgresql://scxa:postgresPass@localhost:5432/scxa-test'
 
 On every run of the `run_tests_with_containers.sh` the container database will be deleted and re-created.
 
-# How to test it v2 (only db in container)
-
+## How to test it v2 (only db in container)
 - Start an empty postgres 10 database through a container or any other mean:
 
 ```bash
@@ -191,8 +166,7 @@ export dbConnection=postgresql://user:lasdjasd@localhost:5432/scxa-test
 
 Tests are also automatically executed on Travis.
 
-# Container
-
+## Container
 The container is available for use at quay.io/ebigxa/db-scxa-module at latest or any of the tags after 0.2.0, so it could be used like this for example:
 
 ```bash
