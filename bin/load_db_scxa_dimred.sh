@@ -31,7 +31,6 @@ fi
 checkDatabaseConnection $dbConnection
 
 # Write to the new generic coordinates table
-
 echo "Dimension reductions: Loading data for $EXP_ID (new layout)..."
 rm -f $SCRATCH_DIR/dimredDataToLoad.csv
 
@@ -54,7 +53,7 @@ s=$?
 
 rm $SCRATCH_DIR/dimredDataToLoad.csv
 
-# Roll back if unsucessful
+# Roll back if unsuccessful
 
 if [ $s -ne 0 ]; then
   echo "DELETE FROM scxa_dimension_reduction WHERE experiment_accession = '"$EXP_ID"' and method = '$DIMRED_TYPE' and parameterisation = '$DIMRED_PARAM_JSON'" | \
