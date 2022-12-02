@@ -18,7 +18,7 @@ source ${SCRIPT_DIR}/utils.sh
 # We ensure there are marker genes (this is for inferred cell type variable) just in case
 # No need to join with stats because we pick all the values from the variable
 # A low k for clusters means that there will be some clustering for our sample size of 50 cells later
-${SCRIPT_DIR}/01-scxa-cell-group.sh ${1} 5 3 \
+${SCRIPT_DIR}/01-scxa-cell-group.sh ${1} ${2} \
 > scxa_cell_group.tsv
 
 # Get three marker genes with their stats, for each group (total of 3×8=24 genes)

@@ -7,7 +7,7 @@
 # POSTGRES_USER=atlasprd3 \
 # POSTGRES_DB=gxpscxadev \
 # generate-fixtures.sh \
-# E-CURD-4 E-EHCA-2 E-GEOD-71585 E-GEOD-81547 E-GEOD-99058 E-MTAB-5061
+# 'E-CURD-4 17' 'E-EHCA-2 24' 'E-GEOD-71585 19' 'E-GEOD-81547 24' 'E-GEOD-99058 7' 'E-MTAB-5061 25' 'E-ENAD-53 14'
 #
 # An aggregate SQL file is written for all experiments:
 # - scxa_analytics.sql
@@ -29,9 +29,12 @@ export POSTGRES_PORT=${POSTGRES_PORT:-5432}
 
 
 # Query DB and export data to TSV files, remember to pass argument as a string!
-for EXP_ID in "${@:1}"
+for EXP_ID_K in "${@:1}"
 do
-  ${SCRIPT_DIR}/generate-tsv-fixture.sh ${EXP_ID}
+  ARG_ARRAY=(${EXP_ID_K})
+  EXP_ID=${ARG_ARRAY[0]}
+  SEL_K=${ARG_ARRAY[1]}
+  ${SCRIPT_DIR}/generate-tsv-fixture.sh ${EXP_ID} ${SEL_K}
   ${SCRIPT_DIR}/transform-tsv-to-sql-insert.sh
   TSV_FIXTURE_TARGET_DIR=${EXP_ID}-fixture
   mkdir ${TSV_FIXTURE_TARGET_DIR}

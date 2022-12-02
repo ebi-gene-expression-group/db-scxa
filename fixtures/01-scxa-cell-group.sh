@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Arguments:
+# Experiment accession
+# Selected k
 psql -q -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h ${POSTGRES_HOST} << EOF
 COPY (
     SELECT
@@ -10,6 +13,8 @@ COPY (
         scg.experiment_accession = '${1}'
         AND
         scg.variable IN (
+            (SELECT variable FROM scxa_cell_group WHERE variable='${2}')
+            UNION
             (SELECT * FROM (
                 SELECT
                     DISTINCT cg.variable
