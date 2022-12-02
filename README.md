@@ -1,6 +1,6 @@
 # Single Cell Expression Atlas database loading module (v1.0.0)
 
-A [Single Cell Expression Atlas](https://www.ebi.ac.uk/gxa/sc) module for loading experiments to a Postgres 10 
+A [Single Cell Expression Atlas](https://www.ebi.ac.uk/gxa/sc) module for loading experiments to a Postgres 11 
 database. Release v0.4.0 was used for [the October 2022 data release of Singe Cell Expression 
 Atlas](https://www.ebi.ac.uk/gxa/sc/release-notes.html).
 
@@ -13,7 +13,7 @@ Atlas](https://www.ebi.ac.uk/gxa/sc/release-notes.html).
 ## Database schemas
 Schema definitions and migrations of the database used by Single Cell Expression Atlas are managed by Flyway. They are
 stored at https://github.com/ebi-gene-expression-group/atlas-schemas/tree/master/flyway/scxa. An example of how to
-initialise a Docker container with Flyaway is available in[the development environment of Single Cell Expression
+initialise a Docker container with Flyaway is available in [the development environment of Single Cell Expression
 Atlas](https://github.com/ebi-gene-expression-group/atlas-web-single-cell/blob/develop/docker/docker-compose-postgres.yml).
 
 ## `scxa_analytics` table
@@ -47,7 +47,7 @@ Run `bin/load_db_scxa_dimred.sh`. It requires the following environment variable
 | Variable name       | Description                                                                                                                                                                                                        |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `EXP_ID`            | Experiment accession                                                                                                                                                                                               |
-| `DIMRED_TYPE`       | The dimension reduction type, such as "umap" or "tsne"; the value is arbitrary and supplied by the user                                                                                                            |
+| `DIMRED_TYPE`       | The dimension reduction type, such as "UMAP" or "t-SNE"; the value is arbitrary and supplied by the user                                                                                                           |
 | `DIMRED_FILE_PATH`  | TSV file with the coordinates                                                                                                                                                                                      |
 | `DIMRED_PARAM_JSON` | Optional array of parameters with the parameters used by the dimension reduction method (e.g. perplexity is typical for t-SNE, thus `[{"perplexity": 20}]`)                                                        |
 | `dbConnection`      | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_coords` and `scxa_dimension_reduction` tables exist |
@@ -88,9 +88,9 @@ delete_db_scxa_cell_clusters.sh
 ```
 
 ## `scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats` tables
-The script that loads data into `scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats` reads the table 
-`scxa_cell_group`. Ensure you’ve run `load_db_scxa_cell_clusters.sh` as detailed above to successfully carry out ths 
-operation.
+The script used in this step reads the table `scxa_cell_group` in order to load data into 
+`scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats`. Ensure you’ve run 
+`load_db_scxa_cell_clusters.sh` as detailed above to successfully carry out this operation.
 
 ### Load data
 Run `bin/load_db_scxa_marker_genes.sh`. It requires the following environment variables:
@@ -151,7 +151,7 @@ dbConnection='postgresql://scxa:postgresPass@localhost:5432/scxa-test'
 On every run of the `run_tests_with_containers.sh` the container database will be deleted and re-created.
 
 ## How to test it v2 (only db in container)
-- Start an empty postgres 10 database through a container or any other mean:
+- Start an empty Postgres 11 database through a container or any other mean:
 
 ```bash
 docker run -e POSTGRES_PASSWORD=lasdjasd -e POSTGRES_USER=user -e POSTGRES_DB=scxa-test -p 5432:5432 -d postgres:10.3-alpine
