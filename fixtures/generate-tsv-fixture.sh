@@ -35,7 +35,7 @@ cut -f 5,6,7,8,9,10 ./scxa-marker-genes-and-scxa-marker-gene-stats.tsv \
 > scxa_cell_group_marker_gene_stats.tsv
 
 # scxa_cell_group_membership fixture: get memberships of 50 random cell IDs
-${SCRIPT_DIR}/03-scxa-cell-group-membership.sh ${CELL_GROUP_IDS} 50 \
+${SCRIPT_DIR}/03-scxa-cell-group-membership.sh ${CELL_GROUP_IDS} 50 1 \
 > scxa_cell_group_membership.tsv
 
 MARKER_GENE_IDS=$(join_lines "$(cut -f 2 scxa_cell_group_marker_genes.tsv | sort | uniq)" "'")
