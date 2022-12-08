@@ -164,7 +164,7 @@ export dbConnection=postgresql://user:lasdjasd@localhost:5432/scxa-test
 ```
 - Execute `bash tests/run_tests.sh`
 
-Tests are also automatically executed on Travis.
+Tests are automatically executed via [GitHub Actions](https://github.com/ebi-gene-expression-group/db-scxa/actions).
 
 ## Container
 The container is available for use at quay.io/ebigxa/db-scxa-module at latest or any of the tags after 0.2.0, so it could be used like this for example:
