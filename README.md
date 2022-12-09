@@ -1,11 +1,11 @@
 # Single Cell Expression Atlas database loading module (v1.0.0)
 
 A [Single Cell Expression Atlas](https://www.ebi.ac.uk/gxa/sc) module for loading experiments to a Postgres 11 
-database. Release v0.4.0 was used for [the October 2022 data release of Singe Cell Expression 
+database. Release v0.4.0 was used for [the October 2022 data release of Single Cell Expression 
 Atlas](https://www.ebi.ac.uk/gxa/sc/release-notes.html).
 
 ## Requirements
-- Rscript with `optparse`, `tidyr` and `data.table` (in Ubuntu and Debian-based distributions install packages 
+- Rscript >= 3.6.3 with `optparse`, `tidyr` and `data.table` (in Ubuntu and Debian-based distributions install packages 
   `r-cran-optparse` , `r-cran-tidyr` and `r-cran-data.table`)
 - PostgreSQL 11
 - Node v12+
@@ -71,7 +71,7 @@ Run `bin/load_db_scxa_cell_clusters.sh`. It requires the following environment v
 | Variable name              | Description                                                                                                                                                                                                              |
 |----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `EXP_ID`                   | Experiment accession                                                                                                                                                                                                     |
-| `EXPERIMENT_CLUSTERS_FILE` | Path to the file containing the clusters in wide format (as defined by iRAP SC)                                                                                                                                          |
+| `EXPERIMENT_CLUSTERS_FILE` | Path to the file `<EXP-ID>.clusters.tsv` containing the clusters in wide format                                                                                                                                          |
 | `CONDENSED_SDRF_TSV`       | Path to the condensed SDRF file of the experiment; it will be used to derive cell groups from the metadata, in addition to the clusters                                                                                  |
 | `dbConnection`             | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_cell_group` and `scxa_cell_group_membership` tables exist |
 
@@ -99,7 +99,7 @@ Run `bin/load_db_scxa_marker_genes.sh`. It requires the following environment va
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `EXP_ID`                 | Experiment accession                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `EXPERIMENT_MGENES_PATH` | Path of marker genes files for transforming and loading                                                                                                                                                                                                                                                                                                                                                                                       |
-| `CLUSTERS_FORMAT`        | `ISL` or `SCANPY`; default value is `ISL`                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `CLUSTERS_FORMAT`        | `ISL` or `SCANPY`;  `ISL` is deprecated                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `NUMBER_MGENES_FILES`    | Hints at whether there are marker genes files to load (zero or positive integer); this is optional. If the variable is set to zero the script will not fail even if no marker genes files are found. Currently the script only considers whether the variable is 0 (no marker genes files) or greater (there are that number of marker gene files). We can make the script fail if the (number of) expected marker gene files were not found. |
 | `dbConnection`           | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats` tables exist                                                                                                                                                                                                  |
 
@@ -169,7 +169,7 @@ export dbConnection=postgresql://user:lasdjasd@localhost:5432/scxa-test
 Tests are automatically executed via [GitHub Actions](https://github.com/ebi-gene-expression-group/db-scxa/actions).
 
 ## Container
-The container is available for use at quay.io/ebigxa/db-scxa-module at latest or any of the tags after 0.2.0, so it could be used like this for example:
+The container is available for use at quay.io/ebigxa/db-scxa-module at latest (recommended) or any of the tags after 0.2.0, so it could be used like this for example:
 
 ```bash
 docker run -v /local_data:/data \
