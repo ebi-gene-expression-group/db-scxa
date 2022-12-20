@@ -27,7 +27,7 @@ CELL_GROUP_IDS=$(join_lines "$(cut -f 1 ./scxa_cell_group.tsv)")
 ${SCRIPT_DIR}/02-scxa-cell-group-marker-genes-right-join-scxa-cell-group-marker-gene-stats.sh ${CELL_GROUP_IDS} \
 > ./scxa-marker-genes-and-scxa-marker-gene-stats.tsv
 
-# The same gene can appear with same probability with different stats, in differnet cell groups
+# The same gene can appear with same probability with different stats, in different cell groups
 cut -f 1,2,3,4 ./scxa-marker-genes-and-scxa-marker-gene-stats.tsv | sort | uniq \
 > scxa_cell_group_marker_genes.tsv
 
