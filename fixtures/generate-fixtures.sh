@@ -14,7 +14,7 @@
 # - scxa_dimension_reduction.sql
 # - scxa_coords.sql
 # - scxa_cell_group_membership.sql
-# - scxa_cell_croup_marker_genes.sql
+# - scxa_cell_group_marker_genes.sql
 # - scxa_cell_group_marker_gene_stats.sql
 # - scxa_cell_group.sql
 # A directory with the suffix -fixture (e.g. E-MTAB-5061-fixture) is created for each experiment accession passed as an
