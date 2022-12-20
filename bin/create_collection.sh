@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-# This script receives a collection identifier, name and description
-# and stores it in the
 set -e
 
-scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}

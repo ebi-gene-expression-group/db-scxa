@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export testsDir=$scriptDir
 export PATH=$scriptDir/../bin:$scriptDir/../tests:$PATH
 
-# flyway loding is done in run_tests_with_containers.sh
+# Flyway loading is done in run_tests_with_containers.sh
 
 create-test-matrix-market-files.R TEST-EXP1
 create-test-matrix-market-files.R TEST-EXP2
@@ -14,16 +14,16 @@ export SCRATCH_DIR=/tmp
 
 export EXPERIMENT_MATRICES_PATH=$PWD
 
-# For marker genes loading testing
+# To test marker genes loading
 export EXPERIMENT_MGENES_PATH=$testsDir/marker-genes
 
-# For tsne loading testing
+# To test t-SNE loading
 export EXPERIMENT_DIMRED_PATH=$testsDir/dimred
 
-# For cluster loading testing
+# To test cluster loading
 export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
 
-# For fixtures to be able to be writable.
+# Make /fixtures writable.
 cp -r /fixtures /tmp/fixtures
 chmod -R a+w /tmp/fixtures/experiment_files/expdesign 
 
