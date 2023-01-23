@@ -5,9 +5,7 @@
 # scxa_cell_group_membership table of AtlasProd.
 set -e
 
-# TODO this type of function should be loaded from a common set of scripts.
-
-scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}

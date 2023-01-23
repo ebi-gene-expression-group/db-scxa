@@ -11,7 +11,7 @@
 
 jar_dir=$CONDA_PREFIX/share/atlas-cli
 
-scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $scriptDir/common_routines.sh
 
 echo "CONDA_PREFIX: $CONDA_PREFIX"
