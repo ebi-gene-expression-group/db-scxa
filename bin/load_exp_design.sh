@@ -43,4 +43,4 @@ do
   echo "INSERT INTO exp_design (sample, annot_value, annot_ont_uri, exp_design_column_id) VALUES ('$sample', '$annot_value', '$annot_url', (SELECT id FROM exp_design_column WHERE experiment_accession='$exp_acc' AND column_name='$col_name' AND sample_type='$sample_type'));" | psql -v ON_ERROR_STOP=1 $dbConnection
 done < $condensed_sdrf_file
 
-echo "Experiment design data done loading!"
+echo "Experiment design data done loading for $condensed_sdrf_file"
