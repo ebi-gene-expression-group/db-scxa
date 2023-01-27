@@ -377,6 +377,15 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Exp_Design: Load exp_design data" {
+  export CONDENSED_SDRF_FILE=/tmp/fixtures/experiment_files/magetab/E-MTAB-2983/E-MTAB-2983.condensed-sdrf.tsv
+  export SDRF_FILE=/tmp/fixtures/experiment_files/magetab/E-MTAB-2983/E-MTAB-2983.sdrf.txt
+  run load_exp_design.sh
+
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
 @test "Collections: Create X" {
   export COLL_ID=MYCOLLX
   export COLL_NAME="My collection X"
