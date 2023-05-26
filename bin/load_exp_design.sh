@@ -17,15 +17,20 @@ sdrf_file=${SDRF_FILE:-$3}
 # Reason for creating this array is to search factor value column
 # In some sdrf files this column is mentioned as "Factor Value" and in some as "FactorValue"
 FactorArray=( FactorValue "Factor Value" )
-
+CharacteristicsArray=( Characteristics "Characteristics " )
 # for experiment design column table we need to have unique experiment accession, column name and sample type
 # as they are the primary key for the table and we don't want to insert duplicate rows
 cut -f 1,4,5 $condensed_sdrf_file | sort | uniq | while read exp_acc sample_type col_name;
 do
   if [ $sample_type == 'characteristic' ]
         then
-            search_column="Characteristics[${col_name}]"
-            column_order=$(awk -v val="$search_column" -F '\t' '{for (i=1; i<=NF; i++) if ($i==val) {print i} }' $sdrf_file)
+            for element in "${CharacteristicsArray[@]}"; do
+                search_column="$element[${col_name}]"
+                column_order=$(awk -v val="$search_column" -F '\t' '{for (i=1; i<=NF; i++) if ($i==val) {print i} }' $sdrf_file)
+                if [[ -n "${column_order}" ]]; then
+                    break
+                fi
+            done
         else
             for element in "${FactorArray[@]}"; do
                 search_column="$element[${col_name}]"
