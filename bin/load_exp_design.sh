@@ -16,7 +16,7 @@ sdrf_file=${SDRF_FILE:-$3}
 
 # Reason for creating this array is to search factor value column
 # In some sdrf files this column is mentioned as "Factor Value" and in some as "FactorValue"
-FactorArray=( FactorValue "Factor Value" )
+FactorArray=( FactorValue "Factor Value" "Factor Value " "FactorValue ")
 CharacteristicsArray=( Characteristics "Characteristics " )
 # for experiment design column table we need to have unique experiment accession, column name and sample type
 # as they are the primary key for the table and we don't want to insert duplicate rows
