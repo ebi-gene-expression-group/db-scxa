@@ -3,7 +3,6 @@
 set -e
 
 scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}
 COLL_ID=${COLL_ID:-$2}
