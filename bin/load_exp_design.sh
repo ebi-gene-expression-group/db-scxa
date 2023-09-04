@@ -3,6 +3,9 @@ set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
 source "${SCRIPT_DIR}/common_routines.sh"
 
+scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]:-$0}" )" && pwd )
+source $scriptDir/common_routines.sh
+
 # Alfonso is bothered about dbConnection, it shouldn’t be camelCased because:
 # 1. It’s a constant, it should be DB_CONNECTION
 # 2. We use snake_case for Bash variables
