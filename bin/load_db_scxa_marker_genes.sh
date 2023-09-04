@@ -6,7 +6,7 @@
 # scxa_cell_groups_marker_genes table of AtlasProd.
 set -e
 
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
 source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}
