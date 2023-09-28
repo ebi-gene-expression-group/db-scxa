@@ -23,9 +23,13 @@ export EXPERIMENT_DIMRED_PATH=$testsDir/dimred
 # To test cluster loading
 export EXPERIMENT_CLUSTERS_FILE=$testsDir/marker-genes/TEST-EXP1.clusters.tsv
 
-# Make /fixtures writable.
-cp -r /fixtures /tmp/fixtures
-chmod -R a+w /tmp/fixtures/experiment_files/expdesign 
+# Make /fixtures writable
+export BIOENTITIES=$testsDir
+export EXPERIMENT_FILES=$testsDir/experiment_files
+export EXPERIMENT_DESIGN_FILES=$SCRATCH_DIR
+
+#cp -r /fixtures /tmp/fixtures
+#chmod -R a+w /tmp/fixtures/experiment_files/expdesign
 
 
 if [ "$#" -eq 0 ]; then
