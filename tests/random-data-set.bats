@@ -374,8 +374,8 @@
 }
 
 @test "Exp_Design: Load exp_design data" {
-  export CONDENSED_SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-MTAB-2983/E-MTAB-2983.condensed-sdrf.tsv
-  export SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-MTAB-2983/E-MTAB-2983.sdrf.txt
+  export CONDENSED_SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-CURD-4/E-CURD-4.condensed-sdrf.tsv
+  export SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-CURD-4/E-CURD-4.sdrf.txt
   run load_exp_design.sh
 
   echo "output = ${output}"
