@@ -27,9 +27,9 @@ echo "BEGIN;" >> ${DESTINATION_FILE}
 # In the experiment design column table we use the experiment accession, column name and sample type as the primary key
 cut -f 1,4,5 "${CONDENSED_SDRF_FILE}" | sort | uniq | while read experiment_accession sample_type column_name; do
   if [ "$sample_type" == 'characteristic' ]; then
-    sdrf_column_index=$(awk -F '\t' -v pattern="^Characteristics ?\\\[${column_name}\\\]$" -f ./load_exp_design.awk ${SDRF_FILE})
+    sdrf_column_index=$(awk -F '\t' -v pattern="^Characteristics ?\\\[${column_name}\\\]$" -f ${SCRIPT_DIR}/load_exp_design.awk ${SDRF_FILE})
   else
-    sdrf_column_index=$(awk -F '\t' -v pattern="^Factor ?Value ?\\\[${column_name}\\\]$" -f ./load_exp_design.awk ${SDRF_FILE})
+    sdrf_column_index=$(awk -F '\t' -v pattern="^Factor ?Value ?\\\[${column_name}\\\]$" -f ${SCRIPT_DIR}/load_exp_design.awk ${SDRF_FILE})
   fi
   sql_statement="INSERT INTO exp_design_column (experiment_accession, sample_type, column_name, column_order) VALUES ('${experiment_accession}', '${sample_type}', '${column_name}', '${sdrf_column_index}');"
   echo "${sql_statement}" >> ${DESTINATION_FILE}
