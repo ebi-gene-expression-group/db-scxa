@@ -17,7 +17,7 @@ require_env_var "SDRF_FILE"
 checkDatabaseConnection "${dbConnection}"
 
 EXPERIMENT_ACCESSION=$(head -1 "${CONDENSED_SDRF_FILE}" | cut -f 1)
-DESTINATION_FILE=${SCRIPT_DIR}/${EXPERIMENT_ACCESSION}-exp-design.sql
+DESTINATION_FILE=${SCRATCH_DIR:-${SCRIPT_DIR}}/${EXPERIMENT_ACCESSION}-exp-design.sql
 # Remove DESTINATION_FILE if it exists
 rm -f ${DESTINATION_FILE}
 
