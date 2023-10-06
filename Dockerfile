@@ -1,4 +1,4 @@
-FROM quay.io/ebigxa/atlas-db-scxa-base:0.1.2
+FROM quay.io/ebigxa/atlas-db-scxa-base:0.15.0.0
 # debian
 
 ADD bin/* /usr/local/bin/
