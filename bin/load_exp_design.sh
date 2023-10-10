@@ -2,7 +2,7 @@
 
 set -e
 
-scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]:-$0}" )" && pwd )
 source $scriptDir/db_scxa_common.sh
 
 dbConnection=${dbConnection:-$1}
