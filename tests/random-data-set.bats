@@ -23,10 +23,38 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Loading: E-MTAB-2983 through cli" {
+@test "Loading: E-CURD-4 through CLI" {
+  export ACCESSIONS=E-CURD-4
+
+  run load_experiment_web_cli.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: Check that E-CURD-4 was loaded" {
+  export EXP_ID=E-CURD-4
+  export FIELDS=species
+  species=$(get_experiment_info.sh)
+  run [ "$species" == "Arabidopsis thaliana" ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: Update experiment design of E-CURD-4 after deleting file" {
+  export ACCESSIONS=E-CURD-4
+
+  expDesignFile=$EXPERIMENT_DESIGN_FILES/ExpDesign-${ACCESSIONS}.tsv
+  rm -rf $expDesignFile
+
+  run update_experiment_web_cli.sh
+
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  [ -f $expDesignFile ]
+}
+
+@test "Loading: E-MTAB-2983 through CLI" {
   export ACCESSIONS=E-MTAB-2983
-  export BIOENTITIES=/tmp/fixtures/
-  export EXPERIMENT_FILES=/tmp/fixtures/experiment_files
 
   run load_experiment_web_cli.sh
   echo "output = ${output}"
@@ -42,12 +70,10 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Loading: Update experiment design for E-MTAB-2983 after deleting expDesign file" {
+@test "Loading: Update experiment design of E-MTAB-2983 after deleting file" {
   export ACCESSIONS=E-MTAB-2983
-  export BIOENTITIES=/tmp/fixtures/
-  export EXPERIMENT_FILES=/tmp/fixtures/experiment_files
 
-  expDesignFile=$EXPERIMENT_FILES/expdesign/ExpDesign-${ACCESSIONS}.tsv
+  expDesignFile=$EXPERIMENT_DESIGN_FILES/ExpDesign-${ACCESSIONS}.tsv
   rm -rf $expDesignFile
 
   run update_experiment_web_cli.sh
@@ -377,9 +403,18 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Exp_Design: Load exp_design data" {
-  export CONDENSED_SDRF_FILE=/tmp/fixtures/experiment_files/magetab/E-MTAB-2983/E-MTAB-2983.condensed-sdrf.tsv
-  export SDRF_FILE=/tmp/fixtures/experiment_files/magetab/E-MTAB-2983/E-MTAB-2983.sdrf.txt
+@test "Exp_Design: Load exp_design data E-CURD-4" {
+  export CONDENSED_SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-CURD-4/E-CURD-4.condensed-sdrf.tsv
+  export SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-CURD-4/E-CURD-4.sdrf.txt
+  run load_exp_design.sh
+
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Exp_Design: Load exp_design data E-MTAB-2983" {
+  export CONDENSED_SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-MTAB-2983/E-MTAB-2983.condensed-sdrf.tsv
+  export SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-MTAB-2983/E-MTAB-2983.sdrf.txt
   run load_exp_design.sh
 
   echo "output = ${output}"
