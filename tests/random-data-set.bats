@@ -53,6 +53,36 @@
   [ -f $expDesignFile ]
 }
 
+@test "Loading: E-MTAB-2983 through CLI" {
+  export ACCESSIONS=E-MTAB-2983
+
+  run load_experiment_web_cli.sh
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: Check that E-MTAB-2983 was loaded" {
+  export EXP_ID=E-MTAB-2983
+  export FIELDS=species
+  species=$(get_experiment_info.sh)
+  run [ "$species" == "Homos sapiens" ]
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Loading: Update experiment design of E-MTAB-2983 after deleting file" {
+  export ACCESSIONS=E-MTAB-2983
+
+  expDesignFile=$EXPERIMENT_DESIGN_FILES/ExpDesign-${ACCESSIONS}.tsv
+  rm -rf $expDesignFile
+
+  run update_experiment_web_cli.sh
+
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+  [ -f $expDesignFile ]
+}
+
 @test "Analytics: Delete experiment data-set-1" {
   export EXP_ID=TEST-EXP1
   run delete_db_scxa_analytics.sh
@@ -373,9 +403,18 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Exp_Design: Load exp_design data" {
+@test "Exp_Design: Load exp_design data E-CURD-4" {
   export CONDENSED_SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-CURD-4/E-CURD-4.condensed-sdrf.tsv
   export SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-CURD-4/E-CURD-4.sdrf.txt
+  run load_exp_design.sh
+
+  echo "output = ${output}"
+  [ "$status" -eq 0 ]
+}
+
+@test "Exp_Design: Load exp_design data E-MTAB-2983" {
+  export CONDENSED_SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-MTAB-2983/E-MTAB-2983.condensed-sdrf.tsv
+  export SDRF_FILE=${EXPERIMENT_FILES}/magetab/E-MTAB-2983/E-MTAB-2983.sdrf.txt
   run load_exp_design.sh
 
   echo "output = ${output}"
