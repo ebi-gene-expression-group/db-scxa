@@ -65,7 +65,7 @@
   export EXP_ID=E-MTAB-2983
   export FIELDS=species
   species=$(get_experiment_info.sh)
-  run [ "$species" == "Homos sapiens" ]
+  run [ "$species" == "Homo sapiens" ]
   echo "output = ${output}"
   [ "$status" -eq 0 ]
 }
