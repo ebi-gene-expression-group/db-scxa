@@ -5,7 +5,7 @@
 # scxa_cell_group_membership table of AtlasProd.
 set -e
 
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
 source $scriptDir/common_routines.sh
 
 dbConnection=${dbConnection:-$1}

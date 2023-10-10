@@ -10,7 +10,7 @@
 # We choose 100 genes that are expressed in those cells via analytics table
 
 set -e
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )"
 
 source ${SCRIPT_DIR}/utils.sh
 

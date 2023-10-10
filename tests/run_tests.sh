@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
 export testsDir=$scriptDir
 export PATH=$scriptDir/../bin:$scriptDir/../tests:$PATH
 
@@ -33,7 +33,7 @@ export EXPERIMENT_DESIGN_FILES=$SCRATCH_DIR
 
 
 if [ "$#" -eq 0 ]; then
-	bats --tap "$(dirname "${BASH_SOURCE[0]}")"
+	bats --tap "$(dirname "${BASH_SOURCE[0]:-$0}")"
 else
 	bats random-data-set.bats
 fi

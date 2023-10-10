@@ -2,7 +2,7 @@
 
 set -e
 
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
 
 postgres_scripts_dir=$scriptDir/../postgres_routines
 
