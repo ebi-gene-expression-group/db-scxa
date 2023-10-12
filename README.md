@@ -1,4 +1,4 @@
-# Single Cell Expression Atlas database loading module (v1.0.0)
+# Single Cell Expression Atlas database loading module (v2.0.0)
 
 A [Single Cell Expression Atlas](https://www.ebi.ac.uk/gxa/sc) module for loading experiments to a Postgres 11 
 database. Release v0.4.0 was used for [the October 2022 data release of Single Cell Expression 
@@ -63,7 +63,7 @@ export dbConnection=...
 delete_db_scxa_dimred.sh
 ```
 
-## `scxa_cell_group` and `scxa_cell_group_membership` table
+## `scxa_cell_group` and `scxa_cell_group_membership` tables
 
 ### Load data
 Run `bin/load_db_scxa_cell_clusters.sh`. It requires the following environment variables:
@@ -115,6 +115,25 @@ export EXP_ID=...
 export dbConnection=...
 
 delete_db_scxa_marker_genes.sh
+```
+
+## `exp_design` and `exp_design_column` tables
+
+### Load data
+Run `bin/load_exp_design.sh`. It requires the following environment variables:
+
+| Variable name         | Description                                                                                                                                                                                                                                  |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `CONDENSED_SDRF_FILE` | Path of the condensed SDRF file of the experiment being loaded                                                                                                                                                                               |
+| `SDRF_FILE`           | Path of the SDRF file of the experiment being loaded                                                                                                                                                                                      |
+| `dbConnection`        | A Postgres connection string in the form `postgresql://{user}:{password}@{host:port}/{databaseName}` pointing to a Postgres 11 server where the expected `scxa_cell_group_marker_genes` and `scxa_cell_group_marker_gene_stats` tables exist |
+
+### Delete data
+Currently, there’s no script to delete data from these tables. You can do it manually with the following SQL statements:
+
+```sql
+DELETE FROM exp_design WHERE exp_design_column_id IN (SELECT id FROM exp_design_column WHERE experiment_accession='E-FOO-123');
+DELETE FROM exp_design_column WHERE experiment_accession='E-FOO-123';
 ```
 
 ## Post-loading a batch of experiments
