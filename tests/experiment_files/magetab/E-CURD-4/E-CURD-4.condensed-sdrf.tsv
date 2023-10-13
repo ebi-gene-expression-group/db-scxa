@@ -1,0 +1,123 @@
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	age	5 day	
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	age	5 day
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	age	5 day
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	age	5 day
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	age	5 day
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	age	7 day
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	age	7 day
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	age	7 day
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	age	7 day
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	age	7 day
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	cell type	protoplast	http://purl.obolibrary.org/obo/CL_0000371
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	developmental stage	seedling	http://purl.obolibrary.org/obo/PO_0007131
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	ecotype	Col-0	http://www.ebi.ac.uk/efo/EFO_0005148
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	genotype	wild type genotype
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	growth condition	long day length regimen	http://purl.obolibrary.org/obo/EO_0007199
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	organism	Arabidopsis thaliana	http://purl.obolibrary.org/obo/NCBITaxon_3702
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	organism part	root	http://purl.obolibrary.org/obo/PO_0009005
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	single cell quality	OK
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	single cell quality	OK
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	single cell quality	OK
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	single cell quality	OK
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	single cell quality	OK
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	single cell quality	OK
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	single cell quality	OK
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	single cell quality	OK
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	single cell quality	OK
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	single cell quality	OK
+E-CURD-4		SRR8206654-CATTCAACCAAG	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206660-CCCTACCGTAGA	characteristic	stimulus	none	http://www.ebi.ac.uk/efo/EFO_0001461
+E-CURD-4		SRR8206654-TGGAATTTACGA	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-TCCAATAGTGAT	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-ATCCGATATGCA	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-GTGGCTCATTTG	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-GCCCCTTTATTT	characteristic	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206654-CATTCAACCAAG	factor	age	5 day
+E-CURD-4		SRR8206660-CCCTACCGTAGA	factor	age	5 day
+E-CURD-4		SRR8206654-TGGAATTTACGA	factor	age	5 day
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	factor	age	5 day
+E-CURD-4		SRR8206656-TCCAATAGTGAT	factor	age	7 day
+E-CURD-4		SRR8206656-ATCCGATATGCA	factor	age	7 day
+E-CURD-4		SRR8206656-GTGGCTCATTTG	factor	age	7 day
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	factor	age	7 day
+E-CURD-4		SRR8206656-GCCCCTTTATTT	factor	age	7 day
+E-CURD-4		SRR8206654-CATTCAACCAAG	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206660-CCCTACCGTAGA	factor	stimulus	none	http://www.ebi.ac.uk/efo/EFO_0001461
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206654-ACGCTAGGGTTA	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-TCCAATAGTGAT	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-ATCCGATATGCA	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-GTGGCTCATTTG	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-TTTGTCGTGTGC	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206656-GCCCCTTTATTT	factor	stimulus	sucrose	http://purl.obolibrary.org/obo/CHEBI_17992
+E-CURD-4		SRR8206654-CATTCAACCAAG	factor	inferred cell type - authors labels	columella root cap cell 6	http://purl.obolibrary.org/obo/PO_0020132
+E-CURD-4		SRR8206660-CCCTACCGTAGA	factor	inferred cell type - authors labels	root endodermis 12	http://purl.obolibrary.org/obo/PO_0005059
+E-CURD-4		SRR8206654-TGGAATTTACGA	factor	inferred cell type - authors labels	columella root cap cell 5	http://purl.obolibrary.org/obo/PO_0020132
+E-CURD-4		SRR8206654-CCCGCCAGGTAG	factor	inferred cell type - authors labels	non-hair root epidermal cell 2	http://purl.obolibrary.org/obo/PO_0000263
+E-CURD-4		SRR8206656-GCCCCTTTATTT	factor	inferred cell type - authors labels	trichoblast 17	http://purl.obolibrary.org/obo/PO_0000262

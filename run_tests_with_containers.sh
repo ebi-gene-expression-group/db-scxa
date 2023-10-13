@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-export SOLR_HOST=my_solr:8983
-export ZK_HOST=gxa-zk-1
-export ZK_PORT=2181
 export POSTGRES_HOST=postgres
 export POSTGRES_DB=scxa-test
 export POSTGRES_USER=scxa
@@ -21,17 +18,17 @@ docker stop postgres && docker rm postgres
 docker network rm mynet
 docker network create mynet
 
-echo "Start ZK"
-docker run --rm --net mynet --name $ZK_HOST -d -p $ZK_PORT:$ZK_PORT -e ZOO_MY_ID=1 -e ZOO_SERVERS='server.1=0.0.0.0:2888:3888' -t zookeeper:3.5.8
+echo "Start ZooKeeper"
+docker run --rm --net mynet -d -p 2181:2181 -e ZOO_MY_ID=1 -e ZOO_SERVERS='server.1=0.0.0.0:2888:3888' -t zookeeper:3.8
 echo "Start Solr"
-docker run --rm --net mynet --name my_solr -d -p 8983:8983 -e ZK_HOST=$ZK_HOST:$ZK_PORT -t solr:7.7.1-alpine -DzkRun -Denable.runtime.lib=true -m 2g
+docker run --rm --net mynet -d -p 8983:8983 -t solr:8-slim -DzkRun -Denable.runtime.lib=true -m 2g
 
-echo "Start postgresql"
+echo "Start PostgreSQL"
 docker run --rm --name postgres --net mynet \
   -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
   -e POSTGRES_USER=$POSTGRES_USER \
   -e POSTGRES_DB=$POSTGRES_DB \
-  -p $POSTGRES_PORT:$POSTGRES_PORT -d postgres:10-alpine3.15
+  -p $POSTGRES_PORT:$POSTGRES_PORT -d postgres:11-alpine3.17
 
 sleep 20
 
@@ -49,8 +46,6 @@ docker run --net mynet -i $docker_arch_line \
   -v $( pwd )/tests:/usr/local/tests:rw \
   -v $( pwd )/atlas-schemas:/atlas-schemas:rw \
   -v $( pwd )/bin:/usr/local/bin:rw \
-  -v $( pwd )/fixtures:/fixtures:rw \
-  -e SOLR_HOST=$SOLR_HOST -e ZK_HOST=$ZK_HOST -e ZK_PORT=$ZK_PORT \
   -e POSTGRES_USER=$POSTGRES_USER \
   -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
   -e jdbc_username=$POSTGRES_USER \

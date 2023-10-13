@@ -1,26 +1,24 @@
 #!/usr/bin/env bash
 # 
 # This script:
-# - Checks if the experiment is loaded and stops it is already loaded.
-# - Adds the appropiate line to the experiments table if it doesn't exist.
-# - Generates the experiment design file from condensed SDRF and SDRF files in $EXPERIMENT_FILES/expdesign
+# - Checks if the experiment is loaded and stops if it is already loaded.
+# - Adds the appropriate line to the experiments table if it doesn't exist.
+# - Generates the experiment design file from condensed SDRF and SDRF files in $EXPERIMENT_DESIGN_FILES
 #
 # Most of the variables required for this are usually defined in the environment file for each setup (test, prod, etc).
-# The experiment designs file might need to be synced to an appropiate location at the web application instance disk
+# The experiment designs file might need to be synced to an appropriate location at the web application instance disk
 # depending on how the setup disk layout.
 
 jar_dir=$CONDA_PREFIX/share/atlas-cli
 
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
 source $scriptDir/common_routines.sh
 
 echo "CONDA_PREFIX: $CONDA_PREFIX"
 
-require_env_var "SOLR_HOST"
-require_env_var "ZK_HOST"
-require_env_var "ZK_PORT"
 require_env_var "BIOENTITIES"
 require_env_var "EXPERIMENT_FILES"
+require_env_var "EXPERIMENT_DESIGN_FILES"
 require_env_var "jdbc_url"
 require_env_var "jdbc_username"
 require_env_var "jdbc_password"
@@ -28,17 +26,9 @@ require_env_var "jdbc_password"
 # Either ACCESSIONS or PRIVATE_ACCESSIONS need to be provided
 #require_env_var "ACCESSIONS"
 
-SOLR_PORT=$(get_port_from_hostport $SOLR_HOST)
-SOLR_HOST=$(get_host_from_hostport $SOLR_HOST)
-
-require_env_var "SOLR_PORT"
-
-java_opts="-Dsolr.host=$SOLR_HOST"
-java_opts="$java_opts -Dsolr.port=$SOLR_PORT"
-java_opts="$java_opts -Dzk.host=$ZK_HOST"
-java_opts="$java_opts -Dzk.port=$ZK_PORT"
 java_opts="$java_opts -Ddata.files.location=$BIOENTITIES"
 java_opts="$java_opts -Dexperiment.files.location=$EXPERIMENT_FILES"
+java_opts="$java_opts -Dexperiment.design.location=$EXPERIMENT_DESIGN_FILES"
 java_opts="$java_opts -Djdbc.url=$jdbc_url"
 java_opts="$java_opts -Djdbc.username=$jdbc_username"
 java_opts="$java_opts -Djdbc.password=$jdbc_password"
