@@ -13,7 +13,7 @@ EXP_ID=${EXP_ID:-$2}
 DIMRED_TYPE=${DIMRED_TYPE:-$3}
 DIMRED_FILE_PATH=${DIMRED_FILE_PATH:-$4}
 DIMRED_PARAM_JSON=${DIMRED_PARAM_JSON:-$5}
-SCRATCH_DIR=${SCRATCH_DIR:-"$DIMRED_FILE_PATH"}
+SCRATCH_DIR=${SCRATCH_DIR:-"$(dirname ${DIMRED_FILE_PATH})"}
 
 # Check that necessary environment variables are defined.
 [ -n ${dbConnection+x} ] || (echo "Env var dbConnection for the database connection needs to be defined. This includes the database name." && exit 1)
