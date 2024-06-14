@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
-scriptDir=$(cd "$( dirname "${BASH_SOURCE[0]:-$0}" )" && pwd )
+
+scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
 source $scriptDir/common_routines.sh
 
 # Alfonso is bothered about dbConnection, it shouldn’t be camelCased because:
