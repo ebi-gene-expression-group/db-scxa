@@ -5,8 +5,8 @@
 # parameterisations, and loads it into the scxa_coords table of AtlasProd.
 set -e
 
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
-source $scriptDir/common_routines.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
+source "${SCRIPT_DIR}/common_routines.sh"
 
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
