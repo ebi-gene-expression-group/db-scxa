@@ -12,10 +12,10 @@
 # - Postprocess table and attach it to the main scxa-analytics table.
 set -e
 
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
-source $scriptDir/common_routines.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}" )" &> /dev/null && pwd )
+source "${SCRIPT_DIR}/common_routines.sh"
 
-postgres_scripts_dir=$scriptDir/../postgres_routines
+postgres_scripts_dir="${SCRIPT_DIR}/../postgres_routines"
 
 dbConnection=${dbConnection:-$1}
 EXP_ID=${EXP_ID:-$2}
