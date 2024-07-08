@@ -137,7 +137,7 @@ if [[ -z ${NUMBER_MGENES_FILES+x} || $NUMBER_MGENES_FILES -gt 0 ]]; then
   done
 
   # Sort and join with the groups file to add the auto-incremented key from the groups table
-  cat ${groupMarkerGenesToLoad}.tmp |  sort -t'|' -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted && rm -f ${groupMarkerGenesToLoad}.tmp
+  cat ${groupMarkerGenesToLoad}.tmp |  sort -t'|' -k 1,1 > ${groupMarkerGenesToLoad}.tmp.sorted # && rm -f ${groupMarkerGenesToLoad}.tmp
 
   join -t '|' $groupIds ${groupMarkerGenesToLoad}.tmp.sorted | awk -F'|' 'BEGIN { OFS = "|"; } {print $3,$2,$4}' > ${groupMarkerGenesToLoad}
 
