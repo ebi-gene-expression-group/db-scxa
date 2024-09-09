@@ -1,0 +1,8 @@
+/*
+  This script performs a group of post-load tasks:
+    - cluster the partition tables on primary key (optional) -> blocking op
+    - collect statistics on the partition tables (mandatory)
+*/
+
+CLUSTER scxa_analytics_<EXP-ACCESSION> USING scxa_analytics_<EXP-ACCESSION>_pk;
+ANALYZE scxa_analytics_<EXP-ACCESSION>;
