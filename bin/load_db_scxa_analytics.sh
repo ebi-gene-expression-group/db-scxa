@@ -66,7 +66,12 @@ time sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/04-build_pk.sql
     psql -v ON_ERROR_STOP=1 $dbConnection
 
 # Post-process partition table
-sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/05-post_processing.sql.template | \
+sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/05-01-post_processing.sql.template | \
+    sed "s/<EXP-ACC-UC>/$EXP_ID/g" | \
+    psql -v ON_ERROR_STOP=1 $dbConnection
+
+# Post-process partition table
+sed "s/<EXP-ACCESSION>/$lc_exp_acc/g" $postgres_scripts_dir/05-02-post_processing.sql.template | \
     sed "s/<EXP-ACC-UC>/$EXP_ID/g" | \
     psql -v ON_ERROR_STOP=1 $dbConnection
 
