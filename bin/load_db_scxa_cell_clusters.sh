@@ -39,7 +39,7 @@ cleanup() {
 cleanup
 
 print_log "Clusters: Create data file for $EXP_ID..."
-wideSCCluster2longSCCluster.R -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $clustersToLoad
+wideSCCluster2longSCCluster.py -c $EXPERIMENT_CLUSTERS_FILE -e $EXP_ID -o $clustersToLoad
 
 # Delete clusters table content for current EXP_ID
 print_log "clusters table: Delete rows for $EXP_ID:"
