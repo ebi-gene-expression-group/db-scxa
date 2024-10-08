@@ -4,6 +4,5 @@
     - add a check constraint on the partition value (mandatory)
 */
 
-alter table scxa_analytics_<EXP-ACCESSION> SET (autovacuum_enabled = true, toast.autovacuum_enabled = true);
-alter table scxa_analytics_<EXP-ACCESSION> add constraint check_e_ebi_<EXP-ACCESSION> check (experiment_accession='<EXP-ACC-UC>');
+alter table scxa_analytics_<EXP-ACCESSION> SET (autovacuum_enabled = true, toast.autovacuum_enabled = true) add constraint check_e_ebi_<EXP-ACCESSION> check (experiment_accession='<EXP-ACC-UC>');
 RESET maintenance_work_mem ;
