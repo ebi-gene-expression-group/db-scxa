@@ -37,6 +37,9 @@ rm -f $SCRATCH_DIR/dimredDataToLoad.csv
 # Insert a new row into the dimension reductions table
 echo "INSERT INTO scxa_dimension_reduction (experiment_accession, method, parameterisation) VALUES ('$EXP_ID', '$DIMRED_TYPE', '$DIMRED_PARAM_JSON');" | psql -v ON_ERROR_STOP=1 $dbConnection
 drid=$(echo "SELECT id FROM scxa_dimension_reduction WHERE experiment_accession = '$EXP_ID' AND method = '$DIMRED_TYPE' AND parameterisation = '$DIMRED_PARAM_JSON';" | psql -qtAX -v ON_ERROR_STOP=1 $dbConnection)
+# we should fill 'priority' here too
+
+# bonus if we check there is only one non-zero value in the table
 
 # Transform the TSV coords into the DB table structure
 tail -n +2 $DIMRED_FILE_PATH | awk -F'\t' -v drid="$drid" 'BEGIN { OFS = ","; }
